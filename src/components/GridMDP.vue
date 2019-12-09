@@ -1,12 +1,15 @@
 <template>
 	<div>
-		<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="row">
-			<div v-bind:key="y" v-for="(tile, y) in col" class="col">
-				<GridMDPTile :ref="'' + x + y" v-bind:initTile="tile" class="tile"/>
+		<div v-if="mdp">
+			<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="row">
+				<div v-bind:key="y" v-for="(tile, y) in col" class="col">
+					<GridMDPTile :ref="'' + x + '-' + y" v-bind:initTile="tile" @edit-tile="setEdit" class="tile"/>
+				</div>
 			</div>
+			<p>{{editID}}</p>
 		</div>
-		<p>{{mdp}}</p>
 		<button v-on:click="iter()">next</button>
+		<button v-on:click="generate()">go</button>
 	</div>
 </template>
 
@@ -18,17 +21,39 @@ export default {
 	name: "GridMDP",
 	components : {GridMDPTile},
 	data() {return {
-		mdp: gmdp([
-			[0, 0, 0, 1],
-			[0, null, 0, -1],
-			[0, 0, 0, 0]
-		])
+		mdp: null,
+		editID: "NoEdit"
 	}},
 	methods: {
 		iter() {
 			this.mdp.iteration();
+			this.redraw();
+		},
+
+		redraw() {
 			for(let ref in this.$refs)
 				this.$refs[ref][0].redraw();
+		},
+
+		generate() {
+			if (this.mdp !== null) {
+				this.mdp.reset();
+				this.redraw();
+			} else {
+				this.mdp = gmdp([
+					[0, 0, 0, 0, 0, 0, -1, 0],
+					[0, null, null, 0, null, 1, 0, 0],
+					[0, 0, 0, 0, 0, 0, 0, 0],
+					[0, null, null, 0, null, 0, 0, 0],
+					[0, 0, null, 0, null, null, null, null],
+					[null, 0, null, 0, 0, 0, 0, 0],
+					[0, 0, null, 0, 0, null, 0, 1]
+				]);
+			}
+		},
+
+		setEdit(tileID) {
+			this.editID = tileID;
 		}
 	}
 }
@@ -47,6 +72,5 @@ export default {
 
 	.tile {
 		display: inline-block;
-		margin: 1px;
 	}
 </style>

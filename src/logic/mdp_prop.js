@@ -16,7 +16,7 @@ class GridMDP {
 		for (let x=0; x<level.length; x++) {
 			this.tiles[x] = [];
 			for (let y=0; y<level[x].length; y++) {
-				this.tiles[x][y] = new MDPTile(x, y, level[x][y])
+				this.tiles[x][y] = new MDPTile(x, y, level[x][y], false, this.accessible(x, y))
 			}
 		}
 
@@ -84,6 +84,14 @@ class GridMDP {
 			}
 		}
 	}
+
+	reset() {
+		for (let x=0; x<this.tiles.length; x++) {
+			for (let y=0; y<this.tiles[x].length; y++) {
+				this.tiles[x][y].reset();
+			}
+		}
+	}
 	
 	accessible(x, y) {
 		if (0 <= x && x < this.level.length && 0 <= y && y < this.level[0].length)
@@ -117,14 +125,21 @@ class GridMDP {
 }
 
 class MDPTile {
-	constructor(x, y, reward=0, terminal=false) {
+	constructor(x, y, reward=0, terminal=false, accessible=true) {
 		this.x = x;
 		this.y = y;
 		this.reward = reward;
 		this.terminal = terminal;
+		this.accessible = accessible;
 
 		this.qMemory = [0];
 		this.actions = [];
+	}
+
+	reset() {
+		this.qMemory = [0];
+		for(let i=0; i<this.actions.length; i++)
+			this.actions[i].reset();
 	}
 
 	addAction(action) {
@@ -195,6 +210,10 @@ class Action {
 
 	getQValue(iteration=this.qMemory.length-1) {
 		return this.qMemory[iteration];
+	}
+
+	reset() {
+		this.qMemory = [0];
 	}
 }
 
