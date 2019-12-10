@@ -6,7 +6,7 @@
 					<GridMDPTile :ref="'' + x + '-' + y" v-bind:initTile="tile" @edit-tile="setEdit" class="tile"/>
 				</div>
 			</div>
-			<p>{{editID}}</p>
+			<TileEditor v-if="editID" ref="editor"/>
 		</div>
 		<button v-on:click="iter()">next</button>
 		<button v-on:click="generate()">go</button>
@@ -15,14 +15,15 @@
 
 <script>
 import GridMDPTile from './GridMDPTile.vue';
+import TileEditor from './TileEditor.vue'
 import {gmdp} from '../logic/mdp_prop.js';
 
 export default {
 	name: "GridMDP",
-	components : {GridMDPTile},
+	components : {GridMDPTile, TileEditor},
 	data() {return {
 		mdp: null,
-		editID: "NoEdit"
+		editID: null
 	}},
 	methods: {
 		iter() {
@@ -54,6 +55,8 @@ export default {
 
 		setEdit(tileID) {
 			this.editID = tileID;
+			let indexes = this.editID.split("-");
+			this.$refs["editor"].tile = this.mdp.tiles[parseInt(indexes[0])][parseInt(indexes[1])];
 		}
 	}
 }
