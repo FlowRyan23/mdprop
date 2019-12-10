@@ -35,9 +35,9 @@ export default {
 		},
 
 		color() {
-			let hue = (120 * (1 + this.tile.getQValue()) / 2);
+			let hue = ((0 + 120 * 1) * (1 + this.tile.getQValue()) / 2);
 			let sat = 75 * Math.abs(this.tile.getQValue());
-			let bri = 10 + 40 * Math.abs(this.tile.getQValue());
+			let bri = 15 + 40 * Math.abs(this.tile.getQValue());
 			if (!this.tile.accessible)
 				bri = 5;
 
