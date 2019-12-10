@@ -25,7 +25,15 @@ export default {
 			if (this.tile.accessible) {
 				drawContext.fillStyle = "white";
 				drawContext.font = "30px Arial";
-				drawContext.fillText(this.tile, 10, 50);
+				drawContext.textAlign = "center";
+				drawContext.fillText(this.tile, 100/2, (75 + 20)/2);
+			
+				if (this.tile.terminal) {
+					drawContext.beginPath();
+					let padding = 5;
+					drawContext.rect(padding, padding, 100 - 2 * padding, 75 - 2 * padding);
+					drawContext.stroke();
+				}
 			}
 		}
 	},

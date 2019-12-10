@@ -2,8 +2,6 @@ function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9) {
 	return new GridMDP(level, stepChances, discount);
 }
 
-export {gmdp};
-
 class GridMDP {
 	constructor(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9) {
 		this.level = level;
@@ -75,7 +73,7 @@ class GridMDP {
 	
 	accessible(x, y) {
 		if (this.inBounds(x, y))
-			return this.level[x][y].accessible;
+			return this.tiles[x][y].accessible;
 		else return false;
 	}
 
@@ -135,6 +133,8 @@ class MDPTile {
 	}
 
 	recalculate(discount, useNewest=false) {
+		if (!this.accessible) return 0;
+
 		if (this.terminal) {
 			this.qMemory.push(0);
 			return this.reward;
@@ -153,7 +153,13 @@ class MDPTile {
 	}
 
 	getQValue(iteration=this.qMemory.length-1) {
-		return this.reward + this.qMemory[iteration];
+		if (!this.accessible) return 0;
+
+		if (iteration > this.qMemory.length -1) {
+			return this.reward + this.qMemory[this.qMemory.length - 1];
+		} else {
+			return this.reward + this.qMemory[iteration];
+		}
 	}
 
 	toString() {
@@ -190,23 +196,37 @@ class Action {
 		// discounted weighted sum of reward by chance
 		let qValue = 0;
 		let chance = 0;
-		for(let res in this.results) {
+		for(let i=0; i<this.results.length; i++) {
+			let res = this.results[i];
 			chance += res.chance;
-			if (!res.node.accessible)
-				qValue += res.chance * (this.reward - res.cost + this.defaultResult.node.getQValue());
-			else if (useNewest)
-				qValue += res.chance * (this.reward - res.cost + res.node.getQValue());
-			else
-				qValue += res.chance * (this.reward - res.cost + res.node.getQValue(this.qMemory.length - 1));
+			if (!res.node.accessible) {
+				qValue += discount * res.chance * (this.reward - res.cost + this.defaultResult.node.getQValue(this.qMemory.length - 1));
+			} else if (useNewest) {
+				qValue += discount * res.chance * (this.reward - res.cost + res.node.getQValue());
+			} else {
+				qValue += discount * res.chance * (this.reward - res.cost + res.node.getQValue(this.qMemory.length - 1));
+			}
 		}
 
-		qValue += 1 - chance * (this.reward - this.defaultResult.cost + this.defaultResult.node.getQValue());
+		/*
+		if (chance < 1) {
+			console.log("" + this.defaultResult.node.x + "-" + this.defaultResult.node.y + ": " + (1-chance).toFixed(2));
+			console.log(qValue);
+			console.log((1 - chance) * (this.reward - this.defaultResult.cost + this.defaultResult.node.getQValue()) + "\n")
+		}
+		*/
+
+		qValue += discount * (1 - chance) * (this.reward - this.defaultResult.cost + this.defaultResult.node.getQValue(this.qMemory.length -1));
 		this.qMemory.push(qValue);
 		return qValue;
 	}
 
 	getQValue(iteration=this.qMemory.length-1) {
-		return this.qMemory[iteration];
+		if (iteration > this.qMemory.length -1) {
+			return this.reward + this.qMemory[this.qMemory.length - 1];
+		} else {
+			return this.reward + this.qMemory[iteration];
+		}
 	}
 
 	reset() {
@@ -225,6 +245,8 @@ class Result {
 		this.cost = cost;		// the step cost for moving to the target node
 	}
 }
+
+export {gmdp};
 
 /*
 let mdp = gmdp([

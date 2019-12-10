@@ -1,37 +1,31 @@
 <template>
-  <div id="app">
-	<GridMDP />
-  </div>
+	<v-app>
+		<v-content>
+			<GridMDP />
+		</v-content>
+	</v-app>
 </template>
 
 <script>
-import GridMDP from './components/GridMDP.vue'
+import GridMDP from "./components/GridMDP.vue";
 
 export default {
-  name: 'app',
-  components: {
-    GridMDP
-  }
-}
+	name: "App",
+
+	components: {
+		GridMDP
+	}
+};
 </script>
 
 <style>
-	#app {
-	font-family: 'Avenir', Helvetica, Arial, sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
-	color: #2c3e50;
-	margin-top: 60px;
+	.myCol {
+		display: flex;
+		flex-flow: column nowrap;
 	}
 
-	.col {
+	.myRow {
 		display: flex;
-		flex-direction: column
-	}
-
-	.row {
-		display: flex;
-		flex-direction: row
+		flex-flow: row nowrap;
 	}
 </style>

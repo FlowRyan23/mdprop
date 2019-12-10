@@ -1,17 +1,17 @@
 <template>
 	<div>
-		<div v-if="mdp" class="row" id="mdpView">
+		<div v-if="mdp" class="myRow" id="mdpView">
 			<div>
-				<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="row">
-					<div v-bind:key="y" v-for="(tile, y) in col" class="col">
+				<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="myRow">
+					<div v-bind:key="y" v-for="(tile, y) in col" class="myCol">
 						<GridMDPTile :ref="'' + x + '-' + y" :initTile="tile" @edit-tile="setEdit" class="tile"/>
 					</div>
 				</div>
 			</div>
-			<TileEditor v-if="editTile" v-bind:tile="editTile" ref="editor" id="editor"/>
+			<TileEditor v-if="editTile" v-bind:tile="editTile" ref="editor" id="editor" @redraw="redraw"/>
 		</div>
-		<button v-on:click="iter()">next</button>
-		<button v-on:click="generate()">go</button>
+		<v-btn v-on:click="reset()">reset</v-btn>
+		<v-btn v-on:click="iter()">next</v-btn>
 	</div>
 </template>
 
@@ -39,7 +39,7 @@ export default {
 					this.$refs[ref][0].redraw();
 		},
 
-		generate() {
+		reset() {
 			if (this.mdp !== null) {
 				this.mdp.reset();
 				this.redraw();
@@ -61,6 +61,10 @@ export default {
 			this.mdp.tiles[parseInt(indexes[0])][parseInt(indexes[1])];
 			this.editTile = this.mdp.tiles[parseInt(indexes[0])][parseInt(indexes[1])];
 		}
+	},
+
+	mounted() {
+		this.reset();
 	}
 }
 </script>
