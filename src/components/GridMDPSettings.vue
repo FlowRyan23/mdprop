@@ -1,11 +1,11 @@
 <template>
-	<div class="myCol">
+	<div class="col">
 		<h2>Settings</h2>
 		<!-- Discount slider -->
-		<v-slider v-model="settings.defaultDiscount" :step="0.01" :max="1" :min="0" :label="'Discount'" hide-details>
+		<v-slider v-model="settings.discount" :step="0.01" :max="1" :min="0" :label="'Discount'" hide-details>
 			<template v-slot:append>
 				<v-text-field
-					v-model="settings.defaultDiscount"
+					v-model="settings.discount"
 					class="mt-0 pt-0"
 					hide-details
 					single-line
@@ -15,29 +15,46 @@
 			</template>
 		</v-slider>
 
-		<v-btn :name="'discount'" @click="$emit('reset-setting', 'defaultDiscount')">Reset</v-btn>
-
 		<!-- step cost slider -->
-		<v-slider v-model="settings.defaultStepCost" :step="0.01" :max="1" :min="0" :label="'Step Cost'" hide-details>
+		<v-slider v-model="settings.stepCost" :step="0.01" :max="1" :min="0" :label="'Step Cost'" hide-details>
 			<template v-slot:append>
-              <v-text-field
-                v-model="settings.defaultStepCost"
-                class="mt-0 pt-0"
-                hide-details
-                single-line
-                type="number"
-                style="width: 60px"
-              ></v-text-field>
+				<v-text-field
+					v-model="settings.stepCost"
+					class="mt-0 pt-0"
+					hide-details
+					single-line
+					type="number"
+					style="width: 60px"
+				></v-text-field>
 			</template>
 		</v-slider>
 
-		<v-btn :name="'step-cost'" @click="$emit('reset-setting', 'defaultStepCost')">Reset</v-btn>
+		<v-btn :name="'step-cost'" @click="reset()">Reset</v-btn>
+		<v-btn :name="'apply'" @click="apply()">Apply</v-btn>
 	</div>
 </template>
 
 <script>
+import store from '../logic/settings'
 export default {
 	name: "GridMDPSettings",
-	props: ['settings']
+	data() {return {
+		settings: {...store.state.ssettings}
+	}},
+
+	methods: {
+		apply() {
+			store.commit("setSettings", {...this.settings});
+			this.$emit('apply-settings');
+		},
+
+		reset() {
+			this.settings = {...store.state.settings};
+		}
+	},
+
+	mounted() {
+		this.reset();
+	}
 }
 </script>

@@ -1,25 +1,29 @@
 <template>
-	<div>
-		<div v-if="mdp" class="myRow" id="mdpView">
-			<div>
-				<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="myRow">
-					<div v-bind:key="y" v-for="(tile, y) in col" class="myCol">
-						<GridMDPTile :ref="'' + x + '-' + y" :initTile="tile" @edit-tile="setEdit" class="tile"/>
-					</div>
+	<div v-if="mdp" class="myRow">
+		<GridMDPSettings id="settings" @apply-settings="applySettings()"/>
+		
+		<div id="display">
+			<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="myRow">
+				<div v-bind:key="y" v-for="(tile, y) in col" class="myCol">
+					<GridMDPTile :ref="'' + x + '-' + y" :initTile="tile" @edit-tile="setEdit" class="tile"/>
 				</div>
 			</div>
-			<TileEditor v-if="editTile" v-bind:tile="editTile" ref="editor" id="editor" @redraw="redraw"/>
+			
+			<v-btn @click="prevIter()">previous</v-btn>
+			<v-btn @click="reset()">reset</v-btn>
+			<v-btn @click="nextIter()">next</v-btn>
 		</div>
-		<v-btn v-on:click="reset()">reset</v-btn>
-		<v-btn v-on:click="iter()">next</v-btn>
-		<GridMDPSettings :settings="settings" @reset-setting="resetSetting"/>
+
+		<TileEditor id="editor" v-if="editTile" v-bind:tile="editTile" ref="editor" @redraw="redraw"/>	
 	</div>
 </template>
 
 <script>
 import GridMDPTile from './GridMDPTile.vue';
 import TileEditor from './TileEditor.vue';
-import GridMDPSettings from './GridMDPSettings.vue'
+import GridMDPSettings from './GridMDPSettings.vue';
+
+import store from '../logic/settings.js'
 import {gmdp} from '../logic/mdp_prop.js';
 
 export default {
@@ -27,16 +31,21 @@ export default {
 	components : {GridMDPTile, TileEditor, GridMDPSettings},
 	data() {return {
 		mdp: null,
-		editTile: null,
-		defaultSettings: {
-			defaultStepCost: 0,
-			defaultDiscount: 0.9
-		},
-		settings: null
+		editTile: null
 	}},
+
 	methods: {
-		iter() {
-			this.mdp.iteration();
+		nextIter() {
+			store.commit('nextIteration');
+
+			if (store.state.displayIteration > this.mdp.iterations)
+				this.mdp.iteration();
+			
+			this.redraw();
+		},
+
+		prevIter() {
+			store.commit('prevIteration');
 			this.redraw();
 		},
 
@@ -47,6 +56,7 @@ export default {
 		},
 
 		reset() {
+			store.commit('resetIteration');
 			if (this.mdp !== null) {
 				this.mdp.reset();
 				this.redraw();
@@ -59,7 +69,7 @@ export default {
 					[0, 0, null, 0, null, null, null, null],
 					[null, 0, null, 0, 0, 0, 0, 0],
 					[0, 0, null, 0, 0, null, 0, 1]
-				], [0.8, 0.1, 0.1, 0], this.settings.defaultDiscount, this.settings.defaultStepCost);
+				], [0.8, 0.1, 0.1, 0], store.state.settings.discount, store.state.settings.stepCost);
 			}
 		},
 
@@ -79,18 +89,14 @@ export default {
 			return ref !== "editor" && ref !== "settings";
 		},
 
-		resetSetting(key) {
-			if (key) this.settings[key] = this.defaultSettings[key];
-			else this.settings = {...this.defaultSettings};
+		applySettings() {
+			this.mdp.apply(store.state.settings);
 		}
-	},
-
-	created() {
-		this.settings = {...this.defaultSettings};
 	},
 
 	mounted() {
 		this.reset();
+		this.setEdit("0-0");
 	}
 }
 </script>
@@ -104,7 +110,17 @@ export default {
 		border: 1px solid goldenrod;
 	}
 
-	#mdpView {
-		flex-flow: row nowrap
+	#settings {
+		display: inline-block;
+		max-width: 25%;
+	}
+
+	#display {
+		display: inline-block;
+	}
+
+	#editor {
+		display: inline-block;
+		max-width: 25%;
 	}
 </style>

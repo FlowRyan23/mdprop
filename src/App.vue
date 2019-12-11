@@ -22,10 +22,12 @@ export default {
 	.myCol {
 		display: flex;
 		flex-flow: column nowrap;
+		justify-content: space-around;
 	}
 
 	.myRow {
 		display: flex;
 		flex-flow: row nowrap;
+		justify-content: space-around;
 	}
 </style>

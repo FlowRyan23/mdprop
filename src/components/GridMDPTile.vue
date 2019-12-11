@@ -3,7 +3,7 @@
 </template>
 
 <script>
-
+import store from '../logic/settings';
 export default {
 	name: "GridMDPTile",
 	props: ["initTile"],
@@ -45,9 +45,11 @@ export default {
 		},
 
 		color() {
-			let hue = ((0 + 120 * 1) * (1 + this.tile.getQValue()) / 2);
-			let sat = 75 * Math.abs(this.tile.getQValue());
-			let bri = 15 + 40 * Math.abs(this.tile.getQValue());
+			let qValue = this.tile.getQValue(store.state.displayIteration);
+
+			let hue = Math.max(0, Math.min(120, (120 * (1 + qValue) / 2)));
+			let sat = Math.max(0, Math.min(75, 75 * Math.abs(qValue)));
+			let bri = Math.max(0, Math.min(55, 15 + 40 * Math.abs(qValue)));
 			if (!this.tile.accessible)
 				bri = 5;
 
