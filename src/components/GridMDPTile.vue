@@ -27,7 +27,7 @@ export default {
 				drawContext.fillStyle = "white";
 				drawContext.font = "30px Arial";
 				drawContext.textAlign = "center";
-				drawContext.fillText(this.tile, 100/2, (75 + 20)/2);
+				drawContext.fillText(this.tile.getQValue(store.state.displayIteration).toFixed(2), 100/2, (75 + 20)/2);
 			
 				if (this.tile.terminal) {
 					drawContext.beginPath();
