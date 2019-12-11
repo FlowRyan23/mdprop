@@ -1,5 +1,5 @@
 <template>
-	<canvas class="canvas" width="100" height="75" :ref="id" @click="$emit('edit-tile', id)"></canvas>
+	<canvas :class="{'canvas': true, 'selected': editing}" width="100" height="75" :ref="id" @click="$emit('edit-tile', id)"></canvas>
 </template>
 
 <script>
@@ -9,7 +9,8 @@ export default {
 	props: ["initTile"],
 	data() {return {
 		tile: this.initTile,
-		displayingIteration: 0
+		displayingIteration: 0,
+		editing: false
 	}},
 	methods: {
 		test() {
@@ -32,6 +33,7 @@ export default {
 					drawContext.beginPath();
 					let padding = 5;
 					drawContext.rect(padding, padding, 100 - 2 * padding, 75 - 2 * padding);
+					drawContext.strokeStyle = "white";
 					drawContext.stroke();
 				}
 			}
@@ -64,6 +66,10 @@ export default {
 	}
 
 	.canvas:hover {
+		border: 1px solid goldenrod;
+	}
+
+	.edit-true {
 		border: 1px solid goldenrod;
 	}
 </style>

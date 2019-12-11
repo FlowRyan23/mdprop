@@ -1,11 +1,12 @@
-function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9) {
-	return new GridMDP(level, stepChances, discount);
+function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
+	return new GridMDP(level, stepChances, discount, stepCost);
 }
 
 class GridMDP {
-	constructor(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9) {
+	constructor(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
 		this.level = level;
 		this.discount = discount;
+		this.stepCost = stepCost;
 
 		//chances for each result when performing an action [success, offToRight, offToLeft, backward]
 		this.stepChances = stepChances;
@@ -22,37 +23,37 @@ class GridMDP {
 
 		for (let x=0; x<level.length; x++) {
 			for (let y=0; y<level[x].length; y++) {
-				let upAction = new Action("up", new Result(this.tiles[x][y], 1));
-				let downAction = new Action("down", new Result(this.tiles[x][y], 1));
-				let leftAction = new Action("left", new Result(this.tiles[x][y], 1));
-				let rightAction = new Action("right", new Result(this.tiles[x][y], 1));
+				let upAction = new Action("up", new Result(this.tiles[x][y], 1, this.stepCost));
+				let downAction = new Action("down", new Result(this.tiles[x][y], 1, this.stepCost));
+				let leftAction = new Action("left", new Result(this.tiles[x][y], 1, this.stepCost));
+				let rightAction = new Action("right", new Result(this.tiles[x][y], 1, this.stepCost));
 
 				if (this.inBounds(x, y-1)) {
-					upAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[0]));
-					rightAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[2]));
-					downAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[3]));
-					leftAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[1]));
+					upAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[0], this.stepCost));
+					rightAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[2], this.stepCost));
+					downAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[3], this.stepCost));
+					leftAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[1], this.stepCost));
 				}
 
 				if (this.inBounds(x, y+1)) {
-					upAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[3]));
-					rightAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[1]));
-					downAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[0]));
-					leftAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[2]));
+					upAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[3], this.stepCost));
+					rightAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[1], this.stepCost));
+					downAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[0], this.stepCost));
+					leftAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[2], this.stepCost));
 				}
 
 				if (this.inBounds(x-1, y)) {
-					upAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[2]));
-					rightAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[3]));
-					downAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[1]));
-					leftAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[0]));
+					upAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[2], this.stepCost));
+					rightAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[3], this.stepCost));
+					downAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[1], this.stepCost));
+					leftAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[0], this.stepCost));
 				}
 
 				if (this.inBounds(x+1, y)) {
-					upAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[1]));
-					rightAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[0]));
-					downAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[2]));
-					leftAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[3]));
+					upAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[1], this.stepCost));
+					rightAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[0], this.stepCost));
+					downAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[2], this.stepCost));
+					leftAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[3], this.stepCost));
 				}
 
 				this.tiles[x][y].addAction(upAction);
@@ -61,6 +62,12 @@ class GridMDP {
 				this.tiles[x][y].addAction(leftAction);
 			}
 		}
+	}
+
+	apply(settings) {
+		this.discount = settings.defaultDiscount;
+		this.stepCost = settings.defaultStepCost;
+
 	}
 
 	reset() {
@@ -107,18 +114,22 @@ class GridMDP {
 }
 
 class MDPTile {
-	constructor(x, y, reward=0, terminal=false, accessible=true) {
+	constructor(x, y, reward=0, terminal=false, accessible=true, discount=0.9) {
 		this.x = x;
 		this.y = y;
 		this.reward = reward;
 		this.terminal = terminal;
 		this.accessible = accessible;
 
+		this.defaultDiscount = discount;
+		this.discount = discount;
+
 		this.qMemory = [0];
 		this.actions = [];
 	}
 
 	reset() {
+		this.discount = this.defaultDiscount;
 		this.qMemory = [0];
 		for(let i=0; i<this.actions.length; i++)
 			this.actions[i].reset();
@@ -132,8 +143,9 @@ class MDPTile {
 		this.actions = this.neighbors.filter(a => a !== action);
 	}
 
-	recalculate(discount, useNewest=false) {
+	recalculate(discount=this.discount, useNewest=false) {
 		if (!this.accessible) return 0;
+		this.discount = discount;
 
 		if (this.terminal) {
 			this.qMemory.push(0);
@@ -155,11 +167,10 @@ class MDPTile {
 	getQValue(iteration=this.qMemory.length-1) {
 		if (!this.accessible) return 0;
 
-		if (iteration > this.qMemory.length -1) {
-			return this.reward + this.qMemory[this.qMemory.length - 1];
-		} else {
-			return this.reward + this.qMemory[iteration];
-		}
+		while (this.qMemory.length - 1 < iteration)
+			this.recalculate();
+		
+		return this.reward + this.qMemory[iteration];
 	}
 
 	toString() {
@@ -168,9 +179,11 @@ class MDPTile {
 }
 
 class Action {
-	constructor(name, defaultResult=null, results=[], reward=0) {
+	constructor(name, defaultResult=null, discount=0.9, results=[], reward=0) {
 		this.name = name;
 		this.reward = reward;
+		this.defaultDiscount = discount;
+		this.discount = discount;
 		this.results = results;
 		this.defaultResult = defaultResult;
 		this.qMemory = [0];
@@ -193,6 +206,8 @@ class Action {
 	}
 
 	recalculate(discount, useNewest=false) {
+		this.discount = discount;
+
 		// discounted weighted sum of reward by chance
 		let qValue = 0;
 		let chance = 0;
@@ -222,14 +237,14 @@ class Action {
 	}
 
 	getQValue(iteration=this.qMemory.length-1) {
-		if (iteration > this.qMemory.length -1) {
-			return this.reward + this.qMemory[this.qMemory.length - 1];
-		} else {
-			return this.reward + this.qMemory[iteration];
-		}
+		while (iteration > this.qMemory.length -1)
+			this.recalculate();
+
+		return this.reward + this.qMemory[iteration];
 	}
 
 	reset() {
+		this.discount = this.defaultDiscount;
 		this.qMemory = [0];
 	}
 
