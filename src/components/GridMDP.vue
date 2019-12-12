@@ -62,14 +62,11 @@ export default {
 				this.redraw();
 			} else {
 				this.mdp = gmdp([
-					[0, 0, 0, 0, 0, 0, -1, 0],
-					[0, null, null, 0, null, 1, 0, -1],
-					[0, 0, 0, 0, 0, 0, 0, 0],
-					[0, null, null, 0, null, 0, 0, 0],
-					[0, 0, null, 0, null, null, null, null],
-					[null, 0, null, 0, 0, 0, 0, 0],
-					[0, 0, null, 0, 0, null, 0, 1]
-				], [0.8, 0.1, 0.1, 0], store.state.settings.discount, store.state.settings.stepCost);
+					[0, 0, 0, 1],
+					[0, null, 0, -1],
+					[0, 0, 0, 0]
+				], [0.8, 0.1, 0.1, 0]
+				, store.state.settings.discount, store.state.settings.stepCost);
 			}
 		},
 

@@ -49,7 +49,7 @@ export default {
 		},
 
 		reset() {
-			this.settings = {...store.state.settings};
+			this.settings = {...store.state.defaultSettings};
 		}
 	},
 

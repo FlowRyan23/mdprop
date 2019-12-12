@@ -10,7 +10,8 @@ export default {
 	data() {return {
 		tile: this.initTile,
 		displayingIteration: 0,
-		editing: false
+		editing: false,
+		bestAction: null
 	}},
 	methods: {
 		test() {
@@ -18,10 +19,8 @@ export default {
 		},
 		redraw() {
 			let drawContext = this.$refs[this.id].getContext("2d");
-
-			drawContext.rect(0, 0, 100, 75);
 			drawContext.fillStyle = this.color;
-			drawContext.fill();
+			drawContext.fillRect(0, 0, 100, 75);
 
 			if (this.tile.accessible) {
 				drawContext.fillStyle = "white";
@@ -32,9 +31,23 @@ export default {
 				if (this.tile.terminal) {
 					drawContext.beginPath();
 					let padding = 5;
-					drawContext.rect(padding, padding, 100 - 2 * padding, 75 - 2 * padding);
 					drawContext.strokeStyle = "white";
-					drawContext.stroke();
+					drawContext.strokeRect(padding, padding, 100 - 2 * padding, 75 - 2 * padding);
+
+				} else if (this.tile.bestAction()) {
+					let action = this.tile.bestAction().name;
+					this.bestAction = action;
+					
+					drawContext.fillStyle = "white";
+					if (action === "up") {
+						drawContext.fillRect(100 / 2 - 5, 6, 5, 5);
+					} else if (action === "right") {
+						drawContext.fillRect(100 - 6, 75 / 2 - 5, 5, 5);
+					} else if (action === "left") {
+						drawContext.fillRect(6, 75 / 2 - 5, 5, 5);
+					} else if (action === "down") {
+						drawContext.fillRect(100 / 2 - 5, 75 - 6, 5, 5);
+					}
 				}
 			}
 		}

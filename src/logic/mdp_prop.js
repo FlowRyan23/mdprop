@@ -24,10 +24,10 @@ class GridMDP {
 
 		for (let x=0; x<level.length; x++) {
 			for (let y=0; y<level[x].length; y++) {
-				let upAction = new Action("up", new Result(this.tiles[x][y], 1), this.stepCost);
-				let downAction = new Action("down", new Result(this.tiles[x][y], 1), this.stepCost);
-				let leftAction = new Action("left", new Result(this.tiles[x][y], 1), this.stepCost);
-				let rightAction = new Action("right", new Result(this.tiles[x][y], 1), this.stepCost);
+				let upAction = new Action("left", new Result(this.tiles[x][y], 1), this.stepCost);
+				let downAction = new Action("right", new Result(this.tiles[x][y], 1), this.stepCost);
+				let leftAction = new Action("up", new Result(this.tiles[x][y], 1), this.stepCost);
+				let rightAction = new Action("down", new Result(this.tiles[x][y], 1), this.stepCost);
 
 				if (this.inBounds(x, y-1)) {
 					upAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[0]), this.stepCost);
@@ -57,10 +57,10 @@ class GridMDP {
 					leftAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[3], this.stepCost), this.stepCost);
 				}
 
+				this.tiles[x][y].addAction(leftAction);
 				this.tiles[x][y].addAction(upAction);
 				this.tiles[x][y].addAction(rightAction);
 				this.tiles[x][y].addAction(downAction);
-				this.tiles[x][y].addAction(leftAction);
 			}
 		}
 	}
@@ -198,6 +198,15 @@ class MDPTile {
 			this.recalculate();
 		
 		return this.reward + this.qMemory[iteration];
+	}
+
+	bestAction(iteration=this.qMemory.length-1) {
+		let bestAction = this.actions[0];
+		for (let i=1; i<this.actions.length; i++) {
+			if (this.actions[i].getQValue(iteration) > bestAction.getQValue(iteration))
+				bestAction = this.actions[i];
+		}
+		return bestAction;
 	}
 
 	toString() {

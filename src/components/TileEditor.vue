@@ -35,7 +35,7 @@
 		<v-expansion-panels>
 			<h3>Actions</h3>
 			<v-expansion-panel v-for="action in tile.actions" :key="action.name">
-				<v-expansion-panel-header>{{action.name}}</v-expansion-panel-header>
+				<v-expansion-panel-header>{{action.name}} {{action.getQValue(displayIteration).toFixed(2)}}</v-expansion-panel-header>
 				<v-expansion-panel-content>
 					<ActionEditor :action="action" />
 				</v-expansion-panel-content>
@@ -46,6 +46,7 @@
 
 <script>
 import ActionEditor from "./ActionEditor.vue";
+import store from '../logic/settings';
 
 export default {
 	name: "TileEditor",
@@ -58,6 +59,12 @@ export default {
 	methods: {
 		coords() {
 			return '' + (this.tile.y+1) + '-' + (this.tile.x+1);
+		}
+	},
+
+	computed: {
+		displayIteration() {
+			return store.state.displayIteration;
 		}
 	}
 }
