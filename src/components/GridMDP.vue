@@ -1,20 +1,51 @@
 <template>
-	<div v-if="mdp" class="myRow">
-		<GridMDPSettings id="settings" @apply-settings="applySettings()"/>
-		
-		<div id="display">
-			<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="myRow">
-				<div v-bind:key="y" v-for="(tile, y) in col" class="myCol">
-					<GridMDPTile :ref="'' + x + '-' + y" :initTile="tile" @edit-tile="setEdit" class="tile"/>
+	<div>
+		<v-navigation-drawer id="settings" app persistent floating width="20%">
+			<GridMDPSettings @apply-settings="applySettings()"/>
+		</v-navigation-drawer>
+
+		<div v-if="mdp" id="content" class="myRow">
+			<div>
+				<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="myRow">
+					<div v-bind:key="y" v-for="(tile, y) in col" class="myCol">
+						<GridMDPTile :ref="'' + x + '-' + y" :initTile="tile" @edit-tile="setEdit" class="tile"/>
+					</div>
 				</div>
+				
+				<v-btn @click="prevIter()">previous</v-btn>
+				<v-btn @click="reset()">reset</v-btn>
+				<v-btn @click="nextIter()">next</v-btn>
+				<v-btn @click="kill()">kill</v-btn>
 			</div>
 			
-			<v-btn @click="prevIter()">previous</v-btn>
-			<v-btn @click="reset()">reset</v-btn>
-			<v-btn @click="nextIter()">next</v-btn>
+			<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw"/>
 		</div>
 
-		<TileEditor id="editor" v-if="editTile" v-bind:tile="editTile" ref="editor" @redraw="redraw"/>	
+		<div v-else id="creator">
+			<v-text-field
+				label="Width"
+				v-model="width"
+				min="1"
+				:max="maxWidth"
+				class="mt-0 pt-0"
+				hide-details
+				single-line
+				type="number"
+				style="width: 60px"
+			></v-text-field>
+
+			<v-text-field
+				label="Height"
+				v-model="height"
+				min="1"
+				class="mt-0 pt-0"
+				hide-details
+				single-line
+				type="number"
+				style="width: 60px"
+			></v-text-field>
+			<v-btn @click="create()">create</v-btn>
+		</div>
 	</div>
 </template>
 
@@ -31,7 +62,9 @@ export default {
 	components : {GridMDPTile, TileEditor, GridMDPSettings},
 	data() {return {
 		mdp: null,
-		editTile: null
+		editTile: null,
+		width: 10,
+		height: 7
 	}},
 
 	methods: {
@@ -88,7 +121,36 @@ export default {
 
 		applySettings() {
 			this.mdp.apply(store.state.settings);
+		},
+
+		kill() {
+			this.mdp = null;
+		},
+
+		create() {
+			this.width = Math.max(1, Math.min(store.state.settings.maxWidth, this.width));
+			this.height = Math.max(1, Math.min(store.state.settings.maxHeight, this.height));
+
+			let level = [];
+			for(let x=0; x<this.height; x++) {
+				level[x] = [];
+				for(let y=0; y<this.width; y++) {
+					level[x][y] = 0;
+				}
+			}
+			this.mdp = gmdp(level);
+			this.setEdit("0-0");
 		}
+	},
+
+	computed: {
+		maxWidth() {
+			return store.state.settings.maxWidth;
+		}
+	},
+
+	created() {
+		store.commit('setSettings', {...store.state.defaultSettings});
 	},
 
 	mounted() {

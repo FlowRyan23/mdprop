@@ -9,18 +9,14 @@ const store = new Vuex.Store({
 			discount: 0.9,			// the default discount applied to every action (overridden wehn individual discounts are givin)
 			stepChances: [0.8, 0.1, 0.1, 0],
 
-			hardReset: true,		// hardReset will undo all changes to the map made through the tile editor
-			fullDisplay: false		// fullDisplay will show all q-values at every location not just the highest
-		},
-
-		settings: {
-			stepCost: 0,			// the default stepCost applied to every action (overridden wehn individual costs are givin)
-			discount: 0.9,			// the default discount applied to every action (overridden wehn individual discounts are givin)
-			stepChances: [0.8, 0.1, 0.1, 0],
+			maxWidth: 12,
+			maxHeight: 255,
 
 			hardReset: true,		// hardReset will undo all changes to the map made through the tile editor
 			fullDisplay: false		// fullDisplay will show all q-values at every location not just the highest
 		},
+
+		settings: {},
 
 		displayIteration: 0
 	},
