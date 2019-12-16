@@ -4,6 +4,9 @@ function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
 	return new GridMDP(level, stepChances, discount, stepCost);
 }
 
+
+export {gmdp};
+
 class GridMDP {
 	constructor(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
 		// todo the level in memory is transposed to how it is displayed
@@ -19,13 +22,13 @@ class GridMDP {
 		for (let x=0; x<level.length; x++) {
 			this.tiles[x] = [];
 			for (let y=0; y<level[x].length; y++) {
-				if (typeof(level[x][y]) !== Object) {
-					let accessible = this.level[x][y] !== null;
-					let terminal = accessible && this.level[x][y] !== 0;
-					this.tiles[x][y] = new MDPTile(x, y, level[x][y], terminal, accessible);
-				} else {
+				// if (typeof(level[x][y]) !== Object) {
+				// 	let accessible = this.level[x][y] !== null;
+				// 	let terminal = accessible && this.level[x][y] !== 0;
+				// 	this.tiles[x][y] = new MDPTile(x, y, level[x][y], terminal, accessible);
+				// } else {
 					this.tiles[x][y] = new MDPTile(x, y, level[x][y].reward, level[x][y].terminal, level[x][y].accessible);
-				}
+				// }
 			}
 		}
 
@@ -227,6 +230,7 @@ class Action {
 	constructor(name, defaultResult=null, cost=store.state.settings.stepCost, discount=store.state.settings.discount, results=[], reward=0) {
 		this.name = name;
 
+		this.defaultReward = reward;
 		this.reward = reward;
 		this.discount = discount;
 		this.cost = cost;
@@ -312,20 +316,3 @@ class Result {
 		this.chance = chance;	// the chance of moving to the node after performing the action
 	}
 }
-
-export {gmdp};
-
-/*
-let mdp = gmdp([
-	[0, 0, 0, 0, 0, 0, -1, 0],
-	[0, null, null, 0, null, 1, 0, -1],
-	[0, 0, 0, 0, 0, 0, 0, 0],
-	[0, null, null, 0, null, 0, 0, 0],
-	[0, 0, null, 0, null, null, null, null],
-	[null, 0, null, 0, 0, 0, 0, 0],
-	[0, 0, null, 0, 0, null, 0, 1]
-]);
-mdp.iteration();
-mdp.iteration();
-mdp.iteration();
-*/

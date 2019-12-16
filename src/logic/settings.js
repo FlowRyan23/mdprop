@@ -22,7 +22,7 @@ const store = new Vuex.Store({
 
 		level: [
 			[{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":1,"terminal":true}],
-			[{"accessible":true,"reward":0,"terminal":false},{"accessible":false,"reward":null,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":-1,"terminal":true}],
+			[{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":-1,"terminal":true}],
 			[{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false}]
 		]
 	},

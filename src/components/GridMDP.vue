@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-navigation-drawer id="settings" app persistent floating disable-resize-watcher mobile-break-point="0" width="20%">
+		<v-navigation-drawer id="settings" app persistent disable-resize-watcher mobile-break-point="0" width="20%">
 			<GridMDPSettings @apply-settings="applySettings()"/>
 		</v-navigation-drawer>
 
