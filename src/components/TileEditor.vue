@@ -1,6 +1,15 @@
 <template>
 	<div class="col" @click="$emit('redraw')">
 		<h2>Editing Tile {{coords()}}</h2>
+
+		<v-btn-toggle>
+			<v-btn>Free</v-btn>
+			<v-btn>Wall</v-btn>
+			<v-btn>Goal</v-btn>
+			<v-btn>Death</v-btn>
+			<v-btn>Custom</v-btn>
+		</v-btn-toggle>
+
 		<v-checkbox v-model="tile.terminal" :label="'Terminal'"></v-checkbox>
 		<v-checkbox v-model="tile.accessible" :label="'Accesible'"></v-checkbox>
 		

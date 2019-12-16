@@ -39,11 +39,11 @@ export default {
 					if (action === "up") {
 						drawContext.fillRect(100 / 2 - 3, 5, 6, 6);
 					} else if (action === "right") {
-						drawContext.fillRect(100 - 5, 75 / 2 - 3, 6, 6);
+						drawContext.fillRect(100 - 5 - 6, 75 / 2 - 3, 6, 6);
 					} else if (action === "left") {
 						drawContext.fillRect(5, 75 / 2 - 6, 6, 6);
 					} else if (action === "down") {
-						drawContext.fillRect(100 / 2 - 3, 75 - 5, 6, 6);
+						drawContext.fillRect(100 / 2 - 3, 75 - 5 - 6, 6, 6);
 					}
 				}
 			}

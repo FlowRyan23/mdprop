@@ -1,9 +1,12 @@
+import store from "./settings";
+
 function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
 	return new GridMDP(level, stepChances, discount, stepCost);
 }
 
 class GridMDP {
 	constructor(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
+		// todo the level in memory is transposed to how it is displayed
 		this.level = level;
 		this.iterations = 0;
 		this.discount = discount;
@@ -16,51 +19,55 @@ class GridMDP {
 		for (let x=0; x<level.length; x++) {
 			this.tiles[x] = [];
 			for (let y=0; y<level[x].length; y++) {
-				let accessible = this.level[x][y] !== null;
-				let terminal = accessible && this.level[x][y] !== 0;
-				this.tiles[x][y] = new MDPTile(x, y, level[x][y], terminal, accessible);
+				if (typeof(level[x][y]) !== Object) {
+					let accessible = this.level[x][y] !== null;
+					let terminal = accessible && this.level[x][y] !== 0;
+					this.tiles[x][y] = new MDPTile(x, y, level[x][y], terminal, accessible);
+				} else {
+					this.tiles[x][y] = new MDPTile(x, y, level[x][y].reward, level[x][y].terminal, level[x][y].accessible);
+				}
 			}
 		}
 
 		for (let x=0; x<level.length; x++) {
 			for (let y=0; y<level[x].length; y++) {
-				let upAction = new Action("left", new Result(this.tiles[x][y], 1), this.stepCost);
-				let downAction = new Action("right", new Result(this.tiles[x][y], 1), this.stepCost);
-				let leftAction = new Action("up", new Result(this.tiles[x][y], 1), this.stepCost);
-				let rightAction = new Action("down", new Result(this.tiles[x][y], 1), this.stepCost);
+				let leftAction = new Action("left", new Result(this.tiles[x][y], 1), this.stepCost);
+				let rightAction = new Action("right", new Result(this.tiles[x][y], 1), this.stepCost);
+				let upAction = new Action("up", new Result(this.tiles[x][y], 1), this.stepCost);
+				let downAction = new Action("down", new Result(this.tiles[x][y], 1), this.stepCost);
 
 				if (this.inBounds(x, y-1)) {
-					upAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[0]), this.stepCost);
-					rightAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[2]), this.stepCost);
-					downAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[3]), this.stepCost);
-					leftAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[1]), this.stepCost);
+					leftAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[0]), this.stepCost);
+					downAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[2]), this.stepCost);
+					rightAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[3]), this.stepCost);
+					upAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[1]), this.stepCost);
 				}
 
 				if (this.inBounds(x, y+1)) {
-					upAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[3]), this.stepCost);
-					rightAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[1]), this.stepCost);
-					downAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[0]), this.stepCost);
-					leftAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[2]), this.stepCost);
+					leftAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[3]), this.stepCost);
+					downAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[1]), this.stepCost);
+					rightAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[0]), this.stepCost);
+					upAction.addResult(new Result(this.tiles[x][y+1], this.stepChances[2]), this.stepCost);
 				}
 
 				if (this.inBounds(x-1, y)) {
-					upAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[2]), this.stepCost);
-					rightAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[3]), this.stepCost);
-					downAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[1]), this.stepCost);
-					leftAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[0]), this.stepCost);
+					leftAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[2]), this.stepCost);
+					downAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[3]), this.stepCost);
+					rightAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[1]), this.stepCost);
+					upAction.addResult(new Result(this.tiles[x-1][y], this.stepChances[0]), this.stepCost);
 				}
 
 				if (this.inBounds(x+1, y)) {
-					upAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[1], this.stepCost), this.stepCost);
-					rightAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[0], this.stepCost), this.stepCost);
-					downAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[2], this.stepCost), this.stepCost);
-					leftAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[3], this.stepCost), this.stepCost);
+					leftAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[1], this.stepCost), this.stepCost);
+					downAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[0], this.stepCost), this.stepCost);
+					rightAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[2], this.stepCost), this.stepCost);
+					upAction.addResult(new Result(this.tiles[x+1][y], this.stepChances[3], this.stepCost), this.stepCost);
 				}
 
-				this.tiles[x][y].addAction(leftAction);
 				this.tiles[x][y].addAction(upAction);
-				this.tiles[x][y].addAction(rightAction);
+				this.tiles[x][y].addAction(leftAction);
 				this.tiles[x][y].addAction(downAction);
+				this.tiles[x][y].addAction(rightAction);
 			}
 		}
 	}
@@ -103,8 +110,19 @@ class GridMDP {
 		}
 	}
 
-	get(x, y) {
-		return this.tiles[x][y].getQValue();
+	compact() {
+		let mdp = [];
+		for (let x=0; x<this.tiles.length; x++) {
+			mdp[x] = [];
+			for (let y=0; y<this.tiles[x].length; y++) {
+				mdp[x][y] = {
+					accessible: this.tiles[x][y].accessible,
+					reward: this.tiles[x][y].reward,
+					terminal: this.tiles[x][y].terminal
+				};
+			}
+		}
+		return mdp;
 	}
 
 	toString() {
@@ -125,16 +143,9 @@ class MDPTile {
 		this.x = x;
 		this.y = y;
 
-		this.defaultReward = reward;
 		this.reward = reward;
-
-		this.baseTerminal = terminal;
 		this.terminal = terminal;
-
-		this.baseAccessible = accessible;
 		this.accessible = accessible;
-
-		this.defaultDiscount = discount;
 		this.discount = discount;
 
 		this.qMemory = [0];
@@ -143,10 +154,10 @@ class MDPTile {
 
 	reset(hard=true) {
 		if (hard) {
-			this.discount = this.defaultDiscount;
-			this.accessible = this.baseAccessible;
-			this.reward = this.defaultReward;
-			this.terminal = this.baseTerminal;
+			this.discount = store.state.settings.discount;
+			this.accessible = store.state.level[this.x][this.y].accessible;
+			this.reward = store.state.level[this.x][this.y].reward;
+			this.terminal = store.state.level[this.x][this.y].terminal;
 		}
 		this.qMemory = [0];
 		for(let i=0; i<this.actions.length; i++)
@@ -154,7 +165,6 @@ class MDPTile {
 	}
 
 	apply(settings) {
-		this.defaultDiscount = settings.discount;
 		this.discount = settings.discount;
 
 		for (let i=0; i<this.actions.length; i++) {
@@ -172,7 +182,6 @@ class MDPTile {
 
 	recalculate(discount=this.discount, useNewest=false) {
 		if (!this.accessible) return 0;
-		this.discount = discount;
 
 		if (this.terminal) {
 			this.qMemory.push(0);
@@ -215,32 +224,20 @@ class MDPTile {
 }
 
 class Action {
-	constructor(name, defaultResult=null, cost=0, discount=0.9, results=[], reward=0) {
+	constructor(name, defaultResult=null, cost=store.state.settings.stepCost, discount=store.state.settings.discount, results=[], reward=0) {
 		this.name = name;
 
-		this.defaultReward = reward;
 		this.reward = reward;
-
-		this.defaultDiscount = discount;
 		this.discount = discount;
-
-		this.defaultCost = cost;
 		this.cost = cost;
 
 		this.results = results;
 		this.defaultResult = defaultResult;
 		this.qMemory = [0];
-
-		let sumChance = this.results.reduce((a, b) => a.chance + b.chance, 0);
-		if (sumChance >= 1 || sumChance < 0) {
-			//console.warn("chances of possible outcomes should sum to 1");
-		}
 	}
 
 	apply(settings) {
-		this.defaultCost = settings.stepCost;
 		this.cost = settings.stepCost;
-		this.defaultDiscount = settings.discount;
 		this.discount = settings.discount;
 
 		// todo stepChances
@@ -298,8 +295,8 @@ class Action {
 	reset(hard=true) {
 		if (hard) {
 			this.reward = this.defaultReward;
-			this.discount = this.defaultDiscount;
-			this.cost = this.defaultCost;
+			this.discount = store.state.settings.discount;
+			this.cost = store.state.settings.stepCost;
 		}
 		this.qMemory = [0];
 	}

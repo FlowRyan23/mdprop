@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-navigation-drawer id="settings" app persistent floating width="20%">
+		<v-navigation-drawer id="settings" app persistent floating disable-resize-watcher mobile-break-point="0" width="20%">
 			<GridMDPSettings @apply-settings="applySettings()"/>
 		</v-navigation-drawer>
 
@@ -13,9 +13,10 @@
 				</div>
 				
 				<v-btn @click="prevIter()">previous</v-btn>
+				<v-btn @click="save()">save</v-btn>
 				<v-btn @click="reset()">reset</v-btn>
 				<v-btn @click="nextIter()">next</v-btn>
-				<v-btn @click="kill()">kill</v-btn>
+				<v-btn @click="kill()">new</v-btn>
 			</div>
 			
 			<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw"/>
@@ -90,17 +91,18 @@ export default {
 
 		reset() {
 			store.commit('resetIteration');
+
 			if (this.mdp !== null) {
 				this.mdp.reset();
 				this.redraw();
 			} else {
-				this.mdp = gmdp([
-					[0, 0, 0, 1],
-					[0, null, 0, -1],
-					[0, 0, 0, 0]
-				], [0.8, 0.1, 0.1, 0]
+				this.mdp = gmdp(store.state.level, [0.8, 0.1, 0.1, 0]
 				, store.state.settings.discount, store.state.settings.stepCost);
 			}
+		},
+
+		save() {
+			store.commit('setLevel', this.mdp.compact());
 		},
 
 		setEdit(tileID) {
@@ -111,7 +113,6 @@ export default {
 			}
 
 			let indexes = tileID.split("-");
-			this.mdp.tiles[parseInt(indexes[0])][parseInt(indexes[1])];
 			this.editTile = this.mdp.tiles[parseInt(indexes[0])][parseInt(indexes[1])];
 		},
 

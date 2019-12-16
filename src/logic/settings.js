@@ -5,25 +5,35 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
 	state: {
 		defaultSettings: {
-			stepCost: 0,			// the default stepCost applied to every action (overridden wehn individual costs are givin)
+			stepCost: 0,				// the default stepCost applied to every action (overridden wehn individual costs are givin)
 			discount: 0.9,			// the default discount applied to every action (overridden wehn individual discounts are givin)
-			stepChances: [0.8, 0.1, 0.1, 0],
+			stepChances: {'front': 0.8, 'left': 0.1, 'right': 0.1, 'back': 0},
 
-			maxWidth: 12,
-			maxHeight: 255,
+			maxWidth: 12,					// level width (todo more than 12 makes layout look bad)
+			maxHeight: 255,				// level height
 
-			hardReset: true,		// hardReset will undo all changes to the map made through the tile editor
+			hardReset: true,			// hardReset will undo all changes to the map made through the tile editor
 			fullDisplay: false		// fullDisplay will show all q-values at every location not just the highest
 		},
 
 		settings: {},
 
-		displayIteration: 0
+		displayIteration: 0,
+
+		level: [
+			[{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":1,"terminal":true}],
+			[{"accessible":true,"reward":0,"terminal":false},{"accessible":false,"reward":null,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":-1,"terminal":true}],
+			[{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false}]
+		]
 	},
 
 	mutations: {
 		setSettings(state, settings) {
 			state.settings = settings;
+		},
+
+		setLevel(state, level) {
+			state.level = level;
 		},
 
 		nextIteration(state) {
