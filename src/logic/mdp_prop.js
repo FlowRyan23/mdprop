@@ -8,11 +8,10 @@ function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
 export {gmdp};
 
 class GridMDP {
-	constructor(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
+	constructor(level, stepChances=[0.8, 0.1, 0.1, 0], discount=store.state.settings.discount, stepCost=0) {
 		// todo the level in memory is transposed to how it is displayed
 		this.level = level;
 		this.iterations = 0;
-		this.discount = discount;
 		this.stepCost = stepCost;
 
 		//chances for each result when performing an action [success, offToRight, offToLeft, backward]
@@ -27,17 +26,17 @@ class GridMDP {
 				// 	let terminal = accessible && this.level[x][y] !== 0;
 				// 	this.tiles[x][y] = new MDPTile(x, y, level[x][y], terminal, accessible);
 				// } else {
-					this.tiles[x][y] = new MDPTile(x, y, level[x][y].reward, level[x][y].terminal, level[x][y].accessible);
+					this.tiles[x][y] = new MDPTile(x, y, level[x][y].reward, level[x][y].terminal, level[x][y].accessible, discount);
 				// }
 			}
 		}
 
 		for (let x=0; x<level.length; x++) {
 			for (let y=0; y<level[x].length; y++) {
-				let leftAction = new Action("left", new Result(this.tiles[x][y], 1), this.stepCost);
-				let rightAction = new Action("right", new Result(this.tiles[x][y], 1), this.stepCost);
-				let upAction = new Action("up", new Result(this.tiles[x][y], 1), this.stepCost);
-				let downAction = new Action("down", new Result(this.tiles[x][y], 1), this.stepCost);
+				let leftAction = new Action("left", new Result(this.tiles[x][y], 1), this.stepCost, discount);
+				let rightAction = new Action("right", new Result(this.tiles[x][y], 1), this.stepCost, discount);
+				let upAction = new Action("up", new Result(this.tiles[x][y], 1), this.stepCost, discount);
+				let downAction = new Action("down", new Result(this.tiles[x][y], 1), this.stepCost, discount);
 
 				if (this.inBounds(x, y-1)) {
 					leftAction.addResult(new Result(this.tiles[x][y-1], this.stepChances[0]), this.stepCost);
@@ -108,7 +107,7 @@ class GridMDP {
 		this.iterations++;
 		for (let x=0; x<this.tiles.length; x++) {
 			for (let y=0; y<this.tiles[x].length; y++) {
-				this.tiles[x][y].recalculate(this.discount);
+				this.tiles[x][y].recalculate();
 			}
 		}
 	}
@@ -183,9 +182,7 @@ class MDPTile {
 		this.actions = this.neighbors.filter(a => a !== action);
 	}
 
-	recalculate(discount=this.discount, useNewest=false) {
-		if (!this.accessible) return 0;
-
+	recalculate(useNewest=false) {
 		if (this.terminal) {
 			this.qMemory.push(0);
 			return this.reward;
@@ -193,22 +190,20 @@ class MDPTile {
 
 		let maxQ = null;
 		for (let i=0; i<this.actions.length; i++) {
-			let qValue = this.actions[i].recalculate(discount, useNewest);
+			let qValue = this.actions[i].recalculate(useNewest);
 			if (maxQ === null || qValue > maxQ) {
 				maxQ = qValue;
 			}
 		}
 
 		this.qMemory.push(maxQ);
-		return maxQ;
 	}
 
 	getQValue(iteration=this.qMemory.length-1) {
-		if (!this.accessible) return 0;
-
 		while (this.qMemory.length - 1 < iteration)
 			this.recalculate();
-		
+
+		if (!this.accessible) return 0;
 		return this.reward + this.qMemory[iteration];
 	}
 
@@ -258,9 +253,7 @@ class Action {
 			this.results = this.results.filter(v => v.node !== result);
 	}
 
-	recalculate(discount, useNewest=false) {
-		this.discount = discount;
-
+	recalculate(useNewest=false) {
 		// discounted weighted sum of reward by chance
 		let qValue = 0;
 		let chance = 0;
@@ -268,11 +261,11 @@ class Action {
 			let res = this.results[i];
 			chance += res.chance;
 			if (!res.node.accessible) {
-				qValue += discount * res.chance * (this.reward - this.cost + this.defaultResult.node.getQValue(this.qMemory.length - 1));
+				qValue += this.discount * res.chance * (this.reward - this.cost + this.defaultResult.node.getQValue(this.qMemory.length - 1));
 			} else if (useNewest) {
-				qValue += discount * res.chance * (this.reward - this.cost + res.node.getQValue());
+				qValue += this.discount * res.chance * (this.reward - this.cost + res.node.getQValue());
 			} else {
-				qValue += discount * res.chance * (this.reward - this.cost + res.node.getQValue(this.qMemory.length - 1));
+				qValue += this.discount * res.chance * (this.reward - this.cost + res.node.getQValue(this.qMemory.length - 1));
 			}
 		}
 
@@ -284,7 +277,7 @@ class Action {
 		}
 		*/
 
-		qValue += discount * (1 - chance) * (this.reward - this.cost + this.defaultResult.node.getQValue(this.qMemory.length -1));
+		qValue += this.discount * (1 - chance) * (this.reward - this.cost + this.defaultResult.node.getQValue(this.qMemory.length -1));
 		this.qMemory.push(qValue);
 		return qValue;
 	}

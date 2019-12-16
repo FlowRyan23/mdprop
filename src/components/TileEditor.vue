@@ -3,11 +3,11 @@
 		<h2>Editing Tile {{coords()}}</h2>
 
 		<v-btn-toggle>
-			<v-btn>Free</v-btn>
-			<v-btn>Wall</v-btn>
-			<v-btn>Goal</v-btn>
-			<v-btn>Death</v-btn>
-			<v-btn>Custom</v-btn>
+			<v-btn @click="setType('free')">Free</v-btn>
+			<v-btn @click="setType('wall')">Wall</v-btn>
+			<v-btn @click="setType('goal')">Goal</v-btn>
+			<v-btn @click="setType('death')">Death</v-btn>
+			<v-btn @click="setType('free')">Custom</v-btn>
 		</v-btn-toggle>
 
 		<v-checkbox v-model="tile.terminal" :label="'Terminal'"></v-checkbox>
@@ -62,10 +62,34 @@ export default {
 	components: {ActionEditor},
 	props: ["tile"],
 	data() {return {
-		test: false
 	}},
 
 	methods: {
+		setType(type="custom") {
+			switch (type) {
+				case "free":
+					this.tile.accessible = true;
+					this.tile.reward = 0;
+					this.tile.terminal = false;
+					break;
+				case "wall":
+					this.tile.accessible = false;
+					this.tile.reward = 0;
+					this.tile.terminal = false;
+					break;
+				case "goal":
+					this.tile.accessible = true;
+					this.tile.reward = 1;
+					this.tile.terminal = true;
+					break;
+				case "death":
+					this.tile.accessible = true;
+					this.tile.reward = -1;
+					this.tile.terminal = true;
+					break;
+			}
+		},
+		
 		coords() {
 			return '' + (this.tile.y+1) + '-' + (this.tile.x+1);
 		}
