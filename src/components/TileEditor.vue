@@ -1,18 +1,19 @@
 <template>
 	<div class="col" @click="$emit('redraw')">
-		<h2>Editing Tile {{coords()}}</h2>
+		<h2 id="title">Editing Tile {{coords()}}</h2>
 
-		<v-btn-toggle>
-			<v-btn @click="setType('free')">Free</v-btn>
-			<v-btn @click="setType('wall')">Wall</v-btn>
-			<v-btn @click="setType('goal')">Goal</v-btn>
-			<v-btn @click="setType('death')">Death</v-btn>
-			<v-btn @click="setType('free')">Custom</v-btn>
-		</v-btn-toggle>
+			<v-btn-toggle>
+				<v-btn @click="setType('free')">Free</v-btn>
+				<v-btn @click="setType('wall')">Wall</v-btn>
+				<v-btn @click="setType('goal')">Goal</v-btn>
+				<v-btn @click="setType('death')">Death</v-btn>
+			</v-btn-toggle>
 
-		<v-checkbox v-model="tile.terminal" :label="'Terminal'"></v-checkbox>
-		<v-checkbox v-model="tile.accessible" :label="'Accesible'"></v-checkbox>
-		
+		<div class="myRow">
+			<v-checkbox v-model="tile.terminal" :label="'Terminal'"></v-checkbox>
+			<v-checkbox v-model="tile.accessible" :label="'Accesible'"></v-checkbox>
+		</div>
+
 		<!-- Reward slider-->
 		<v-slider v-model="tile.reward" :step="0.01" :max="1.0" :min="-1.0" :label="'Reward'" hide-details>
 			<template v-slot:append>
@@ -55,7 +56,7 @@
 
 <script>
 import ActionEditor from "./ActionEditor.vue";
-import store from '../logic/settings';
+import store from '../logic/sharedData';
 
 export default {
 	name: "TileEditor",
@@ -102,3 +103,9 @@ export default {
 	}
 }
 </script>
+
+<style scoped>
+	#title {
+		margin-bottom: 16px
+	}
+</style>

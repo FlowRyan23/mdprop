@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import store from '../logic/settings'
+import store from '../logic/sharedData'
 export default {
 	name: "GridMDPSettings",
 	data() {return {

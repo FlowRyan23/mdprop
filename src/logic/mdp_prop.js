@@ -1,4 +1,4 @@
-import store from "./settings";
+import store from "./sharedData";
 
 function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
 	return new GridMDP(level, stepChances, discount, stepCost);

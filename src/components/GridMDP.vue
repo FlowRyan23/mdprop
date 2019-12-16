@@ -1,8 +1,5 @@
 <template>
 	<div>
-		<v-navigation-drawer id="settings" app persistent disable-resize-watcher mobile-break-point="0" width="20%">
-			<GridMDPSettings @apply-settings="applySettings()"/>
-		</v-navigation-drawer>
 
 		<div v-if="mdp" id="content" class="myRow">
 			<div>
@@ -53,14 +50,13 @@
 <script>
 import GridMDPTile from './GridMDPTile.vue';
 import TileEditor from './TileEditor.vue';
-import GridMDPSettings from './GridMDPSettings.vue';
 
-import store from '../logic/settings.js'
+import store from '../logic/sharedData.js'
 import {gmdp} from '../logic/mdp_prop.js';
 
 export default {
 	name: "GridMDP",
-	components : {GridMDPTile, TileEditor, GridMDPSettings},
+	components : {GridMDPTile, TileEditor},
 	data() {return {
 		mdp: null,
 		editTile: null,
@@ -141,6 +137,7 @@ export default {
 			}
 			this.mdp = gmdp(level);
 			this.setEdit("0-0");
+			store.commit('setLevel', this.mdp.compact());
 		}
 	},
 

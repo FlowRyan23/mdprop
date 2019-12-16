@@ -12,6 +12,12 @@ const store = new Vuex.Store({
 			maxWidth: 12,					// level width (todo more than 12 makes layout look bad)
 			maxHeight: 255,				// level height
 
+			// advanced settings
+			enableAdvancedSettings: true,
+			tileWidth: 100,
+			tileHeight: 75,
+			
+
 			hardReset: true,			// hardReset will undo all changes to the map made through the tile editor
 			fullDisplay: false		// fullDisplay will show all q-values at every location not just the highest
 		},
