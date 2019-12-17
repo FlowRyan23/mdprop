@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import ActionEditor from "./ActionEditor.vue";
+import ActionEditor from "./ActionEditor";
 import store from '../logic/sharedData';
 
 export default {

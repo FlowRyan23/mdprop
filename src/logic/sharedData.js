@@ -16,7 +16,8 @@ const store = new Vuex.Store({
 			enableAdvancedSettings: true,
 			tileWidth: 100,
 			tileHeight: 75,
-			
+			tileInsets: 5,
+			directionIndicatorSize: 6,
 
 			hardReset: true,			// hardReset will undo all changes to the map made through the tile editor
 			fullDisplay: false		// fullDisplay will show all q-values at every location not just the highest

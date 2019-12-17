@@ -1,49 +1,49 @@
 <template>
-	<canvas :class="{'canvas': true, 'selected': editing}" width="100" height="75" :ref="id" @click="$emit('edit-tile', id)"></canvas>
+	<canvas
+		:class="{'canvas': true, 'selected': editing}"
+		:width="width"
+		:height="height"
+		:ref="id" @click="$emit('edit-tile', id)">
+	</canvas>
 </template>
 
 <script>
 import store from '../logic/sharedData';
 export default {
 	name: "GridMDPTile",
-	props: ["initTile"],
+	props: ["tile"],
 	data() {return {
-		tile: this.initTile,
-		displayingIteration: 0,
-		editing: false
+		editing: false,
+		test: null
 	}},
 	methods: {
-		test() {
-			return "test";
-		},
 		redraw() {
 			let drawContext = this.$refs[this.id].getContext("2d");
 			drawContext.fillStyle = this.color;
-			drawContext.fillRect(0, 0, 100, 75);
+			drawContext.fillRect(0, 0, store.state.settings.tileWidth, store.state.settings.tileHeight);
 
 			if (this.tile.accessible) {
 				drawContext.fillStyle = "white";
 				drawContext.font = "30px Arial";
 				drawContext.textAlign = "center";
-				drawContext.fillText(this.tile.getQValue(store.state.displayIteration).toFixed(2), 100/2, (75 + 20)/2);
+				drawContext.fillText(this.tile.getQValue(store.state.displayIteration).toFixed(2), this.width/2, (this.height + 20)/2);
 			
 				if (this.tile.terminal) {
 					drawContext.beginPath();
-					let padding = 5;
 					drawContext.strokeStyle = "white";
-					drawContext.strokeRect(padding, padding, 100 - 2 * padding, 75 - 2 * padding);
+					drawContext.strokeRect(this.inset, this.inset, this.width - 2 * this.inset, this.height - 2 * this.inset);
 
 				} else if (this.tile.bestAction()) {
 					let action = this.tile.bestAction().name;					
 					drawContext.fillStyle = "white";
 					if (action === "up") {
-						drawContext.fillRect(100 / 2 - 3, 5, 6, 6);
+						drawContext.fillRect(this.width / 2 - this.diSize/2, this.inset, this.diSize, this.diSize);
 					} else if (action === "right") {
-						drawContext.fillRect(100 - 5 - 6, 75 / 2 - 3, 6, 6);
+						drawContext.fillRect(this.width - this.inset - this.diSize, this.height / 2 - this.diSize / 2, this.diSize, this.diSize);
 					} else if (action === "left") {
-						drawContext.fillRect(5, 75 / 2 - 6, 6, 6);
+						drawContext.fillRect(this.inset, this.height / 2 - this.diSize / 2, this.diSize, this.diSize);
 					} else if (action === "down") {
-						drawContext.fillRect(100 / 2 - 3, 75 - 5 - 6, 6, 6);
+						drawContext.fillRect(this.width / 2 - this.diSize / 2, this.height - this.inset - this.diSize, this.diSize, this.diSize);
 					}
 				}
 			}
@@ -64,7 +64,12 @@ export default {
 				bri = 5;
 
 			return "hsl(" + hue +", " + sat + "%, " + bri + "%)";
-		}
+		},
+		
+		width() {return store.state.settings.tileWidth},
+		height() {return store.state.settings.tileHeight},
+		inset() {return store.state.settings.tileInsets},
+		diSize() {return store.state.settings.directionIndicatorSize},
 	},
 	mounted() {
 		this.redraw();

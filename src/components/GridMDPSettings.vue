@@ -29,6 +29,17 @@
 			</template>
 		</v-slider>
 
+		<!-- tile width slider -->
+		<v-slider v-model="settings.tileWidth" :step="1" :max="512" :min="1" :label="'Tile Width'" hide-details>
+			<template v-slot:append>
+				<v-text-field
+					v-model="settings.tileWidth"
+					class="mt-0 pt-0" hide-details
+					single-line	type="number" style="width: 60px"
+				></v-text-field>
+			</template>
+		</v-slider>
+
 		<v-btn :name="'step-cost'" @click="reset()">Reset</v-btn>
 		<v-btn :name="'apply'" @click="apply()">Apply</v-btn>
 	</div>
@@ -36,6 +47,11 @@
 
 <script>
 import store from '../logic/sharedData'
+
+const sleep = (milliseconds) => {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+
 export default {
 	name: "GridMDPSettings",
 	data() {return {
@@ -45,7 +61,9 @@ export default {
 	methods: {
 		apply() {
 			store.commit("setSettings", {...this.settings});
-			this.$emit('apply-settings');
+			sleep(0).then(() => {
+				this.$emit('apply-settings');
+			});
 		},
 
 		reset() {

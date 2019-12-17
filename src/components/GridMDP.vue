@@ -1,11 +1,10 @@
 <template>
 	<div>
-
 		<div v-if="mdp" id="content" class="myRow">
 			<div>
 				<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="myRow">
 					<div v-bind:key="y" v-for="(tile, y) in col" class="myCol">
-						<GridMDPTile :ref="'' + x + '-' + y" :initTile="tile" @edit-tile="setEdit" class="tile"/>
+						<GridMDPTile :ref="'' + x + '-' + y" :tile="tile" @edit-tile="setEdit" class="tile"/>
 					</div>
 				</div>
 				
@@ -48,11 +47,11 @@
 </template>
 
 <script>
-import GridMDPTile from './GridMDPTile.vue';
-import TileEditor from './TileEditor.vue';
+import GridMDPTile from './GridMDPTile';
+import TileEditor from './TileEditor';
 
-import store from '../logic/sharedData.js'
-import {gmdp} from '../logic/mdp_prop.js';
+import store from '../logic/sharedData'
+import {gmdp} from '../logic/mdp_prop';
 
 export default {
 	name: "GridMDP",
@@ -118,6 +117,7 @@ export default {
 
 		applySettings() {
 			this.mdp.apply(store.state.settings);
+			this.redraw();
 		},
 
 		kill() {
@@ -174,10 +174,12 @@ export default {
 
 	#display {
 		display: inline-block;
+		flex-grow: 1;
 	}
 
 	#editor {
 		display: inline-block;
 		max-width: 25%;
+		flex-grow: 0;
 	}
 </style>
