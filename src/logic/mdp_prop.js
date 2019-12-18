@@ -3,8 +3,6 @@ import store from "./sharedData";
 function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
 	return new GridMDP(level, stepChances, discount, stepCost);
 }
-
-
 export {gmdp};
 
 class GridMDP {
@@ -151,7 +149,7 @@ class MDPTile {
 		this.discount = discount;
 
 		this.qMemory = [0];
-		this.actions = [];
+		this.actions = {};
 	}
 
 	reset(hard=true) {
@@ -162,24 +160,24 @@ class MDPTile {
 			this.terminal = store.state.level[this.x][this.y].terminal;
 		}
 		this.qMemory = [0];
-		for(let i=0; i<this.actions.length; i++)
-			this.actions[i].reset(hard);
+		for(let aName in this.actions)
+			this.actions[aName].reset(hard);
 	}
 
 	apply(settings) {
 		this.discount = settings.discount;
 
-		for (let i=0; i<this.actions.length; i++) {
-			this.actions[i].apply(settings);
+		for (let aName in this.actions) {
+			this.actions[aName].apply(settings);
 		}
 	}
 
 	addAction(action) {
-		this.actions.push(action);
+		this.actions[action.name] = action;
 	}
 
 	removeAction(action) {
-		this.actions = this.neighbors.filter(a => a !== action);
+		delete this.actions[action.name]
 	}
 
 	recalculate(useNewest=false) {
@@ -189,13 +187,17 @@ class MDPTile {
 		}
 
 		let maxQ = null;
-		for (let i=0; i<this.actions.length; i++) {
-			let qValue = this.actions[i].recalculate(useNewest);
+		for (let aName in this.actions) {
+			// let qValue = this.actions[aName].recalculate(useNewest);
+			let qValue = useNewest? 
+				this.actions[aName].getQValue() : 
+				this.actions[aName].getQValue(this.qMemory.length);
 			if (maxQ === null || qValue > maxQ) {
 				maxQ = qValue;
 			}
 		}
 
+		if (store.state.settings.useRounded) maxQ = Math.round(maxQ * 100) / 100;
 		this.qMemory.push(maxQ);
 	}
 
@@ -208,10 +210,10 @@ class MDPTile {
 	}
 
 	bestAction(iteration=this.qMemory.length-1) {
-		let bestAction = this.actions[0];
-		for (let i=1; i<this.actions.length; i++) {
-			if (this.actions[i].getQValue(iteration) > bestAction.getQValue(iteration))
-				bestAction = this.actions[i];
+		let bestAction = null;
+		for (let aName in this.actions) {
+			if (!bestAction || this.actions[aName].getQValue(iteration) > bestAction.getQValue(iteration))
+				bestAction = this.actions[aName];
 		}
 		return bestAction;
 	}
@@ -278,8 +280,9 @@ class Action {
 		*/
 
 		qValue += this.discount * (1 - chance) * (this.reward - this.cost + this.defaultResult.node.getQValue(this.qMemory.length -1));
+		
+		if (store.state.settings.useRounded) qValue = Math.round(qValue * 100) / 100;
 		this.qMemory.push(qValue);
-		return qValue;
 	}
 
 	getQValue(iteration=this.qMemory.length-1) {

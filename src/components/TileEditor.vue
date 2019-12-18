@@ -1,17 +1,20 @@
 <template>
-	<div class="col" @click="$emit('redraw')">
+	<v-card>
+	<div id="card" class="myCol" @click="$emit('redraw')">
 		<h2 id="title">Editing Tile {{coords()}}</h2>
 
+		<div id="quick-edits">
 			<v-btn-toggle>
 				<v-btn @click="setType('free')">Free</v-btn>
 				<v-btn @click="setType('wall')">Wall</v-btn>
 				<v-btn @click="setType('goal')">Goal</v-btn>
 				<v-btn @click="setType('death')">Death</v-btn>
 			</v-btn-toggle>
+		</div>
 
 		<div class="myRow">
-			<v-checkbox v-model="tile.terminal" :label="'Terminal'"></v-checkbox>
-			<v-checkbox v-model="tile.accessible" :label="'Accesible'"></v-checkbox>
+			<v-checkbox v-model="tile.terminal" :label="'Terminal'" color="blue"></v-checkbox>
+			<v-checkbox v-model="tile.accessible" :label="'Accesible'" color="blue"></v-checkbox>
 		</div>
 
 		<!-- Reward slider-->
@@ -19,20 +22,6 @@
 			<template v-slot:append>
 				<v-text-field
 					v-model="tile.reward"
-					class="mt-0 pt-0"
-					hide-details
-					single-line
-					type="number"
-					style="width: 60px"
-				></v-text-field>
-			</template>
-		</v-slider>
-
-		<!-- Discount slider -->
-		<v-slider v-model="tile.discount" :step="0.01" :max="1" :min="0" :label="'Discount'" hide-details>
-			<template v-slot:append>
-				<v-text-field
-					v-model="tile.discount"
 					class="mt-0 pt-0"
 					hide-details
 					single-line
@@ -52,6 +41,7 @@
 			</v-expansion-panel>
 		</v-expansion-panels>
 	</div>
+	</v-card>
 </template>
 
 <script>
@@ -107,5 +97,15 @@ export default {
 <style scoped>
 	#title {
 		margin-bottom: 16px
+	}
+
+	#card {
+		margin: 16px;
+	}
+
+	#quick-edits {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
 	}
 </style>

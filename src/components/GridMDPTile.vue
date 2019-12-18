@@ -9,6 +9,7 @@
 
 <script>
 import store from '../logic/sharedData';
+import '../logic/renderUtils';
 export default {
 	name: "GridMDPTile",
 	props: ["tile"],
@@ -19,34 +20,72 @@ export default {
 	methods: {
 		redraw() {
 			let drawContext = this.$refs[this.id].getContext("2d");
-			drawContext.fillStyle = this.color;
-			drawContext.fillRect(0, 0, store.state.settings.tileWidth, store.state.settings.tileHeight);
-
-			if (this.tile.accessible) {
-				drawContext.fillStyle = "white";
-				drawContext.font = "30px Arial";
-				drawContext.textAlign = "center";
-				drawContext.fillText(this.tile.getQValue(store.state.displayIteration).toFixed(2), this.width/2, (this.height + 20)/2);
 			
-				if (this.tile.terminal) {
-					drawContext.beginPath();
-					drawContext.strokeStyle = "white";
-					drawContext.strokeRect(this.inset, this.inset, this.width - 2 * this.inset, this.height - 2 * this.inset);
+			if (store.state.settings.detailedDisplay) {
+				if (!this.tile.accessible || this.tile.terminal) {
+					drawContext.fillStyle = this.color;
+					drawContext.fillRect(0, 0, this.width, this.height);
 
-				} else if (this.tile.bestAction()) {
-					let action = this.tile.bestAction().name;					
+					if (this.tile.terminal) {
+						drawContext.fillStyle = "white";
+						drawContext.font = "30px Arial";
+						drawContext.textAlign = "center";
+						drawContext.fillText(this.tile.getQValue(store.state.displayIteration).toFixed(2), this.width/2, (this.height + 20)/2);
+
+						drawContext.beginPath();
+						drawContext.strokeStyle = "white";
+						drawContext.strokeRect(this.inset, this.inset, this.width - 2 * this.inset, this.height - 2 * this.inset);
+					}
+				} else {
+					let center = [this.width/2, this.height/2];
+					drawContext.fillPoly([[0, 0], [0, this.height], center], this.colorOf(this.tile.actions["left"].getQValue(store.state.displayIteration)), "white");
+					drawContext.fillPoly([[0, 0], [this.width, 0], center], this.colorOf(this.tile.actions["up"].getQValue(store.state.displayIteration)), "white");
+					drawContext.fillPoly([[this.width, this.height], [0, this.height], center], this.colorOf(this.tile.actions["down"].getQValue(store.state.displayIteration)), "white");
+					drawContext.fillPoly([[this.width, this.height], [this.width, 0], center], this.colorOf(this.tile.actions["right"].getQValue(store.state.displayIteration)), "white");
+				
+					let textSize = Math.min(this.width/8, this.height/6);
+					drawContext.drawText(this.tile.actions.up.getQValue(store.state.displayIteration).toFixed(2), this.width/2, this.height/5, "white", textSize);
+					drawContext.drawText(this.tile.actions.down.getQValue(store.state.displayIteration).toFixed(2), this.width/2, 4 * this.height/5, "white", textSize);
+					drawContext.drawText(this.tile.actions.left.getQValue(store.state.displayIteration).toFixed(2), this.width/5, this.height/2, "white", textSize);
+					drawContext.drawText(this.tile.actions.right.getQValue(store.state.displayIteration).toFixed(2), 4 * this.width/5, this.height/2, "white", textSize);
+				}
+			} else {
+				drawContext.fillStyle = this.color;
+				drawContext.fillRect(0, 0, this.width, this.height);
+				
+				if (this.tile.accessible) {
 					drawContext.fillStyle = "white";
-					if (action === "up") {
-						drawContext.fillRect(this.width / 2 - this.diSize/2, this.inset, this.diSize, this.diSize);
-					} else if (action === "right") {
-						drawContext.fillRect(this.width - this.inset - this.diSize, this.height / 2 - this.diSize / 2, this.diSize, this.diSize);
-					} else if (action === "left") {
-						drawContext.fillRect(this.inset, this.height / 2 - this.diSize / 2, this.diSize, this.diSize);
-					} else if (action === "down") {
-						drawContext.fillRect(this.width / 2 - this.diSize / 2, this.height - this.inset - this.diSize, this.diSize, this.diSize);
+					drawContext.font = "30px Arial";
+					drawContext.textAlign = "center";
+					drawContext.fillText(this.tile.getQValue(store.state.displayIteration).toFixed(2), this.width/2, (this.height + 20)/2);
+				
+					if (this.tile.terminal) {
+						drawContext.beginPath();
+						drawContext.strokeStyle = "white";
+						drawContext.strokeRect(this.inset, this.inset, this.width - 2 * this.inset, this.height - 2 * this.inset);
+
+					} else if (this.tile.bestAction()) {
+						let action = this.tile.bestAction().name;
+						drawContext.fillStyle = "white";
+						if (action === "up") {
+							drawContext.fillRect(this.width / 2 - this.diSize/2, this.inset, this.diSize, this.diSize);
+						} else if (action === "right") {
+							drawContext.fillRect(this.width - this.inset - this.diSize, this.height / 2 - this.diSize / 2, this.diSize, this.diSize);
+						} else if (action === "left") {
+							drawContext.fillRect(this.inset, this.height / 2 - this.diSize / 2, this.diSize, this.diSize);
+						} else if (action === "down") {
+							drawContext.fillRect(this.width / 2 - this.diSize / 2, this.height - this.inset - this.diSize, this.diSize, this.diSize);
+						}
 					}
 				}
 			}
+		},
+
+		colorOf(qValue) {
+			let hue = Math.max(0, Math.min(120, (120 * (1 + qValue) / 2)));
+			let sat = Math.max(0, Math.min(75, 75 * Math.abs(qValue)));
+			let bri = Math.max(0, Math.min(55, 15 + 40 * Math.abs(qValue)));
+			return "hsl(" + hue +", " + sat + "%, " + bri + "%)";
 		}
 	},
 	computed: {
@@ -56,14 +95,13 @@ export default {
 
 		color() {
 			let qValue = this.tile.getQValue(store.state.displayIteration);
-
 			let hue = Math.max(0, Math.min(120, (120 * (1 + qValue) / 2)));
 			let sat = Math.max(0, Math.min(75, 75 * Math.abs(qValue)));
 			let bri = Math.max(0, Math.min(55, 15 + 40 * Math.abs(qValue)));
 			if (!this.tile.accessible)
 				bri = 5;
 
-			return "hsl(" + hue +", " + sat + "%, " + bri + "%)";
+			return "hsl(" + hue +", " + sat + "%, " + bri + "%)";		
 		},
 		
 		width() {return store.state.settings.tileWidth},

@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-navigation-drawer v-model="drawer" app clipped width="20%">
+		<v-navigation-drawer v-model="drawer" app clipped floating mobile-break-point="1050" width="20%">
 			<GridMDPSettings id="settings" @apply-settings="applySettings()"/>
 		</v-navigation-drawer>
 
@@ -42,6 +42,3 @@ export default {
 	}
 }
 </script>
-
-<style scoped>
-</style>

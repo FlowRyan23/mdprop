@@ -8,11 +8,17 @@
 					</div>
 				</div>
 				
-				<v-btn @click="prevIter()">previous</v-btn>
-				<v-btn @click="save()">save</v-btn>
-				<v-btn @click="reset()">reset</v-btn>
-				<v-btn @click="nextIter()">next</v-btn>
-				<v-btn @click="kill()">new</v-btn>
+				<div id="level-buttons">
+					<div>
+						<v-btn @click="prevIter()">prev</v-btn>
+						<v-btn @click="reset()">reset</v-btn>
+						<v-btn @click="nextIter()">next</v-btn>
+					</div>
+					<div>
+						<v-btn @click="save()">save</v-btn>
+						<v-btn @click="kill()">new</v-btn>
+					</div>
+				</div>
 			</div>
 			
 			<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw"/>
@@ -50,7 +56,7 @@
 import GridMDPTile from './GridMDPTile';
 import TileEditor from './TileEditor';
 
-import store from '../logic/sharedData'
+import store from '../logic/sharedData';
 import {gmdp} from '../logic/mdp_prop';
 
 export default {
@@ -112,7 +118,7 @@ export default {
 		},
 
 		isTileRef(ref) {
-			return ref !== "editor" && ref !== "settings";
+			return this.$refs[ref] && this.$refs[ref][0] && ref !== "editor" && ref !== "settings";
 		},
 
 		applySettings() {
@@ -136,8 +142,9 @@ export default {
 				}
 			}
 			this.mdp = gmdp(level);
-			this.setEdit("0-0");
 			store.commit('setLevel', this.mdp.compact());
+			//this.setEdit("0-0");
+			this.editTile = null;
 		}
 	},
 
@@ -169,6 +176,7 @@ export default {
 
 	#settings {
 		display: inline-block;
+		min-width: 20%;
 		max-width: 25%;
 	}
 
@@ -177,9 +185,15 @@ export default {
 		flex-grow: 1;
 	}
 
+	#level-buttons {
+		display: flex;
+		justify-content: space-between;
+	}
+
 	#editor {
 		display: inline-block;
-		max-width: 25%;
+		min-width: 20%;
+		max-width: 35%;
 		flex-grow: 0;
 	}
 </style>
