@@ -1,5 +1,34 @@
 <template>
 	<v-col>
+		<!-- Formula -->
+		<v-tooltip bottom>
+			<template v-slot:activator="{on}">
+				<span>{{action.discount}} * (</span>
+			</template>
+			<span>discount</span>
+		</v-tooltip>
+		<span :key="i" v-for="(res, i) in action.results">
+			<v-tooltip bottom>
+				<template v-slot:activator="{on}">
+					<span>{{res.chance}} *</span>
+				</template>
+				<span>chance</span>
+			</v-tooltip>
+
+			<v-tooltip bottom>
+				<template v-slot:activator="{on}">
+					<span>{{res.node.getQValue(store.state.displayIteration).toFixed(2)}} + </span>
+				</template>
+				<span>chance</span>
+			</v-tooltip>
+		</span>
+		<v-tooltip bottom>
+			<template v-slot:activator="{on}">
+				<span> - {{action.cost}})</span>
+			</template>
+			<span>discount</span>
+		</v-tooltip>
+
 		<!-- Reward slider-->
 		<v-slider v-model="action.reward" :step="0.01" :max="1.0" :min="-1.0" :label="'Reward'" hide-details>
 			<template v-slot:append>
@@ -45,7 +74,11 @@
 </template>
 
 <script>
+import store from '../logic/sharedData';
 export default {
-	props: ["action"]
+	props: ["action"],
+	data() {return {
+		store: store
+	}}
 }
 </script>

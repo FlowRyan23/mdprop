@@ -34,7 +34,7 @@
 		<v-expansion-panels>
 			<h3>Actions</h3>
 			<v-expansion-panel v-for="action in tile.actions" :key="action.name">
-				<v-expansion-panel-header>{{action.name}} {{action.getQValue(displayIteration).toFixed(2)}}</v-expansion-panel-header>
+				<v-expansion-panel-header>{{action.name}}</v-expansion-panel-header>
 				<v-expansion-panel-content>
 					<ActionEditor :action="action" />
 				</v-expansion-panel-content>

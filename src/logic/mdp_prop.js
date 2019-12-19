@@ -65,8 +65,8 @@ class GridMDP {
 				}
 
 				this.tiles[x][y].addAction(upAction);
-				this.tiles[x][y].addAction(leftAction);
 				this.tiles[x][y].addAction(downAction);
+				this.tiles[x][y].addAction(leftAction);
 				this.tiles[x][y].addAction(rightAction);
 			}
 		}
@@ -263,11 +263,11 @@ class Action {
 			let res = this.results[i];
 			chance += res.chance;
 			if (!res.node.accessible) {
-				qValue += this.discount * res.chance * (this.reward - this.cost + this.defaultResult.node.getQValue(this.qMemory.length - 1));
+				qValue += res.chance * (this.reward - this.cost + this.discount * this.defaultResult.node.getQValue(this.qMemory.length - 1));
 			} else if (useNewest) {
-				qValue += this.discount * res.chance * (this.reward - this.cost + res.node.getQValue());
+				qValue += res.chance * (this.reward - this.cost + this.discount * res.node.getQValue());
 			} else {
-				qValue += this.discount * res.chance * (this.reward - this.cost + res.node.getQValue(this.qMemory.length - 1));
+				qValue += res.chance * (this.reward - this.cost + this.discount * res.node.getQValue(this.qMemory.length - 1));
 			}
 		}
 
