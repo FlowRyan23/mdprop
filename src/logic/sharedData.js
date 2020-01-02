@@ -30,9 +30,24 @@ const store = new Vuex.Store({
 		displayIteration: 0,
 
 		level: [
-			[{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":1,"terminal":true}],
-			[{"accessible":true,"reward":0,"terminal":false},{"accessible":false,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":-1,"terminal":true}],
-			[{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false},{"accessible":true,"reward":0,"terminal":false}]
+			[
+				{"accessible":true,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":true},
+				{"accessible":true,"reward":1,"terminal":true,"initial":false}
+			],
+			[
+				{"accessible":true,"reward":0,"terminal":false,"initial":false},
+				{"accessible":false,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":-1,"terminal":true,"initial":false}
+			],
+			[
+				{"accessible":true,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false}
+			]
 		]
 	},
 

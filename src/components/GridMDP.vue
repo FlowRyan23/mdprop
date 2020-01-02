@@ -65,16 +65,16 @@ export default {
 	data() {return {
 		mdp: null,
 		editTile: null,
-		width: 10,
-		height: 7
+		width: 7,
+		height: 5
 	}},
 
 	methods: {
 		nextIter() {
 			store.commit('nextIteration');
 
-			if (store.state.displayIteration > this.mdp.iterations)
-				this.mdp.iteration();
+			if (store.state.displayIteration > this.mdp.iteration)
+				this.mdp.next();
 			
 			this.redraw();
 		},

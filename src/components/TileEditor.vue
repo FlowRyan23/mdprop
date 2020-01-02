@@ -15,6 +15,7 @@
 		<div class="myRow">
 			<v-checkbox v-model="tile.terminal" :label="'Terminal'" color="blue"></v-checkbox>
 			<v-checkbox v-model="tile.accessible" :label="'Accesible'" color="blue"></v-checkbox>
+			<v-checkbox v-model="tile.reached" :label="'Initial'" color="blue"></v-checkbox>
 		</div>
 
 		<!-- Reward slider-->
