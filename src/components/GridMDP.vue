@@ -25,29 +25,7 @@
 		</div>
 
 		<div v-else id="creator">
-			<v-text-field
-				label="Width"
-				v-model="width"
-				min="1"
-				:max="maxWidth"
-				class="mt-0 pt-0"
-				hide-details
-				single-line
-				type="number"
-				style="width: 60px"
-			></v-text-field>
-
-			<v-text-field
-				label="Height"
-				v-model="height"
-				min="1"
-				class="mt-0 pt-0"
-				hide-details
-				single-line
-				type="number"
-				style="width: 60px"
-			></v-text-field>
-			<v-btn @click="create()">create</v-btn>
+			<creator/>
 		</div>
 	</div>
 </template>
@@ -55,18 +33,17 @@
 <script>
 import GridMDPTile from './GridMDPTile';
 import TileEditor from './TileEditor';
+import Creator from './Creator';
 
 import store from '../logic/sharedData';
 import {gmdp} from '../logic/mdp_prop';
 
 export default {
 	name: "GridMDP",
-	components : {GridMDPTile, TileEditor},
+	components : {Creator, GridMDPTile, TileEditor},
 	data() {return {
 		mdp: null,
-		editTile: null,
-		width: 7,
-		height: 5
+		editTile: null
 	}},
 
 	methods: {
@@ -130,14 +107,14 @@ export default {
 			this.mdp = null;
 		},
 
-		create() {
-			this.width = Math.max(1, Math.min(store.state.settings.maxWidth, this.width));
-			this.height = Math.max(1, Math.min(store.state.settings.maxHeight, this.height));
+		create(width, height) {
+			width = Math.max(1, Math.min(store.state.settings.maxWidth, width));
+			height = Math.max(1, Math.min(store.state.settings.maxHeight, height));
 
 			let level = [];
-			for(let x=0; x<this.height; x++) {
+			for(let x=0; x<height; x++) {
 				level[x] = [];
-				for(let y=0; y<this.width; y++) {
+				for(let y=0; y<width; y++) {
 					level[x][y] = 0;
 				}
 			}
@@ -149,8 +126,8 @@ export default {
 	},
 
 	computed: {
-		maxWidth() {
-			return store.state.settings.maxWidth;
+		creating() {
+			return this.mdp;
 		}
 	},
 

@@ -30,7 +30,7 @@ export default {
 						drawContext.fillStyle = "white";
 						drawContext.font = "30px Arial";
 						drawContext.textAlign = "center";
-						drawContext.fillText(this.tile.get(store.state.displayIteration), this.width/2, (this.height + 20)/2);
+						drawContext.fillText(this.tile.getLabel(store.state.displayIteration), this.width/2, (this.height + 20)/2);
 
 						drawContext.beginPath();
 						drawContext.strokeStyle = "white";
