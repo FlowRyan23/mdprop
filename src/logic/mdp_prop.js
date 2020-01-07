@@ -106,7 +106,8 @@ class GridMDP {
 				mdp[x][y] = {
 					accessible: this.tiles[x][y].accessible,
 					reward: this.tiles[x][y].reward,
-					terminal: this.tiles[x][y].terminal
+					terminal: this.tiles[x][y].terminal,
+					initial: this.tiles[x][y].initial
 				};
 			}
 		}
@@ -123,6 +124,7 @@ class MDPTile {
 		this.terminal = terminal;
 		this.accessible = accessible;
 
+		this.initial = initial;
 		this.reached = initial;
 		this.marked = false;
 
@@ -138,6 +140,7 @@ class MDPTile {
 			this.terminal = store.state.level[this.x][this.y].terminal;
 		}
 		this.marked = false;
+		this.reached = this.initial;
 		this.qMemory = [0];
 		for(let aName in this.actions)
 			this.actions[aName].reset(hard);

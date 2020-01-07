@@ -15,7 +15,7 @@
 			<div class="myRow">
 				<v-checkbox v-model="tile.terminal" :label="'Terminal'" color="blue"></v-checkbox>
 				<v-checkbox v-model="tile.accessible" :label="'Accesible'" color="blue"></v-checkbox>
-				<v-checkbox v-model="tile.reached" :label="'Initial'" color="blue"></v-checkbox>
+				<v-checkbox v-model="tile.initial" :label="'Initial'" color="blue" @click.passive="setInit()"></v-checkbox>
 			</div>
 
 			<!-- Reward slider-->
@@ -84,6 +84,10 @@ export default {
 		
 		coords() {
 			return '' + (this.tile.y+1) + '-' + (this.tile.x+1);
+		},
+
+		setInit() {
+			this.tile.reached = this.tile.initial;
 		}
 	},
 
