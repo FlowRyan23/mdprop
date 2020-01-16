@@ -22,5 +22,5 @@ CanvasRenderingContext2D.prototype.drawText = function (text, x, y, color, size=
 	this.fillStyle = color;
 	this.textAlign = align;
 	this.font = size + "px " + font;
-	this.fillText(text, x, y + size/2);
+	this.fillText(text, x, y + size * 0.4);
 };

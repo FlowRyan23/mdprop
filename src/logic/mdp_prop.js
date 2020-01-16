@@ -1,11 +1,12 @@
 import store from "./sharedData";
 
-function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
-	return new GridMDP(level, stepChances, discount, stepCost);
-}
-export {gmdp};
+// function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
+// 	return new GridMDP(level, stepChances, discount, stepCost);
+// }
 
-class GridMDP {
+// export {gmdp};
+
+export default class GridMDP {
 	constructor(level, stepChances=store.state.settings.stepCost, discount=store.state.settings.discount, stepCost=store.state.settings.stepCost) {
 		// todo the level in memory is transposed to how it is displayed
 		this.level = level;
@@ -161,7 +162,7 @@ class MDPTile {
 	}
 
 	next(useNewest=false) {
-		if (this.terminal || !this.reached) {
+		if (this.terminal || !this.accessible || !this.reached) {
 			this.qMemory.push(0);
 			for (let aName in this.actions)
 				this.actions[aName].qMemory.push(0);
@@ -284,8 +285,7 @@ class Action {
 			sumChance += res.chance;
 			formula += res.chance + " * " + res.node.getQValue(iteration-1) + " + ";
 		}
-		sumChance = Math.round(sumChance * 100) / 100;
-		formula += (1 - sumChance) + " * " + this.defaultResult.node.getQValue(iteration-1) + ")"
+		formula += (Math.round((1 - sumChance) * 100) / 100) + " * " + this.defaultResult.node.getQValue(iteration-1) + ")"
 
 		let r = this.reward - this.cost
 		formula += (r < 0? " - " : " + ") + Math.abs(r);

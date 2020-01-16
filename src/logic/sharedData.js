@@ -10,13 +10,13 @@ const store = new Vuex.Store({
 			stepChances: {'front': 0.8, 'left': 0.1, 'right': 0.1, 'back': 0},
 			useRounded: true,
 
-			maxWidth: 12,					// level width (todo more than 12 makes layout look bad)
+			maxWidth: 255,					// level width (todo more than 12 makes layout look bad)
 			maxHeight: 255,				// level height
 
 			// advanced settings
 			enableAdvancedSettings: true,
-			tileWidth: 120,
-			tileHeight: 90,
+			tileWidth: 55,
+			tileHeight: 55,
 			tileInsets: 5,
 			directionIndicatorSize: 6,
 			detailedDisplay: false,

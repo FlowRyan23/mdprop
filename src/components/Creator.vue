@@ -28,7 +28,21 @@
 						style="width: 60px"
 					></v-text-field>
 				</div>
-				<v-btn @click="$parent.create(width, height)">create</v-btn>
+
+				<v-slider v-model="connectivity" :step="0.01" :max="1" :min="0" :label="'Con'" hide-details>
+					<template v-slot:append>
+						<v-text-field
+							v-model="connectivity"
+							class="mt-0 pt-0"
+							hide-details
+							single-line
+							type="number"
+							style="width: 60px"
+						></v-text-field>
+					</template>
+				</v-slider>
+
+				<v-btn @click="$parent.create(width, height, connectivity)">create</v-btn>
 			</div>
 		</v-card>
 	</v-overlay>
@@ -39,15 +53,16 @@ import store from '../logic/sharedData';
 
 export default {
 	data() {return {
-		width: 7,
-		height: 5
+		width: 31,
+		height: 31,
+		connectivity: 0.3
 	}},
 
 	computed: {
 		maxWidth() {
 			return store.state.settings.maxWidth;
 		}
-	},
+	}
 }
 </script>
 

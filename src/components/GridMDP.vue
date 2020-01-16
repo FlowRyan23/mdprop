@@ -36,7 +36,8 @@ import TileEditor from './TileEditor';
 import Creator from './Creator';
 
 import store from '../logic/sharedData';
-import {gmdp} from '../logic/mdp_prop';
+import GridMDP from '../logic/mdp_prop';
+import {random} from '../logic/levelGeneration';
 
 export default {
 	name: "GridMDP",
@@ -74,7 +75,7 @@ export default {
 				this.mdp.reset();
 				this.redraw();
 			} else {
-				this.mdp = gmdp(store.state.level, [0.8, 0.1, 0.1, 0]
+				this.mdp = new GridMDP(store.state.level, [0.8, 0.1, 0.1, 0]
 				, store.state.settings.discount, store.state.settings.stepCost);
 			}
 		},
@@ -107,18 +108,18 @@ export default {
 			this.mdp = null;
 		},
 
-		create(width, height) {
+		create(width, height, connectivity) {
 			width = Math.max(1, Math.min(store.state.settings.maxWidth, width));
 			height = Math.max(1, Math.min(store.state.settings.maxHeight, height));
 
-			let level = [];
+			/*let level = [];
 			for(let x=0; x<height; x++) {
 				level[x] = [];
 				for(let y=0; y<width; y++) {
 					level[x][y] = 0;
 				}
-			}
-			this.mdp = gmdp(level);
+			}*/
+			this.mdp = random(width, height, connectivity);
 			store.commit('setLevel', this.mdp.compact());
 			//this.setEdit("0-0");
 			this.editTile = null;

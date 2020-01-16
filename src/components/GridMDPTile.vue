@@ -14,8 +14,7 @@ export default {
 	name: "GridMDPTile",
 	props: ["tile"],
 	data() {return {
-		editing: false,
-		test: null
+		editing: false
 	}},
 	methods: {
 		redraw() {
@@ -27,11 +26,9 @@ export default {
 					drawContext.fillRect(0, 0, this.width, this.height);
 
 					if (this.tile.terminal) {
-						drawContext.fillStyle = "white";
-						drawContext.font = "30px Arial";
-						drawContext.textAlign = "center";
-						drawContext.fillText(this.tile.getLabel(store.state.displayIteration), this.width/2, (this.height + 20)/2);
-
+						let textSize = Math.min(this.width*0.33, this.height/2);
+						drawContext.drawText(this.tile.getLabel(store.state.displayIteration), this.width/2, this.height/2, "white", textSize);
+					
 						drawContext.beginPath();
 						drawContext.strokeStyle = "white";
 						drawContext.strokeRect(this.inset, this.inset, this.width - 2 * this.inset, this.height - 2 * this.inset);
@@ -54,10 +51,8 @@ export default {
 				drawContext.fillRect(0, 0, this.width, this.height);
 				
 				if (this.tile.accessible) {
-					drawContext.fillStyle = "white";
-					drawContext.font = "30px Arial";
-					drawContext.textAlign = "center";
-					drawContext.fillText(this.tile.getLabel(store.state.displayIteration), this.width/2, (this.height + 20)/2);
+					let textSize = Math.min(this.width*0.33, this.height/2);
+					drawContext.drawText(this.tile.getLabel(store.state.displayIteration), this.width/2, this.height/2, "white", textSize);
 				
 					if (this.tile.terminal) {
 						drawContext.beginPath();
