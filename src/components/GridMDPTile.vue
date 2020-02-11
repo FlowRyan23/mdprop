@@ -60,17 +60,15 @@ export default {
 						drawContext.strokeRect(this.inset, this.inset, this.width - 2 * this.inset, this.height - 2 * this.inset);
 
 					} else if (this.tile.bestAction()) {
-						let action = this.tile.bestAction().name;
 						drawContext.fillStyle = "white";
-						if (action === "up") {
+						if (this.tile.getPolicy(store.state.displayIteration)["up"])
 							drawContext.fillRect(this.width / 2 - this.diSize/2, this.inset, this.diSize, this.diSize);
-						} else if (action === "right") {
+						if (this.tile.getPolicy(store.state.displayIteration)["right"])
 							drawContext.fillRect(this.width - this.inset - this.diSize, this.height / 2 - this.diSize / 2, this.diSize, this.diSize);
-						} else if (action === "left") {
+						if (this.tile.getPolicy(store.state.displayIteration)["left"])
 							drawContext.fillRect(this.inset, this.height / 2 - this.diSize / 2, this.diSize, this.diSize);
-						} else if (action === "down") {
+						if (this.tile.getPolicy(store.state.displayIteration)["down"])
 							drawContext.fillRect(this.width / 2 - this.diSize / 2, this.height - this.inset - this.diSize, this.diSize, this.diSize);
-						}
 					}
 				}
 			}

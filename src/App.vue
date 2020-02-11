@@ -28,4 +28,8 @@ export default {
 		flex-flow: row nowrap;
 		justify-content: space-evenly;
 	}
+
+	.no-pad {
+		padding: 0px;
+	}
 </style>

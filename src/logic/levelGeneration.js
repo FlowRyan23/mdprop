@@ -1,42 +1,76 @@
 import GridMDP from './mdp_prop';
 
-function random(height, width, connectivity=0.5) {
+const tileWall = {
+	"accessible": false,
+	"reward": 0,
+	"terminal": false,
+	"initial": false
+};
+
+// const tilePath = {
+// 	"accessible": true,
+// 	"reward": 0,
+// 	"terminal": false,
+// 	"initial": false
+// };
+
+// const tileGoal = {
+// 	"accessible": true,
+// 	"reward": 1,
+// 	"terminal": true,
+// 	"initial": false
+// };
+
+// const tileDeath = {
+// 	"accessible": true,
+// 	"reward": -1,
+// 	"terminal": true,
+// 	"initial": false
+// };
+
+export default function create(requirements) {
+	// TODO create a level fulfilling the constraints set by requirements
+	//let level = random(requirements.size.height, requirements.size.width, requirements.connectivity);
+	let level = fill(requirements.size.width, requirements.size.height);
+	carveRandom(level, requirements.connectivity);
+	carveDFS(level);
+	return new GridMDP(level);
+}
+
+function fill(width, height, type=tileWall) {
 	let level = [];
 	for(let x=0; x<width; x++) {
-		level[x] = []
+		level[x] = [];
 		for(let y=0; y<height; y++) {
-			level[x][y] = {
-				"accessible": Math.random() < connectivity,
-				"reward": 0,
-				"terminal": false,
-				"initial": false,
-
-				"closed": false
-			}
+			level[x][y] = {...type};
 		}
 	}
+	return level;
+}
 
+function carveRandom(level, chance) {
+	for(let x in level)
+		for(let y in level[x])
+			if(Math.random() < chance)
+				level[x][y].accessible = true;
+
+	return level;
+}
+
+function carveDFS(level, start={"x": 0, "y": 0}) {
 	let fringe = [];
-	fringe.push({
-		"x": 0,	//Math.round(Math.random() * (width - 1)),
-		"y": 0, 	//Math.round(Math.random() * (height -1)),
-		"entry": {
-			"x": 0,	//Math.round(Math.random() * (width - 1)),
-			"y": 0	//Math.round(Math.random() * (height -1))
-		}
-	});
+
+	start.entry = start;
+	fringe.push(start);
 
 	while (fringe.length > 0) {
 		let current = fringe.pop();
 		if (level[current.x][current.y].closed) {
-			// if (Math.random() < connectivity) {
-			// 	level[current.x][current.y].accessible = true;
-			// 	level[current.entry.x][current.entry.y].accessible = true;
-			// }
 			continue;
 		}
 
 		level[current.x][current.y].closed = true;
+
 		level[current.x][current.y].accessible = true;
 		level[current.entry.x][current.entry.y].accessible = true;
 
@@ -49,9 +83,9 @@ function random(height, width, connectivity=0.5) {
 					"x": current.x - 1,
 					"y": current.y
 				}
-			})
+			});
 		}
-
+		
 		if (inBounds(current.x + 2, current.y, level) && !level[current.x + 2][current.y].closed) {
 			children.push({
 				"x": current.x + 2,
@@ -60,7 +94,7 @@ function random(height, width, connectivity=0.5) {
 					"x": current.x + 1,
 					"y": current.y
 				}
-			})
+			});
 		}
 
 		if (inBounds(current.x, current.y - 2, level) && !level[current.x][current.y - 2].closed) {
@@ -71,7 +105,7 @@ function random(height, width, connectivity=0.5) {
 					"x": current.x,
 					"y": current.y - 1
 				}
-			})
+			});
 		}
 
 		if (inBounds(current.x, current.y + 2, level) && !level[current.x][current.y + 2].closed) {
@@ -82,17 +116,17 @@ function random(height, width, connectivity=0.5) {
 					"x": current.x,
 					"y": current.y + 1
 				}
-			})
+			});
 		}
 
 		for (let c of shuffle(children)) {
-			if (!level[c.x][c.y].closed) {
+			if (!closed[level[c.x][c.y]]) {
 				fringe.push(c);
 			}
 		}
 	}
 
-	return new GridMDP(level);
+	return level;
 }
 
 function inBounds(x, y, array) {
@@ -100,7 +134,7 @@ function inBounds(x, y, array) {
 }
 
 function shuffle(array) {
-	var m = array.length, t, i;
+	let m = array.length, t, i;
 	while (m) {
 		i = Math.floor(Math.random() * m--);
 		t = array[m];
@@ -109,5 +143,3 @@ function shuffle(array) {
 	}
 	return array;
 }
-
-export {random}

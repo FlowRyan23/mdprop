@@ -2,8 +2,8 @@
 	<div>
 		<div v-if="mdp" id="content" class="myRow">
 			<div>
-				<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="myRow">
-					<div v-bind:key="y" v-for="(tile, y) in col" class="myCol">
+				<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="d-flex">
+					<div v-bind:key="y" v-for="(tile, y) in col" class="d-flex flex-column">
 						<GridMDPTile :ref="'' + x + '-' + y" :tile="tile" @edit-tile="setEdit" class="tile"/>
 					</div>
 				</div>
@@ -37,7 +37,7 @@ import Creator from './Creator';
 
 import store from '../logic/sharedData';
 import GridMDP from '../logic/mdp_prop';
-import {random} from '../logic/levelGeneration';
+import create from '../logic/levelGeneration';
 
 export default {
 	name: "GridMDP",
@@ -75,8 +75,8 @@ export default {
 				this.mdp.reset();
 				this.redraw();
 			} else {
-				this.mdp = new GridMDP(store.state.level, [0.8, 0.1, 0.1, 0]
-				, store.state.settings.discount, store.state.settings.stepCost);
+				this.mdp = new GridMDP(store.state.level, store.state.settings.stepChances,
+								store.state.settings.discount, store.state.settings.stepCost);
 			}
 		},
 
@@ -108,18 +108,8 @@ export default {
 			this.mdp = null;
 		},
 
-		create(width, height, connectivity) {
-			width = Math.max(1, Math.min(store.state.settings.maxWidth, width));
-			height = Math.max(1, Math.min(store.state.settings.maxHeight, height));
-
-			/*let level = [];
-			for(let x=0; x<height; x++) {
-				level[x] = [];
-				for(let y=0; y<width; y++) {
-					level[x][y] = 0;
-				}
-			}*/
-			this.mdp = random(width, height, connectivity);
+		create(requirements) {
+			this.mdp = create(requirements);
 			store.commit('setLevel', this.mdp.compact());
 			//this.setEdit("0-0");
 			this.editTile = null;

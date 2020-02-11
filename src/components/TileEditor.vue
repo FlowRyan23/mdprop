@@ -1,6 +1,6 @@
 <template>
 	<v-card>
-		<div id="card" class="myCol" @click="$emit('redraw')">
+		<div id="card" class="d-flex flex-column" @click="$emit('redraw')">
 			<h2 id="title">Editing Tile {{coords()}}</h2>
 
 			<div id="quick-edits">

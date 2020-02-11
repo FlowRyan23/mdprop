@@ -62,7 +62,7 @@
 
 <script>
 import store from '../logic/sharedData'
-import sleep from '../logic/util'
+import {sleep} from '../logic/util'
 
 export default {
 	name: "GridMDPSettings",

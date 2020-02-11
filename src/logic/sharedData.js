@@ -6,23 +6,23 @@ const store = new Vuex.Store({
 	state: {
 		defaultSettings: {
 			stepCost: 0,				// the default stepCost applied to every action (overridden wehn individual costs are givin)
-			discount: 0.9,			// the default discount applied to every action (overridden wehn individual discounts are givin)
+			discount: 0.9,				// the default discount applied to every action (overridden wehn individual discounts are givin)
 			stepChances: {'front': 0.8, 'left': 0.1, 'right': 0.1, 'back': 0},
 			useRounded: true,
 
-			maxWidth: 255,					// level width (todo more than 12 makes layout look bad)
+			maxWidth: 255,				// level width (todo more than 12 makes layout look bad)
 			maxHeight: 255,				// level height
 
 			// advanced settings
 			enableAdvancedSettings: true,
-			tileWidth: 55,
-			tileHeight: 55,
+			tileWidth: 100,
+			tileHeight: 100,
 			tileInsets: 5,
 			directionIndicatorSize: 6,
 			detailedDisplay: false,
 
 			hardReset: true,			// hardReset will undo all changes to the map made through the tile editor
-			fullDisplay: false		// fullDisplay will show all q-values at every location not just the highest
+			fullDisplay: false			// fullDisplay will show all q-values at every location not just the highest
 		},
 
 		settings: {},
