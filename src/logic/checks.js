@@ -35,49 +35,71 @@ export default class Requirements {
 		this.numberOfDeaths = null;
 	}
 
-	check(mdp) {
+	check(mdp, full=false) {
+		let failed = [];
 		// TODO implications can be used to improve performance -> ordring matters
 		// TODO some tests are more costly so they should be done later
 
 		// the size check is the fastest with O(1) so it is done first eventhough the
 		// likelyhood of it being false is very low (would need to be provoked intentionally)
-		if (mdp.size().width !== this.size.width || mdp.size().height !== this.size.height)
-			return false;
+		if (mdp.size().width !== this.size.width || mdp.size().height !== this.size.height) {
+			failed.push("size");
+			if (!full) return false;
+		}
 
-		if (this.fullReachability !== null && this.fullReachability !== fullyReachable(mdp))
-			return false;
+		if (this.fullReachability !== null && this.fullReachability !== fullyReachable(mdp)) {
+			failed.push("fullReachability");
+			if(!full) return false;
+		}
 
 		if (this.goal !== null) {
 			let goalTile = mdp.getAny(t => t.terminal && t.reward > 0)
-			return (goalTile !== null && this.goal) || (goalTile === null && !this.goal)
+			let fullfillsGoal = (goalTile !== null && this.goal) || (goalTile === null && !this.goal);
+			if(!fullfillsGoal) failed.push("goal");
+			if(!full && !fullfillsGoal) return false;
 		}
 
 		if (this.death !== null) {
 			let deathTile = mdp.getAny(t => t.terminal && t.reward < 0)
-			return (deathTile !== null && this.death) || (deathTile === null && !this.death)
+			let fullfillsDeath = (deathTile !== null && this.death) || (deathTile === null && !this.death);
+			if(!fullfillsDeath) failed.push("death");
+			if(!full && !fullfillsDeath) return false;
 		}
 
 		// TODO winnable and losable could be combined
-		if (this.winnable !== null && this.winnable !== winnable(mdp))
-			return false
+		if (this.winnable !== null && this.winnable !== winnable(mdp)) {
+			failed.push("winnable");
+			if(!full) return false;
+		}
 
-		if (this.losable !== null && this.losable !== losable(mdp))
-			return false
+		if (this.losable !== null && this.losable !== losable(mdp)) {
+			failed.push("losable");
+			if(!full) return false;
+		}
 
-		if (this.noUnreachableGoal !== null && this.noUnreachableGoal !== noUnreachableGoal(mdp))
-			return false
+		if (this.noUnreachableGoal !== null && this.noUnreachableGoal !== noUnreachableGoal(mdp)) {
+			failed.push("noUnreachableGoals");
+			if(!full) return false;
+		}
 
-		if (this.noUnreachableDeath !== null && this.noUnreachableDeath !== noUnreachableDeath(mdp))
-			return false
+		if (this.noUnreachableDeath !== null && this.noUnreachableDeath !== noUnreachableDeath(mdp)) {
+			failed.push("noUnreacheableDeaths");
+			if(!full) return false;
+		}
 
-		if (this.fullyReachableGoals !== null && this.fullyReachableGoals !== fullyReachableGoals(mdp))
-			return false
+		if (this.fullyReachableGoals !== null && this.fullyReachableGoals !== fullyReachableGoals(mdp)) {
+			failed.push("fullyReachableGoals");
+			if(!full) return false;
+		}
 
-		if (this.fullyReachableDeaths !== null && this.fullyReachableDeaths !== fullyReachableDeaths(mdp))
-			return false
+		if (this.fullyReachableDeaths !== null && this.fullyReachableDeaths !== fullyReachableDeaths(mdp)) {
+			failed.push("fullyReachableDeaths");
+			if(!full) return false;
+		}
 
 		// TODO policy tests
-
+		if (full) return failed;
+		else return true;
 	}
 
 	

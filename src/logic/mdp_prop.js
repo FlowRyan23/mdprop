@@ -121,7 +121,7 @@ export default class GridMDP {
 	}
 
 	size() {
-		return {"witdth": this.tiles.length, "height": this.tiles[0].length};
+		return {"witdth": this.tiles[0].length, "height": this.tilesMDP.length};
 	}
 
 	* allTiles() {
@@ -131,7 +131,7 @@ export default class GridMDP {
 	}
 
 	getAny(condition) {
-		for (let tile of this.allTiles)
+		for (let tile of this.allTiles())
 			if (condition(tile))
 				return tile;
 		return null;
@@ -245,7 +245,7 @@ class MDPTile {
 	}
 
 	reachedAt(iteration) {
-		if (this.reached === true) return true;
+		if (this.reached === true) return true;		// reached is only bool if it got its value from initial
 		if (this.reached === false) return false;
 		return this.reached <= iteration;
 	}
@@ -282,6 +282,7 @@ class Action {
 	}
 
 	addResult(result) {
+		// TODO should warn if total chance of results is greater than 1
 		this.results.push(result);
 	}
 

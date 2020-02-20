@@ -44,7 +44,11 @@ export default {
 	components : {Creator, GridMDPTile, TileEditor},
 	data() {return {
 		mdp: null,
-		editTile: null
+		editTile: null,
+
+		// temporary
+		checkRes: null,
+		reqs: null
 	}},
 
 	methods: {
@@ -109,7 +113,9 @@ export default {
 		},
 
 		create(requirements) {
+			this.reqs = requirements;
 			this.mdp = create(requirements);
+			this.checkRes = requirements.check(this.mdp, true);
 			store.commit('setLevel', this.mdp.compact());
 			//this.setEdit("0-0");
 			this.editTile = null;

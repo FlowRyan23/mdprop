@@ -39,9 +39,9 @@ export default function create(requirements) {
 
 function fill(width, height, type=tileWall) {
 	let level = [];
-	for(let x=0; x<width; x++) {
+	for(let x=0; x<height; x++) {
 		level[x] = [];
-		for(let y=0; y<height; y++) {
+		for(let y=0; y<width; y++) {
 			level[x][y] = {...type};
 		}
 	}
