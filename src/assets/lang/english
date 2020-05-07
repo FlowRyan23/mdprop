@@ -1,0 +1,16 @@
+title = "MDP Q-Value-Propagation"
+
+defaultActionName1 = "up"
+defaultActionName2 = "down"
+defaultActionName3 = "left"
+defaultActionName4 = "right"
+
+tileFree = "free"
+tileWall = "wall"
+tileGoal = "goal"
+tileDeath = "death"
+
+settings = "settings"
+policyPrevious = "prev"
+policyNext = "next"
+reset = "reset"

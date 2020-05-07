@@ -14,19 +14,19 @@ const tileWall = {
 // 	"initial": false
 // };
 
-// const tileGoal = {
-// 	"accessible": true,
-// 	"reward": 1,
-// 	"terminal": true,
-// 	"initial": false
-// };
+const tileGoal = {
+	"accessible": true,
+	"reward": 1,
+	"terminal": true,
+	"initial": false
+};
 
-// const tileDeath = {
-// 	"accessible": true,
-// 	"reward": -1,
-// 	"terminal": true,
-// 	"initial": false
-// };
+const tileDeath = {
+	"accessible": true,
+	"reward": -1,
+	"terminal": true,
+	"initial": false
+};
 
 export default function create(requirements) {
 	// TODO create a level fulfilling the constraints set by requirements
@@ -34,6 +34,8 @@ export default function create(requirements) {
 	let level = fill(requirements.size.width, requirements.size.height);
 	carveRandom(level, requirements.connectivity);
 	carveDFS(level);
+	placeRandom(level, tileGoal, requirements.numberOfGoals);
+	placeRandom(level, tileDeath, requirements.numberOfDeaths);
 	return new GridMDP(level);
 }
 
@@ -126,6 +128,23 @@ function carveDFS(level, start={"x": 0, "y": 0}) {
 		}
 	}
 
+	return level;
+}
+
+function placeRandom(level, tile, number) {
+	let tries = 0;
+	while (number > 0 && tries < 10) {
+		let x = Math.round(Math.random() * (level.length -1));
+		let y = Math.round(Math.random() * (level[0].length -1));
+
+		if (level[x][y] !== tile) {
+			level[x][y] = tile;
+			number--;
+			tries = 0;
+		} else {
+			tries++;
+		}
+	}
 	return level;
 }
 

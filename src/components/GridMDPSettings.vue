@@ -51,12 +51,14 @@
 			</template>
 		</v-slider>
 
-		<v-btn :name="'step-cost'" @click="reset()">Reset</v-btn>
-		<v-btn :name="'apply'" @click="apply()">Apply</v-btn>
-
 		<!-- detail toggle -->
 		<v-switch label="High Detail" v-model="settings.detailedDisplay" @click.passive="apply()" color="blue"></v-switch>
 		<v-switch label="Use Rounded" v-model="settings.useRounded" @click.passive="apply()" color="blue"></v-switch>
+		<v-switch label="Advanced Mode" v-model="settings.enableAdvancedSettings" @click.passive="apply()" color="blue"></v-switch>
+
+		<v-btn :name="'step-cost'" @click="reset()">Reset</v-btn>
+		<v-btn :name="'apply'" @click="apply()">Apply</v-btn>
+
 	</div>
 </template>
 

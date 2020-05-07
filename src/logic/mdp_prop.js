@@ -121,7 +121,7 @@ export default class GridMDP {
 	}
 
 	size() {
-		return {"witdth": this.tiles[0].length, "height": this.tilesMDP.length};
+		return {"witdth": this.tiles[0].length, "height": this.tiles.length};
 	}
 
 	* allTiles() {
@@ -347,6 +347,7 @@ class Action {
 
 		let r = this.reward - this.cost
 		formula += (r < 0? " - " : " + ") + Math.abs(r);
+		formula += " = " + this.getQValue(iteration).toFixed(2);
 		return formula;
 	}
 }

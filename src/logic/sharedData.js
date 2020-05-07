@@ -14,7 +14,7 @@ const store = new Vuex.Store({
 			maxHeight: 255,				// level height
 
 			// advanced settings
-			enableAdvancedSettings: true,
+			enableAdvancedSettings: false,
 			tileWidth: 100,
 			tileHeight: 100,
 			tileInsets: 5,

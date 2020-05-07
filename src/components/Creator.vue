@@ -64,7 +64,7 @@
 					</v-slider>
 				</div>
 
-				<div id="constraints">
+				<div v-if="store.state.settings.enableAdvancedSettings" id="constraints">
 					<BoolConstraintInput ref="fullReachability" class="no-pad" :name="'Fully Reachable'" />
 					<BoolConstraintInput ref="winnable" class="no-pad" :name="'Winnable'" />
 					<BoolConstraintInput ref="losable" class="no-pad" :name="'Losable'" />
@@ -91,8 +91,9 @@ export default {
 	components: {BoolConstraintInput},
 
 	data() {return {
-		width: 7,
-		height: 11,
+		store: store,
+		width: 9,
+		height: 7,
 		goals: 1,
 		deaths: 1,
 		connectivity: 0.3,
@@ -105,15 +106,21 @@ export default {
 			reqs.size.width = this.width;
 			reqs.size.height = this.height;
 			reqs.connectivity = this.connectivity;
-			reqs.fullReachability = this.$refs["fullReachability"].value;
-			reqs.fullReachability = this.$refs["winnable"].value;
-			reqs.fullReachability = this.$refs["losable"].value;
-			reqs.fullReachability = this.$refs["noUnreachableGoal"].value;
-			reqs.fullReachability = this.$refs["noUnreachableDeath"].value;
-			reqs.fullReachability = this.$refs["fullyReachableGoals"].value;
-			reqs.fullReachability = this.$refs["fullyReachableDeaths"].value;
-			reqs.fullReachability = this.$refs["unambigousPolicy"].value;
-			reqs.fullReachability = this.$refs["fullyAmbigousPolicy"].value;
+
+			reqs.numberOfGoals = this.goals;
+			reqs.numberOfDeaths = this.deaths;
+
+			if (this.store.state.settings.enableAdvancedSettings) {
+				reqs.fullReachability = this.$refs["fullReachability"].value;
+				reqs.winnable = this.$refs["winnable"].value;
+				reqs.losable = this.$refs["losable"].value;
+				reqs.noUnreachableGoal = this.$refs["noUnreachableGoal"].value;
+				reqs.noUnreachableDeath = this.$refs["noUnreachableDeath"].value;
+				reqs.fullyReachableGoals = this.$refs["fullyReachableGoals"].value;
+				reqs.fullyReachableDeaths = this.$refs["fullyReachableDeaths"].value;
+				reqs.unambigousPolicy = this.$refs["unambigousPolicy"].value;
+				reqs.fullyAmbigousPolicy = this.$refs["fullyAmbigousPolicy"].value;
+			}
 			
 			this.test = reqs;
 			this.$parent.create(reqs);
