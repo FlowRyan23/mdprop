@@ -1,16 +1,11 @@
 import store from "./sharedData";
 
-// function gmdp(level, stepChances=[0.8, 0.1, 0.1, 0], discount=0.9, stepCost=0) {
-// 	return new GridMDP(level, stepChances, discount, stepCost);
-// }
-
-// export {gmdp};
-
 export default class GridMDP {
-	constructor(level, stepChances=store.state.settings.stepChances, discount=store.state.settings.discount, stepCost=store.state.settings.stepCost) {
+	constructor(level, discount=store.state.settings.discount, stepCost=store.state.settings.stepCost) {
 		// todo the level in memory is transposed to how it is displayed
 		this.level = level;
 		this.iteration = 0;
+		this.stepCost = stepCost;
 		
 		this.tiles = [];
 		for (let x=0; x<level.length; x++) {
@@ -28,31 +23,51 @@ export default class GridMDP {
 				let rightAction = new Action("right", new Result(this.tiles[x][y], 1), stepCost, discount);
 
 				if (this.inBounds(x, y-1)) {
-					leftAction.addResult(new Result(this.tiles[x][y-1], stepChances["front"]), stepCost);
-					downAction.addResult(new Result(this.tiles[x][y-1], stepChances["right"]), stepCost);
-					rightAction.addResult(new Result(this.tiles[x][y-1], stepChances["back"]), stepCost);
-					upAction.addResult(new Result(this.tiles[x][y-1], stepChances["left"]), stepCost);
+					leftAction.addResult(new Result(this.tiles[x][y-1], "scFront"));
+					downAction.addResult(new Result(this.tiles[x][y-1], "scRight"));
+					rightAction.addResult(new Result(this.tiles[x][y-1], "scBack"));
+					upAction.addResult(new Result(this.tiles[x][y-1], "scLeft"));
+				} else {
+					leftAction.addResult(new Result(this.tiles[x][y], "scFront"));
+					downAction.addResult(new Result(this.tiles[x][y], "scRight"));
+					rightAction.addResult(new Result(this.tiles[x][y], "scBack"));
+					upAction.addResult(new Result(this.tiles[x][y], "scLeft"));
 				}
 
 				if (this.inBounds(x, y+1)) {
-					leftAction.addResult(new Result(this.tiles[x][y+1], stepChances["back"]), stepCost);
-					downAction.addResult(new Result(this.tiles[x][y+1], stepChances["left"]), stepCost);
-					rightAction.addResult(new Result(this.tiles[x][y+1], stepChances["front"]), stepCost);
-					upAction.addResult(new Result(this.tiles[x][y+1], stepChances["right"]), stepCost);
+					leftAction.addResult(new Result(this.tiles[x][y+1], "scBack"));
+					downAction.addResult(new Result(this.tiles[x][y+1], "scLeft"));
+					rightAction.addResult(new Result(this.tiles[x][y+1], "scFront"));
+					upAction.addResult(new Result(this.tiles[x][y+1], "scRight"));
+				} else {
+					leftAction.addResult(new Result(this.tiles[x][y], "scBack"));
+					downAction.addResult(new Result(this.tiles[x][y], "scLeft"));
+					rightAction.addResult(new Result(this.tiles[x][y], "scFront"));
+					upAction.addResult(new Result(this.tiles[x][y], "scRight"));
 				}
 
 				if (this.inBounds(x-1, y)) {
-					leftAction.addResult(new Result(this.tiles[x-1][y], stepChances["right"]), stepCost);
-					downAction.addResult(new Result(this.tiles[x-1][y], stepChances["back"]), stepCost);
-					rightAction.addResult(new Result(this.tiles[x-1][y], stepChances["left"]), stepCost);
-					upAction.addResult(new Result(this.tiles[x-1][y], stepChances["front"]), stepCost);
+					leftAction.addResult(new Result(this.tiles[x-1][y], "scRight"));
+					downAction.addResult(new Result(this.tiles[x-1][y], "scBack"));
+					rightAction.addResult(new Result(this.tiles[x-1][y], "scLeft"));
+					upAction.addResult(new Result(this.tiles[x-1][y], "scFront"));
+				} else {
+					leftAction.addResult(new Result(this.tiles[x][y], "scRight"));
+					downAction.addResult(new Result(this.tiles[x][y], "scBack"));
+					rightAction.addResult(new Result(this.tiles[x][y], "scLeft"));
+					upAction.addResult(new Result(this.tiles[x][y], "scFront"));
 				}
 
 				if (this.inBounds(x+1, y)) {
-					leftAction.addResult(new Result(this.tiles[x+1][y], stepChances["left"]), stepCost);
-					downAction.addResult(new Result(this.tiles[x+1][y], stepChances["front"]), stepCost);
-					rightAction.addResult(new Result(this.tiles[x+1][y], stepChances["right"]), stepCost);
-					upAction.addResult(new Result(this.tiles[x+1][y], stepChances["back"]), stepCost);
+					leftAction.addResult(new Result(this.tiles[x+1][y], "scLeft"));
+					downAction.addResult(new Result(this.tiles[x+1][y], "scFront"));
+					rightAction.addResult(new Result(this.tiles[x+1][y], "scRight"));
+					upAction.addResult(new Result(this.tiles[x+1][y], "scBack"));
+				} else {
+					leftAction.addResult(new Result(this.tiles[x][y], "scLeft"));
+					downAction.addResult(new Result(this.tiles[x][y], "scFront"));
+					rightAction.addResult(new Result(this.tiles[x][y], "scRight"));
+					upAction.addResult(new Result(this.tiles[x][y], "scBack"));
 				}
 
 				this.tiles[x][y].addAction(upAction);
@@ -300,13 +315,13 @@ class Action {
 		for(let i=0; i<this.results.length; i++) {
 			let res = this.results[i];
 			res.node.marked = true;
-			chance += res.chance;
+			chance += res.getChance();
 			if (!res.node.accessible) {
-				qValue += res.chance * (this.reward - this.cost + this.discount * this.defaultResult.node.getQValue(this.qMemory.length - 1));
+				qValue += res.getChance() * (this.reward - this.cost + this.discount * this.defaultResult.node.getQValue(this.qMemory.length - 1));
 			} else if (useNewest) {
-				qValue += res.chance * (this.reward - this.cost + this.discount * res.node.getQValue());
+				qValue += res.getChance() * (this.reward - this.cost + this.discount * res.node.getQValue());
 			} else {
-				qValue += res.chance * (this.reward - this.cost + this.discount * res.node.getQValue(this.qMemory.length - 1));
+				qValue += res.getChance() * (this.reward - this.cost + this.discount * res.node.getQValue(this.qMemory.length - 1));
 			}
 		}
 
@@ -340,10 +355,17 @@ class Action {
 		let sumChance = 0;
 		for (let i in this.results) {
 			let res = this.results[i];
-			sumChance += res.chance;
-			formula += res.chance + " * " + res.node.getQValue(iteration-1) + " + ";
+			if (res.getChance() === 0)
+				continue;
+			sumChance += res.getChance();
+			formula += res.getChance() + " * " + (res.node.accessible?res.node.getQValue(iteration-1):this.defaultResult.node.getQValue(iteration-1)) + " + ";
 		}
-		formula += (Math.round((1 - sumChance) * 100) / 100) + " * " + this.defaultResult.node.getQValue(iteration-1) + ")"
+		let defaultChance = (Math.round((1 - sumChance) * 100) / 100)
+		if (defaultChance > 0)
+			formula += defaultChance + " * " + this.defaultResult.node.getQValue(iteration-1);
+		else
+			formula = formula.substring(0, formula.length - 3);
+		formula += ")";
 
 		let r = this.reward - this.cost
 		formula += (r < 0? " - " : " + ") + Math.abs(r);
@@ -353,8 +375,12 @@ class Action {
 }
 
 class Result {
-	constructor(node, chance) {
+	constructor(node, chanceID) {
 		this.node = node;		// the target node when successfully performing an action
-		this.chance = chance;	// the chance of moving to the node after performing the action
+		this.chanceID = chanceID;	// the chance of moving to the node after performing the action
+	}
+
+	getChance() {
+		return store.state.settings[this.chanceID];
 	}
 }

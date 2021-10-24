@@ -7,11 +7,16 @@ const store = new Vuex.Store({
 		defaultSettings: {
 			stepCost: 0,				// the default stepCost applied to every action (overridden wehn individual costs are givin)
 			discount: 0.9,				// the default discount applied to every action (overridden wehn individual discounts are givin)
-			stepChances: {'front': 0.8, 'left': 0.1, 'right': 0.1, 'back': 0},
+			//stepChances
+			scFront: 0.8,
+			scLeft: 0.1,
+			scRight: 0.1,
+			scBack: 0,
 			useRounded: true,
 
 			maxWidth: 255,				// level width (todo more than 12 makes layout look bad)
 			maxHeight: 255,				// level height
+			maxStepCost: 5,
 
 			// advanced settings
 			enableAdvancedSettings: false,

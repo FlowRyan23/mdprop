@@ -16,7 +16,7 @@
 		</v-slider>
 
 		<!-- step cost slider -->
-		<v-slider v-model="settings.stepCost" :step="0.01" :max="1" :min="0" :label="'Step Cost'" hide-details>
+		<v-slider v-model="settings.stepCost" :step="0.01" :max="settings.maxStepCost" :min="0" :label="'Step Cost'" hide-details>
 			<template v-slot:append>
 				<v-text-field
 					v-model="settings.stepCost"
@@ -28,6 +28,66 @@
 				></v-text-field>
 			</template>
 		</v-slider>
+
+		<p style="margin-top: 16px">Step Chances</p>
+
+		<!-- StepChanceFront -->
+		<v-slider v-model="settings.scFront" :step="0.01" :max="1" :min="0" :label="'Front'" hide-details>
+			<template v-slot:append>
+				<v-text-field
+					v-model="settings.scFront"
+					class="mt-0 pt-0"
+					hide-details
+					single-line
+					type="number"
+					style="width: 60px"
+				></v-text-field>
+			</template>
+		</v-slider>
+
+		<!-- StepChanceLeft -->
+		<v-slider v-model="settings.scLeft" :step="0.01" :max="1" :min="0" :label="'Left'" hide-details>
+			<template v-slot:append>
+				<v-text-field
+					v-model="settings.scLeft"
+					class="mt-0 pt-0"
+					hide-details
+					single-line
+					type="number"
+					style="width: 60px"
+				></v-text-field>
+			</template>
+		</v-slider>
+
+		<!-- StepChanceRight -->
+		<v-slider v-model="settings.scRight" :step="0.01" :max="1" :min="0" :label="'Right'" hide-details>
+			<template v-slot:append>
+				<v-text-field
+					v-model="settings.scRight"
+					class="mt-0 pt-0"
+					hide-details
+					single-line
+					type="number"
+					style="width: 60px"
+				></v-text-field>
+			</template>
+		</v-slider>
+
+		<!-- StepChanceBack -->
+		<v-slider v-model="settings.scBack" :step="0.01" :max="1" :min="0" :label="'Back'" hide-details>
+			<template v-slot:append>
+				<v-text-field
+					v-model="settings.scBack"
+					class="mt-0 pt-0"
+					hide-details
+					single-line
+					type="number"
+					style="width: 60px"
+				></v-text-field>
+			</template>
+		</v-slider>
+
+		<p style="margin-top: 16px">UI</p>
 
 		<!-- tile width slider -->
 		<v-slider v-model="settings.tileWidth" :step="1" :max="512" :min="1" :label="'Tile Width'" hide-details>
@@ -51,13 +111,13 @@
 			</template>
 		</v-slider>
 
+		<v-btn :name="'reset'" @click="reset()" style="margin-top: 16px">Reset</v-btn>
+		<v-btn :name="'apply'" @click="apply()" style="margin-top: 16px">Apply</v-btn>
+
 		<!-- detail toggle -->
 		<v-switch label="High Detail" v-model="settings.detailedDisplay" @click.passive="apply()" color="blue"></v-switch>
 		<v-switch label="Use Rounded" v-model="settings.useRounded" @click.passive="apply()" color="blue"></v-switch>
 		<v-switch label="Advanced Mode" v-model="settings.enableAdvancedSettings" @click.passive="apply()" color="blue"></v-switch>
-
-		<v-btn :name="'step-cost'" @click="reset()">Reset</v-btn>
-		<v-btn :name="'apply'" @click="apply()">Apply</v-btn>
 
 	</div>
 </template>

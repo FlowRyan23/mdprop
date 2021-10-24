@@ -13,13 +13,13 @@
 			</div>
 
 			<div class="myRow">
-				<v-checkbox v-model="tile.terminal" :label="'Terminal'" color="blue"></v-checkbox>
-				<v-checkbox v-model="tile.accessible" :label="'Accesible'" color="blue"></v-checkbox>
+				<v-checkbox v-if="store.state.settings.enableAdvancedSettings" v-model="tile.terminal" :label="'Terminal'" color="blue"></v-checkbox>
+				<v-checkbox v-if="store.state.settings.enableAdvancedSettings" v-model="tile.accessible" :label="'Accesible'" color="blue"></v-checkbox>
 				<v-checkbox v-model="tile.initial" :label="'Initial'" color="blue" @click.passive="setInit()"></v-checkbox>
 			</div>
 
 			<!-- Reward slider-->
-			<v-slider v-model="tile.reward" :step="0.01" :max="1.0" :min="-1.0" :label="'Reward'" hide-details>
+			<v-slider  v-if="store.state.settings.enableAdvancedSettings" v-model="tile.reward" :step="0.01" :max="1.0" :min="-1.0" :label="'Reward'" hide-details>
 				<template v-slot:append>
 					<v-text-field
 						v-model="tile.reward"
@@ -32,7 +32,7 @@
 				</template>
 			</v-slider>
 
-			<v-expansion-panels>
+			<v-expansion-panels v-if="store.state.settings.enableAdvancedSettings">
 				<h3>Actions</h3>
 				<v-expansion-panel v-for="action in tile.actions" :key="action.name">
 					<v-expansion-panel-header>{{action.name}}</v-expansion-panel-header>
@@ -41,6 +41,10 @@
 					</v-expansion-panel-content>
 				</v-expansion-panel>
 			</v-expansion-panels>
+			
+			<div v-else class="d-flex flex-column">
+				<ActionEditor v-for="action in tile.actions" :key="action.name" :action="action" />
+			</div>
 		</div>
 	</v-card>
 </template>
@@ -54,6 +58,7 @@ export default {
 	components: {ActionEditor},
 	props: ["tile"],
 	data() {return {
+		store: store
 	}},
 
 	methods: {

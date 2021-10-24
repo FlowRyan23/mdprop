@@ -1,7 +1,8 @@
 <template>
 	<v-col id="conatiner">
 		<!-- Formula -->
-		<p>{{action.getFormula()}}</p>
+		<p v-if="store.state.settings.enableAdvancedSettings">{{action.getFormula()}}</p>
+		<p v-else>{{action.name + ": " + action.getFormula(store.state.displayIteration)}}</p>
 
 		<div v-if="store.state.settings.enableAdvancedSettings">
 			<!-- Reward slider-->

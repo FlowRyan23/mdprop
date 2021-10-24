@@ -79,8 +79,7 @@ export default {
 				this.mdp.reset();
 				this.redraw();
 			} else {
-				this.mdp = new GridMDP(store.state.level, store.state.settings.stepChances,
-								store.state.settings.discount, store.state.settings.stepCost);
+				this.mdp = new GridMDP(store.state.level, store.state.settings.discount, store.state.settings.stepCost);
 			}
 		},
 
