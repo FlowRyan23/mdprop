@@ -273,6 +273,18 @@ class MDPTile {
 		}
 		return bestAction;
 	}
+
+	getName() {
+		return '' + (this.y+1) + '-' + (this.x+1);
+	}
+
+	getFormula(iteration=this.qMemory.length -1) {
+		let formula = this.getName();
+		for (let aName in this.actions) {
+				formula += "\n\t" + this.actions[aName].getFormula(iteration);
+		}
+		return formula;
+	}
 }
 
 class Action {

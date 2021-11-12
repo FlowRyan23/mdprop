@@ -119,12 +119,14 @@
 		<v-switch label="Use Rounded" v-model="settings.useRounded" @click.passive="apply()" color="blue"></v-switch>
 		<v-switch label="Advanced Mode" v-model="settings.enableAdvancedSettings" @click.passive="apply()" color="blue"></v-switch>
 
+		<v-btn :name="'download'" @click="dload('test.txt', 'Hello World')">download</v-btn>
+
 	</div>
 </template>
 
 <script>
 import store from '../logic/sharedData'
-import {sleep} from '../logic/util'
+import {sleep, download} from '../logic/util'
 
 export default {
 	name: "GridMDPSettings",
@@ -142,6 +144,10 @@ export default {
 
 		reset() {
 			this.settings = {...store.state.defaultSettings};
+		},
+
+		dload(filename, text) {
+			download(filename, text)
 		}
 	},
 

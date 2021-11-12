@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div v-if="mdp" id="content" class="myRow">
+		<div v-if="store.state.displayMode===1" id="content" class="myRow">
 			<div>
 				<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="d-flex">
 					<div v-bind:key="y" v-for="(tile, y) in col" class="d-flex flex-column">
@@ -17,6 +17,7 @@
 					<div>
 						<v-btn @click="save()">save</v-btn>
 						<v-btn @click="kill()">new</v-btn>
+						<v-btn @click="openDownloader()">download</v-btn>
 					</div>
 				</div>
 			</div>
@@ -24,9 +25,14 @@
 			<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw"/>
 		</div>
 
-		<div v-else id="creator">
+		<div v-else-if="store.state.displayMode===2" id="creator">
 			<creator/>
 		</div>
+
+		<div v-else-if="store.state.displayMode===3" id="solution">
+			<solution :mdp="mdp"/>
+		</div>
+
 	</div>
 </template>
 
@@ -34,6 +40,7 @@
 import GridMDPTile from './GridMDPTile';
 import TileEditor from './TileEditor';
 import Creator from './Creator';
+import Solution from './Solution'
 
 import store from '../logic/sharedData';
 import GridMDP from '../logic/mdp_prop';
@@ -41,8 +48,9 @@ import create from '../logic/levelGeneration';
 
 export default {
 	name: "GridMDP",
-	components : {Creator, GridMDPTile, TileEditor},
+	components : {Creator, GridMDPTile, TileEditor, Solution},
 	data() {return {
+		store: store,
 		mdp: null,
 		editTile: null,
 
@@ -109,6 +117,7 @@ export default {
 
 		kill() {
 			this.mdp = null;
+			store.commit('displayCreator');
 		},
 
 		create(requirements) {
@@ -118,6 +127,11 @@ export default {
 			store.commit('setLevel', this.mdp.compact());
 			//this.setEdit("0-0");
 			this.editTile = null;
+			store.commit('displayMDP');
+		},
+
+		openDownloader() {
+			store.commit('displayDownloader');
 		}
 	},
 

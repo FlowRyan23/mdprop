@@ -32,6 +32,8 @@ const store = new Vuex.Store({
 
 		settings: {},
 
+		displayMode: 1,		// 1: Standard GridMDP view; 2: Level Creator Dialog; 3: Solution Downloader
+
 		displayIteration: 0,
 
 		level: [
@@ -76,6 +78,18 @@ const store = new Vuex.Store({
 
 		resetIteration(state) {
 			state.displayIteration = 0;
+		},
+
+		displayMDP(state) {
+			state.displayMode = 1;
+		},
+
+		displayCreator(state) {
+			state.displayMode = 2;
+		},
+
+		displayDownloader(state) {
+			state.displayMode = 3;
 		}
 	}
 });

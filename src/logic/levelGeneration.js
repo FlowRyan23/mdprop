@@ -32,8 +32,8 @@ export default function create(requirements) {
 	// TODO create a level fulfilling the constraints set by requirements
 	//let level = random(requirements.size.height, requirements.size.width, requirements.connectivity);
 	let level = fill(requirements.size.width, requirements.size.height);
-	carveRandom(level, requirements.connectivity);
 	carveDFS(level);
+	carveRandom(level, requirements.connectivity);
 	placeRandom(level, tileGoal, requirements.numberOfGoals);
 	placeRandom(level, tileDeath, requirements.numberOfDeaths);
 	return new GridMDP(level);
