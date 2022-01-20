@@ -31,11 +31,68 @@
 
 		<p style="margin-top: 16px">Step Chances</p>
 
-		<!-- StepChanceFront -->
-		<v-slider v-model="settings.scFront" :step="0.01" :max="1" :min="0" :label="'Front'" hide-details>
+		<div v-if="store.state.settings.enableAdvancedSettings">
+			<!-- StepChanceFront -->
+			<v-slider v-model="settings.scFront" :step="0.01" :max="1" :min="0" :label="'Front'" hide-details>
+				<template v-slot:append>
+					<v-text-field
+						v-model="settings.scFront"
+						class="mt-0 pt-0"
+						hide-details
+						single-line
+						type="number"
+						style="width: 60px"
+					></v-text-field>
+				</template>
+			</v-slider>
+
+			<!-- StepChanceLeft -->
+			<v-slider v-model="settings.scLeft" :step="0.01" :max="1" :min="0" :label="'Left'" hide-details>
+				<template v-slot:append>
+					<v-text-field
+						v-model="settings.scLeft"
+						class="mt-0 pt-0"
+						hide-details
+						single-line
+						type="number"
+						style="width: 60px"
+					></v-text-field>
+				</template>
+			</v-slider>
+
+			<!-- StepChanceRight -->
+			<v-slider v-model="settings.scRight" :step="0.01" :max="1" :min="0" :label="'Right'" hide-details>
+				<template v-slot:append>
+					<v-text-field
+						v-model="settings.scRight"
+						class="mt-0 pt-0"
+						hide-details
+						single-line
+						type="number"
+						style="width: 60px"
+					></v-text-field>
+				</template>
+			</v-slider>
+
+			<!-- StepChanceBack -->
+			<v-slider v-model="settings.scBack" :step="0.01" :max="1" :min="0" :label="'Back'" hide-details>
+				<template v-slot:append>
+					<v-text-field
+						v-model="settings.scBack"
+						class="mt-0 pt-0"
+						hide-details
+						single-line
+						type="number"
+						style="width: 60px"
+					></v-text-field>
+				</template>
+			</v-slider>
+		</div>
+
+		<v-slider v-else v-model="noise" :step="0.01" :max="1" :min="0" :label="'Noise'" hide-details>
 			<template v-slot:append>
 				<v-text-field
-					v-model="settings.scFront"
+					v-model="noise"
 					class="mt-0 pt-0"
 					hide-details
 					single-line
@@ -45,47 +102,7 @@
 			</template>
 		</v-slider>
 
-		<!-- StepChanceLeft -->
-		<v-slider v-model="settings.scLeft" :step="0.01" :max="1" :min="0" :label="'Left'" hide-details>
-			<template v-slot:append>
-				<v-text-field
-					v-model="settings.scLeft"
-					class="mt-0 pt-0"
-					hide-details
-					single-line
-					type="number"
-					style="width: 60px"
-				></v-text-field>
-			</template>
-		</v-slider>
-
-		<!-- StepChanceRight -->
-		<v-slider v-model="settings.scRight" :step="0.01" :max="1" :min="0" :label="'Right'" hide-details>
-			<template v-slot:append>
-				<v-text-field
-					v-model="settings.scRight"
-					class="mt-0 pt-0"
-					hide-details
-					single-line
-					type="number"
-					style="width: 60px"
-				></v-text-field>
-			</template>
-		</v-slider>
-
-		<!-- StepChanceBack -->
-		<v-slider v-model="settings.scBack" :step="0.01" :max="1" :min="0" :label="'Back'" hide-details>
-			<template v-slot:append>
-				<v-text-field
-					v-model="settings.scBack"
-					class="mt-0 pt-0"
-					hide-details
-					single-line
-					type="number"
-					style="width: 60px"
-				></v-text-field>
-			</template>
-		</v-slider>
+		<p v-if="stepChanceSum !== 1" style="color: red">Step chances should sum to 1.00</p>
 
 		<p style="margin-top: 16px">UI</p>
 
@@ -119,23 +136,29 @@
 		<v-switch label="Use Rounded" v-model="settings.useRounded" @click.passive="apply()" color="blue"></v-switch>
 		<v-switch label="Advanced Mode" v-model="settings.enableAdvancedSettings" @click.passive="apply()" color="blue"></v-switch>
 
-		<v-btn :name="'download'" @click="dload('test.txt', 'Hello World')">download</v-btn>
-
 	</div>
 </template>
 
 <script>
 import store from '../logic/sharedData'
-import {sleep, download} from '../logic/util'
+import {sleep} from '../logic/util'
 
 export default {
 	name: "GridMDPSettings",
 	data() {return {
-		settings: {...store.state.settings}
+		settings: {...store.state.settings},
+		noise: 0.2,
+		store: store
 	}},
 
 	methods: {
 		apply() {
+			if(!this.store.state.settings.enableAdvancedSettings) {
+				this.settings.scFront = 1 - this.noise;
+				this.settings.scBack = 0;
+				this.settings.scLeft = this.noise / 2;
+				this.settings.scRight = this.noise / 2;
+			}
 			store.commit("setSettings", {...this.settings});
 			sleep(0).then(() => {
 				this.$emit('apply-settings');
@@ -143,16 +166,28 @@ export default {
 		},
 
 		reset() {
+			//todo fix the toggles
+			let hDetailToggle = this.settings.detailedDisplay;
+			let roundedToggle = this.settings.useRounded;
+			let advancedToggle = this.settings.enableAdvancedSettings;
 			this.settings = {...store.state.defaultSettings};
-		},
+			this.settings.detailedDisplay = hDetailToggle;
+			this.settings.useRounded = roundedToggle;
+			this.settings.enableAdvancedSettings = advancedToggle;
+		}
+	},
 
-		dload(filename, text) {
-			download(filename, text)
+	computed: {
+		stepChanceSum() {
+			if(this.store.state.settings.enableAdvancedSettings) {
+				return this.settings.scFront + this.settings.scBack + this.settings.scLeft + this.settings.scRight;
+			} else return 1;
 		}
 	},
 
 	mounted() {
 		this.reset();
+		this.settings.useRounded = true; // because reset is dirty
 	}
 }
 </script>

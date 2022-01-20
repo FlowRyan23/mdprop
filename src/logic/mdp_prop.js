@@ -139,6 +139,21 @@ export default class GridMDP {
 		return {"witdth": this.tiles[0].length, "height": this.tiles.length};
 	}
 
+	getSolution(iteration=this.iteration) {
+		// todo this should probably recalculate the policy to avoid confusion if the world was edited mid-calculation
+
+		let solution = "Solution\n\n";
+		for(let it=0; it<=iteration; it++) {
+			solution += "\nk=" + it.toString() + ":";
+			for(let t of this.allTiles()) {
+				if(t.reachedAt(it)) {
+					solution += "\n\tField " + t.getFormula() + "\n";
+				}
+			}
+		}
+		return solution;
+	}
+
 	* allTiles() {
 		for(let x in this.tiles)
 			for(let y in this.tiles[x])
@@ -260,6 +275,7 @@ class MDPTile {
 	}
 
 	reachedAt(iteration) {
+		if (!this.accessible || this.terminal) return false;
 		if (this.reached === true) return true;		// reached is only bool if it got its value from initial
 		if (this.reached === false) return false;
 		return this.reached <= iteration;
@@ -363,26 +379,34 @@ class Action {
 	}
 
 	getFormula(iteration=this.qMemory.length-1) {
-		let formula = this.discount + " * (";
+		let formula = this.nts(this.discount) + " * (";
 		let sumChance = 0;
 		for (let i in this.results) {
 			let res = this.results[i];
 			if (res.getChance() === 0)
 				continue;
 			sumChance += res.getChance();
-			formula += res.getChance() + " * " + (res.node.accessible?res.node.getQValue(iteration-1):this.defaultResult.node.getQValue(iteration-1)) + " + ";
+			formula += this.nts(res.getChance()) + " * " + (this.nts(res.node.accessible?res.node.getQValue(iteration-1):this.defaultResult.node.getQValue(iteration-1))) + " + ";
 		}
 		let defaultChance = (Math.round((1 - sumChance) * 100) / 100)
 		if (defaultChance > 0)
-			formula += defaultChance + " * " + this.defaultResult.node.getQValue(iteration-1);
+			formula += this.nts(defaultChance) + " * " + this.nts(this.defaultResult.node.getQValue(iteration-1));
 		else
 			formula = formula.substring(0, formula.length - 3);
 		formula += ")";
 
 		let r = this.reward - this.cost
-		formula += (r < 0? " - " : " + ") + Math.abs(r);
-		formula += " = " + this.getQValue(iteration).toFixed(2);
+		formula += (r < 0? " - " : " + ") + this.nts(Math.abs(r));
+		formula += " = " + this.nts(this.getQValue(iteration));
 		return formula;
+	}
+
+	nts(n) {
+		try {
+			return n.toFixed(2);
+		} catch {
+			return n.toString();
+		}
 	}
 }
 

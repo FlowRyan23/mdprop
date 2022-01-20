@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-navigation-drawer id="nav-drawer" v-model="drawer" app clipped floating mobile-break-point="1200">
+		<v-navigation-drawer id="nav-drawer" v-model="drawer" app clipped floating mobile-breakpoint="1200">
 			<GridMDPSettings id="settings" @apply-settings="applySettings()"/>
 		</v-navigation-drawer>
 
@@ -9,9 +9,9 @@
 			<v-toolbar-title>MDP Q-Value-Propagation</v-toolbar-title>
 		</v-app-bar>
 
-		<v-content>			
+		<v-main>	
 			<GridMDP id="gmdp" ref="gmdp" />
-		</v-content>
+		</v-main>
 
 		<v-footer app>
 		</v-footer>

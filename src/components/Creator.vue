@@ -64,7 +64,7 @@
 					</v-slider>
 				</div>
 
-				<div v-if="store.state.settings.enableAdvancedSettings" id="constraints">
+				<div v-if="false && store.state.settings.enableAdvancedSettings" id="constraints">
 					<BoolConstraintInput ref="fullReachability" class="no-pad" :name="'Fully Reachable'" />
 					<BoolConstraintInput ref="winnable" class="no-pad" :name="'Winnable'" />
 					<BoolConstraintInput ref="losable" class="no-pad" :name="'Losable'" />
@@ -110,17 +110,18 @@ export default {
 			reqs.numberOfGoals = this.goals;
 			reqs.numberOfDeaths = this.deaths;
 
-			if (this.store.state.settings.enableAdvancedSettings) {
-				reqs.fullReachability = this.$refs["fullReachability"].value;
-				reqs.winnable = this.$refs["winnable"].value;
-				reqs.losable = this.$refs["losable"].value;
-				reqs.noUnreachableGoal = this.$refs["noUnreachableGoal"].value;
-				reqs.noUnreachableDeath = this.$refs["noUnreachableDeath"].value;
-				reqs.fullyReachableGoals = this.$refs["fullyReachableGoals"].value;
-				reqs.fullyReachableDeaths = this.$refs["fullyReachableDeaths"].value;
-				reqs.unambigousPolicy = this.$refs["unambigousPolicy"].value;
-				reqs.fullyAmbigousPolicy = this.$refs["fullyAmbigousPolicy"].value;
-			}
+			//todo coment in here and remove false in the template
+		//	if (this.store.state.settings.enableAdvancedSettings) {
+		//		reqs.fullReachability = this.$refs["fullReachability"].value;
+		//		reqs.winnable = this.$refs["winnable"].value;
+		//		reqs.losable = this.$refs["losable"].value;
+		//		reqs.noUnreachableGoal = this.$refs["noUnreachableGoal"].value;
+		//		reqs.noUnreachableDeath = this.$refs["noUnreachableDeath"].value;
+		//		reqs.fullyReachableGoals = this.$refs["fullyReachableGoals"].value;
+		//		reqs.fullyReachableDeaths = this.$refs["fullyReachableDeaths"].value;
+		//		reqs.unambigousPolicy = this.$refs["unambigousPolicy"].value;
+		//		reqs.fullyAmbigousPolicy = this.$refs["fullyAmbigousPolicy"].value;
+		//	}
 			
 			this.test = reqs;
 			this.$parent.create(reqs);

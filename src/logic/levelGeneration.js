@@ -34,7 +34,8 @@ export default function create(requirements) {
 	let level = fill(requirements.size.width, requirements.size.height);
 	carveDFS(level);
 	carveRandom(level, requirements.connectivity);
-	placeRandom(level, tileGoal, requirements.numberOfGoals);
+	let goalPos = placeRandom(level, tileGoal, requirements.numberOfGoals);
+	placeInitial(level, goalPos[0], goalPos[1]);
 	placeRandom(level, tileDeath, requirements.numberOfDeaths);
 	return new GridMDP(level);
 }
@@ -133,9 +134,10 @@ function carveDFS(level, start={"x": 0, "y": 0}) {
 
 function placeRandom(level, tile, number) {
 	let tries = 0;
+	let x, y = -1;
 	while (number > 0 && tries < 10) {
-		let x = Math.round(Math.random() * (level.length -1));
-		let y = Math.round(Math.random() * (level[0].length -1));
+		x = Math.round(Math.random() * (level.length -1));
+		y = Math.round(Math.random() * (level[0].length -1));
 
 		if (level[x][y] !== tile) {
 			level[x][y] = tile;
@@ -145,7 +147,19 @@ function placeRandom(level, tile, number) {
 			tries++;
 		}
 	}
-	return level;
+	return [x, y];
+}
+
+function placeInitial(level, goalX, goalY) {
+	if (inBounds(goalX-1, goalY, level) && level[goalX-1][goalY].accessible && !level[goalX-1][goalY].terminal) {
+		level[goalX-1][goalY].initial = true;
+	} else if (inBounds(goalX+1, goalY, level) && level[goalX+1][goalY].accessible && !level[goalX+1][goalY].terminal) {
+		level[goalX+1][goalY].initial = true;
+	} else if (inBounds(goalX, goalY-1, level) && level[goalX][goalY-1].accessible && !level[goalX][goalY-1].terminal) {
+		level[goalX][goalY-1].initial = true;
+	} else if (inBounds(goalX, goalY+1, level) && level[goalX][goalY+1].accessible && !level[goalX][goalY+1].terminal) {
+		level[goalX][goalY+1].initial = true;
+	}
 }
 
 function inBounds(x, y, array) {

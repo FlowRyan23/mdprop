@@ -10,7 +10,8 @@
   "dependencies": {
     "core-js": "^3.5.0",
     "vue": "^2.6.11",
-    "vuetify": "^2.1.14",
+    "vue-numeric-input": "^2.0.0",
+    "vuetify": "^2.5.14",
     "vuex": "^3.1.2"
   },
   "devDependencies": {

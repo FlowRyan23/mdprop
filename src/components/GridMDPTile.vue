@@ -18,6 +18,7 @@ export default {
 	}},
 	methods: {
 		redraw() {
+			// todo reactive rendering to different Tile sizes
 			let drawContext = this.$refs[this.id].getContext("2d");
 			
 			if (store.state.settings.detailedDisplay) {
@@ -31,7 +32,8 @@ export default {
 					
 						drawContext.beginPath();
 						drawContext.strokeStyle = "white";
-						drawContext.strokeRect(this.inset, this.inset, this.width - 2 * this.inset, this.height - 2 * this.inset);
+						// drawContext.strokeRect(this.inset, this.inset, this.width - 2 * this.inset, this.height - 2 * this.inset);
+						drawContext.strokeRect(this.width * 0.05, this.height * 0.05, this.width - 2 * this.width * 0.05, this.height - 2 * this.height * 0.05);
 					}
 				} else {
 					let center = [this.width/2, this.height/2];
