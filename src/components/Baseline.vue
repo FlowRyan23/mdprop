@@ -35,10 +35,6 @@ export default {
 		applySettings() {
 			this.$refs["gmdp"].applySettings();
 		}
-	},
-
-	created () {
-		this.$vuetify.theme.dark = true
 	}
 }
 </script>

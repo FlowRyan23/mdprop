@@ -2,9 +2,11 @@
 	<div>
 		<div v-if="store.state.displayMode===1" id="content" class="myRow">
 			<div>
-				<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="d-flex">
-					<div v-bind:key="y" v-for="(tile, y) in col" class="d-flex flex-column">
-						<GridMDPTile :ref="'' + x + '-' + y" :tile="tile" @edit-tile="setEdit" class="tile"/>
+				<div v-if="mdp">
+					<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="d-flex">
+						<div v-bind:key="y" v-for="(tile, y) in col" class="d-flex flex-column">
+							<GridMDPTile :ref="'' + x + '-' + y" :tile="tile" @edit-tile="setEdit" class="tile"/>
+						</div>
 					</div>
 				</div>
 				
@@ -22,7 +24,7 @@
 				</div>
 			</div>
 			
-			<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw"/>
+			<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw" @close="closeEditor"/>
 		</div>
 
 		<div v-else-if="store.state.displayMode===2" id="creator">
@@ -80,6 +82,10 @@ export default {
 					this.$refs[ref][0].redraw();
 		},
 
+		closeEditor() {
+			this.editTile = null;
+		},
+
 		reset() {
 			store.commit('resetIteration');
 
@@ -121,6 +127,7 @@ export default {
 		},
 
 		create(requirements) {
+			// TODO levels with 1400 Tiles or more exceed the maximum call stack size
 			this.reqs = requirements;
 			this.mdp = create(requirements);
 			this.checkRes = requirements.check(this.mdp, true);
@@ -135,19 +142,12 @@ export default {
 		}
 	},
 
-	computed: {
-		creating() {
-			return this.mdp;
-		}
-	},
-
 	created() {
 		store.commit('setSettings', {...store.state.defaultSettings});
 	},
 
 	mounted() {
 		this.reset();
-		this.setEdit("0-0");
 	}
 }
 </script>

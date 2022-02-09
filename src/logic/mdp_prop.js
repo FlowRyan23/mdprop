@@ -106,6 +106,7 @@ export default class GridMDP {
 					policyChange = true;
 			}
 		}
+		//todo if no tile is set to initial an error message should be displayed
 		for (let x=0; x<this.tiles.length; x++) {
 			for (let y=0; y<this.tiles[x].length; y++) {
 				if (this.tiles[x][y].marked && !this.tiles[x][y].reached)

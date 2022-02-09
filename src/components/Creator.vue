@@ -92,11 +92,11 @@ export default {
 
 	data() {return {
 		store: store,
-		width: 9,
-		height: 7,
-		goals: 1,
-		deaths: 1,
-		connectivity: 0.3,
+		width: 5,
+		height: 5,
+		goals: 0,
+		deaths: 0,
+		connectivity: 0.0,
 		test: null
 	}},
 
