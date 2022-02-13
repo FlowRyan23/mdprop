@@ -10,7 +10,7 @@ export function carveRandom(level, chance) {
 export function placeRandom(level, tile, number) {
 	let tries = 0;
 	let x, y = -1;
-	while (number > 0 && tries < 10) {
+	while (number > 0 && tries < number + 10) {
 		x = Math.round(Math.random() * (level.length -1));
 		y = Math.round(Math.random() * (level[0].length -1));
 

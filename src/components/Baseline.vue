@@ -28,7 +28,7 @@ export default {
 	props: {source: String},
 
 	data() {return {
-		drawer: null
+		drawer: false
 	}},
 
 	methods: {

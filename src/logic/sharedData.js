@@ -19,19 +19,20 @@ const store = new Vuex.Store({
 			maxStepCost: 5,
 
 			// advanced settings
-			enableAdvancedSettings: false,
+			enableAdvancedSettings: true,
 			tileWidth: 100,
 			tileHeight: 100,
 			tileInsets: 5,
 			directionIndicatorSize: 6,
 			detailedDisplay: false,
-
+			
 			hardReset: true,			// hardReset will undo all changes to the map made through the tile editor
 			fullDisplay: false			// fullDisplay will show all q-values at every location not just the highest
 		},
-
+		
 		settings: {},
-
+		
+		reachedPreview: false,
 		displayMode: 1,		// 1: Standard GridMDP view; 2: Level Creator Dialog; 3: Solution Downloader
 
 		displayIteration: 0,
@@ -78,6 +79,10 @@ const store = new Vuex.Store({
 
 		resetIteration(state) {
 			state.displayIteration = 0;
+		},
+
+		toggleReachedPreview(state) {
+			state.reachedPreview = !state.reachedPreview;
 		},
 
 		displayMDP(state) {

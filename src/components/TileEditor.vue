@@ -21,21 +21,6 @@
 				<v-checkbox v-model="tile.initial" :label="'Initial'" color="blue" @click.passive="setInit()"></v-checkbox>
 				<v-checkbox v-if="store.state.settings.enableAdvancedSettings" v-model="tile.accessible" :label="'Accesible'" color="blue"></v-checkbox>
 			</div>
-
-			<!-- Reward slider
-			<v-slider  v-if="store.state.settings.enableAdvancedSettings" v-model="tile.reward" :step="0.01" :max="1.0" :min="-1.0" :label="'Reward'" hide-details>
-				<template v-slot:append>
-					<v-text-field
-						v-model="tile.reward"
-						class="mt-0 pt-0"
-						hide-details
-						single-line
-						type="number"
-						style="width: 60px"
-					></v-text-field>
-				</template>
-			</v-slider>-->
-
 			
 			<h3 v-if="store.state.settings.enableAdvancedSettings" style="text-align: center">Reward</h3>
 			<div class="myRow" v-if="store.state.settings.enableAdvancedSettings">
@@ -44,13 +29,10 @@
 				<v-text-field
 					v-model="reward"
 					id="rewardField"
-					class="mt-0 pt-0"
+					class="shrink no-spins"
 					hide-details
-					single-line
 					solo-inverted
 					type="number"
-					hide-spin-buttons
-					style="width: 60px"
 					@change="updateTileReward()"
 					@wheel.prevent="scrollHandler"
 				></v-text-field>
@@ -63,7 +45,7 @@
 				<v-expansion-panel v-for="action in tile.actions" :key="action.name">
 					<v-expansion-panel-header>{{action.name}}</v-expansion-panel-header>
 					<v-expansion-panel-content>
-						<ActionEditor :action="action" />
+							<ActionEditor :action="action"/>
 					</v-expansion-panel-content>
 				</v-expansion-panel>
 			</v-expansion-panels>
@@ -152,6 +134,10 @@ export default {
 </script>
 
 <style scoped>
+	* {
+		max-width: 500px;
+	}
+
 	.incBtn {
 		margin-left: 4px;
 		margin-right: 4px;
@@ -160,6 +146,17 @@ export default {
 
 	.v-text-field >>> input {
 		text-align: center;
+	}
+
+	.no-spins input[type='number'] {
+    -moz-appearance:textfield;
+	}
+
+	::v-deep input::-webkit-outer-spin-button,
+	::v-deep input::-webkit-inner-spin-button {
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
 	}
 
 	#title {

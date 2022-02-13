@@ -17,6 +17,8 @@ export default class Requirements {
 
 		this.size = {"width": 7, "height": 5};
 		this.connectivity = 0.3;			// likelyhood of any tile being accessible
+
+		this.carver = null;
 		
 		// boolean constraints - can be required(true), optional(null) or disallowed(false)
 		this.fullReachability = null;		// every tile an agent can be on must be reachable from all other tiles
@@ -32,7 +34,7 @@ export default class Requirements {
 		// integer constraints - can be > 0 or optional(null)
 		this.timeToConverge = null;			// number of iterations after wich the policy does not change
 		this.numberOfGoals = null;
-		this.numberOfDeaths = null;
+		this.numberOfTraps = null;
 	}
 
 	check(mdp, full=false) {

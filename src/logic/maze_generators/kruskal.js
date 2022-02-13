@@ -1,7 +1,7 @@
 import { walkLevel } from "../level";
 import { randomSample } from "../util";
 
-export default function kruskal(level, edgeLength = 2) {
+export default function carveKruskal(level, edgeLength = 2) {
 	// edges are shuffeled once to choose randomly
 	let edges = genEdges(level, edgeLength, true, false);
 	console.log("found " + edges.length + " edges");

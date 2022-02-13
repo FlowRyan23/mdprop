@@ -1,30 +1,53 @@
 <template>
 	<div>
-		<div v-if="store.state.displayMode===1" id="content" class="myRow">
-			<div>
-				<div v-if="mdp">
-					<div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="d-flex">
-						<div v-bind:key="y" v-for="(tile, y) in col" class="d-flex flex-column">
-							<GridMDPTile :ref="'' + x + '-' + y" :tile="tile" @edit-tile="setEdit" class="tile"/>
-						</div>
-					</div>
+		<div v-if="store.state.displayMode===1" id="content" class="d-flex">
+			<div></div>
+
+			<div v-if="mdp" class="d-flex flex-column">
+				<div>
+					<v-toolbar>
+						<!-- Display iteration -->
+						<v-btn plain fab @click="prevIter()"><v-icon>mdi-chevron-left</v-icon></v-btn>
+						<v-text-field
+							v-model="displayIteration"
+							class="mt-0 pt-0 centered-text shrink"
+							readonly
+							flat
+							solo
+							hide-details
+							single-line
+							type="number"
+						></v-text-field>
+						<v-btn plain fab @click="nextIter()"><v-icon>mdi-chevron-right</v-icon></v-btn>
+
+						<v-btn plain fab @click="reset()" style="margin-right: 32px"><v-icon>mdi-reload</v-icon></v-btn>
+						<v-btn plain fab @click="toggleReached()">
+							<v-icon>mdi-alpha-r-box-outline</v-icon>
+						</v-btn>
+
+						<v-spacer></v-spacer>
+
+						<v-toolbar-items>
+								<v-btn plain fab @click="save()"><v-icon>mdi-content-save</v-icon></v-btn>
+								<v-btn plain fab @click="kill()"><v-icon>mdi-new-box</v-icon></v-btn>
+								<v-btn plain fab @click="openDownloader()"><v-icon>mdi-page-next-outline</v-icon></v-btn>
+						</v-toolbar-items>
+					</v-toolbar>
 				</div>
-				
-				<div id="level-buttons">
-					<div>
-						<v-btn @click="prevIter()">prev</v-btn>
-						<v-btn @click="reset()">reset</v-btn>
-						<v-btn @click="nextIter()">next</v-btn>
-					</div>
-					<div>
-						<v-btn @click="save()">save</v-btn>
-						<v-btn @click="kill()">new</v-btn>
-						<v-btn @click="openDownloader()">download</v-btn>
-					</div>
+
+				<div class="d-flex" style="justify-content: center">
+					<GridMDPDisplay v-if="mdp" :ID="'primary'" :ref="'display'" :tiles="mdp.tiles" @interaction="setEdit"/>
 				</div>
+		
+			<!-- <div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="d-flex">
+				<div v-bind:key="y" v-for="(tile, y) in col" class="d-flex flex-column">
+					<GridMDPTile :ref="'' + x + '-' + y" :tile="tile" @edit-tile="setEdit" class="tile"/>
+				</div>
+			</div> -->				
 			</div>
 			
 			<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw" @close="closeEditor"/>
+			<div v-else></div>
 		</div>
 
 		<div v-else-if="store.state.displayMode===2" id="creator">
@@ -32,14 +55,13 @@
 		</div>
 
 		<div v-else-if="store.state.displayMode===3" id="solution">
-			<solution :mdp="mdp"/>
+			<Solution :mdp="mdp"/>
 		</div>
 
 	</div>
 </template>
 
 <script>
-import GridMDPTile from './GridMDPTile';
 import TileEditor from './TileEditor';
 import Creator from './Creator';
 import Solution from './Solution'
@@ -47,14 +69,16 @@ import Solution from './Solution'
 import store from '../logic/sharedData';
 import GridMDP from '../logic/mdp_prop';
 import create from '../logic/levelGeneration';
+import GridMDPDisplay from './GridMDPDisplay.vue';
 
 export default {
 	name: "GridMDP",
-	components : {Creator, GridMDPTile, TileEditor, Solution},
+	components : {Creator, TileEditor, Solution, GridMDPDisplay},
 	data() {return {
 		store: store,
 		mdp: null,
 		editTile: null,
+		hover: false,
 
 		// temporary
 		checkRes: null,
@@ -77,13 +101,13 @@ export default {
 		},
 
 		redraw() {
-			for(let ref in this.$refs)
-				if (this.isTileRef(ref))
-					this.$refs[ref][0].redraw();
+			this.$refs['display'].render();
 		},
 
 		closeEditor() {
 			this.editTile = null;
+			this.$refs['display'].clearSelected();
+			this.redraw();
 		},
 
 		reset() {
@@ -102,12 +126,6 @@ export default {
 		},
 
 		setEdit(tileID) {
-			for (let ref in this.$refs) {
-				if (this.isTileRef(ref)) {
-					this.$refs[ref][0].editing = ref === tileID;
-				}
-			}
-
 			let indexes = tileID.split("-");
 			this.editTile = this.mdp.tiles[parseInt(indexes[0])][parseInt(indexes[1])];
 		},
@@ -118,6 +136,11 @@ export default {
 
 		applySettings() {
 			this.mdp.apply(store.state.settings);
+			this.redraw();
+		},
+
+		toggleReached() {
+			store.commit('toggleReachedPreview');
 			this.redraw();
 		},
 
@@ -142,6 +165,12 @@ export default {
 		}
 	},
 
+	computed: {
+		displayIteration() {
+			return store.state.displayIteration;
+		}
+	},
+
 	created() {
 		store.commit('setSettings', {...store.state.defaultSettings});
 	},
@@ -161,6 +190,14 @@ export default {
 		border: 1px solid goldenrod;
 	}
 
+	.centered-text >>> input {
+		text-align: center;
+	}
+
+	#content {
+		justify-content: space-between;
+	}
+
 	#settings {
 		display: inline-block;
 		min-width: 20%;
@@ -170,11 +207,6 @@ export default {
 	#display {
 		display: inline-block;
 		flex-grow: 1;
-	}
-
-	#level-buttons {
-		display: flex;
-		justify-content: space-between;
 	}
 
 	#editor {

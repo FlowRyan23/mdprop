@@ -163,7 +163,7 @@ import {sleep} from '../logic/util'
 export default {
 	name: "GridMDPSettings",
 	data() {return {
-		settings: {...store.state.settings},
+		settings: {...store.state.defaultSettings},
 		noise: 0.2,
 		zoom: 100,
 		store: store

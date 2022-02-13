@@ -1,15 +1,13 @@
 import GridMDP from './mdp_prop';
-import {tileWall, tileGoal, tileDeath, braid, fill} from './level';
+import {tileWall, tileGoal, tileDeath, fill} from './level';
 import { inBounds } from './util';
-import kruskal from './maze_generators/kruskal';
 import { carveRandom, placeRandom } from './maze_generators/random';
 
 export default function create(requirements) {
 	// TODO create a level fulfilling the constraints set by requirements
 	//let level = random(requirements.size.height, requirements.size.width, requirements.connectivity);
 	let level = fill(requirements.size.width, requirements.size.height, tileWall);
-	kruskal(level);
-	braid(level, null, 0.5);
+	requirements.carver(level);
 	carveRandom(level, requirements.connectivity);
 	let goalPos = placeRandom(level, tileGoal, requirements.numberOfGoals);
 	placeInitial(level, goalPos[0], goalPos[1]);

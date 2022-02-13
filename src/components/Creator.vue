@@ -5,19 +5,18 @@
 
 			<div class="d-flex">
 				<div id="settings" class="d-flex flex-column">
-					<div id="size" class="d-flex">
+
+					<!-- Size -->
+					<div class="d-flex">
 						<v-text-field
 							label="Width"
 							placeholder="Width"
 							v-model="width"
 							min="1"
-							:max="maxWidth"
 							class="mt-0 pt-0"
 							type="number"
-							style="width: 60px"
+							style="margin-right: 8px"
 						></v-text-field>
-
-						<p id="sizeSeperator">x</p>
 
 						<v-text-field
 							label="Height"
@@ -26,29 +25,30 @@
 							min="1"
 							class="mt-0 pt-0"
 							type="number"
-							style="width: 60px"
 						></v-text-field>
 					</div>
 
-					<v-text-field
-						label="Goals"
-						placeholder="Number of Goals"
-						v-model="goals"
-						min="1"
-						class="mt-0 pt-0"
-						type="number"
-						style="width: 60px"
-					></v-text-field>
+					<!-- Goals and Traps -->
+					<div class="d-flex">
+						<v-text-field
+							label="Goals"
+							placeholder="Number of Goals"
+							v-model="goals"
+							min="0"
+							class="mt-0 pt-0"
+							type="number"
+							style="margin-right: 8px"
+						></v-text-field>
 
-					<v-text-field
-						label="Deaths"
-						placeholder="Number of Deaths"
-						v-model="deaths"
-						min="1"
-						class="mt-0 pt-0"
-						type="number"
-						style="width: 60px"
-					></v-text-field>
+						<v-text-field
+							label="Traps"
+							placeholder="Number of Traps"
+							v-model="traps"
+							min="0"
+							class="mt-0 pt-0"
+							type="number"
+						></v-text-field>
+					</div>
 
 					<v-slider v-model="connectivity" :step="0.01" :max="1" :min="0" :label="'Connectivity'" hide-details>
 						<template v-slot:append>
@@ -62,18 +62,24 @@
 							></v-text-field>
 						</template>
 					</v-slider>
+
+					<v-select
+						v-model="selectedAlgorithm"
+						:items="carvingAlgorithms"
+						item-text="name"
+						item-value="carver"
+						return-object
+						single-line>
+					</v-select>
 				</div>
 
-				<div v-if="false && store.state.settings.enableAdvancedSettings" id="constraints">
+				<div v-if="store.state.settings.enableAdvancedSettings" id="constraints">
 					<BoolConstraintInput ref="fullReachability" class="no-pad" :name="'Fully Reachable'" />
 					<BoolConstraintInput ref="winnable" class="no-pad" :name="'Winnable'" />
-					<BoolConstraintInput ref="losable" class="no-pad" :name="'Losable'" />
-					<BoolConstraintInput ref="noUnreachableGoal" class="no-pad" :name="'No Unreachable Goals'" />
-					<BoolConstraintInput ref="noUnreachableDeath" class="no-pad" :name="'No Unreachable Deaths'" />
-					<BoolConstraintInput ref="fullyReachableGoals" class="no-pad" :name="'Fully Reachable Goals'" />
-					<BoolConstraintInput ref="fullyReachableDeaths" class="no-pad" :name="'Fully Reachable Deaths'" />
-					<BoolConstraintInput ref="unambigousPolicy" class="no-pad" :name="'Unambiguous'" />
-					<BoolConstraintInput ref="fullyAmbigousPolicy" class="no-pad" :name="'Fully Ambiguous'" />
+					<BoolConstraintInput ref="survivable" class="no-pad" :name="'Survivable'" />
+					<BoolConstraintInput ref="dangerous" class="no-pad" :name="'Dangerous'" />
+					<BoolConstraintInput ref="ambigousPolicy" class="no-pad" :name="'Ambiguous Policy'" />
+					<BoolConstraintInput ref="trivialPolicy" class="no-pad" :name="'Trivial Policy'" />
 				</div>
 			</div>
 			
@@ -86,6 +92,9 @@
 import store from '../logic/sharedData';
 import Requirements from '../logic/checks';
 import BoolConstraintInput from './BoolConstraintInput';
+import {carveDFS} from '../logic/maze_generators/backtracker';
+import carveKruskal from '../logic/maze_generators/kruskal';
+import {hamiltonian} from '../logic/maze_generators/unicursal';
 
 export default {
 	components: {BoolConstraintInput},
@@ -95,9 +104,19 @@ export default {
 		width: 5,
 		height: 5,
 		goals: 0,
-		deaths: 0,
+		traps: 0,
 		connectivity: 0.0,
-		test: null
+		carvingAlgorithms: [
+			"Recursive Backtracking",
+			"Kruskal",
+			"Unicursal",
+		],
+		algTable: {
+			"Recursive Backtracking": carveDFS,
+			"Kruskal": carveKruskal,
+			"Unicursal": hamiltonian,
+		},
+		selectedAlgorithm: "Recursive Backtracking"
 	}},
 
 	methods: {
@@ -105,12 +124,13 @@ export default {
 			let reqs = new Requirements();
 			reqs.size.width = this.width;
 			reqs.size.height = this.height;
+			reqs.carver = this.algTable[this.selectedAlgorithm];
 			reqs.connectivity = this.connectivity;
 
 			reqs.numberOfGoals = this.goals;
-			reqs.numberOfDeaths = this.deaths;
+			reqs.numberOfTraps = this.traps;
 
-			//todo coment in here and remove false in the template
+			//todo fix -> constraints have changed and implementation is ugly
 		//	if (this.store.state.settings.enableAdvancedSettings) {
 		//		reqs.fullReachability = this.$refs["fullReachability"].value;
 		//		reqs.winnable = this.$refs["winnable"].value;
@@ -123,7 +143,6 @@ export default {
 		//		reqs.fullyAmbigousPolicy = this.$refs["fullyAmbigousPolicy"].value;
 		//	}
 			
-			this.test = reqs;
 			this.$parent.create(reqs);
 		}
 	},

@@ -142,11 +142,16 @@ export default class GridMDP {
 
 	getSolution(iteration=this.iteration) {
 		// todo this should probably recalculate the policy to avoid confusion if the world was edited mid-calculation
+		
+		while(this.iteration < iteration) {
+			this.next();
+		}
 
 		let solution = "Solution\n\n";
 		for(let it=0; it<=iteration; it++) {
 			solution += "\nk=" + it.toString() + ":";
 			for(let t of this.allTiles()) {
+				// console.log(t);
 				if(t.reachedAt(it)) {
 					solution += "\n\tField " + t.getFormula() + "\n";
 				}
@@ -156,9 +161,11 @@ export default class GridMDP {
 	}
 
 	* allTiles() {
-		for(let x in this.tiles)
-			for(let y in this.tiles[x])
+		for(let x=0; x<this.tiles.length; x++) {
+			for(let y=0; y<this.tiles[x].length; y++) {
 				yield this.tiles[x][y];
+			}
+		}
 	}
 
 	getAny(condition) {
@@ -243,7 +250,6 @@ class MDPTile {
 			}
 		}
 
-
 		let newPolicy = {};
 		this.policyChanged = false;
 		for (let aName in this.actions) {
@@ -261,7 +267,7 @@ class MDPTile {
 
 	getQValue(iteration=this.qMemory.length-1) {
 		if (!this.accessible || iteration < 0) return 0;
-		if (this.qMemory.length <= iteration) return this.reward;
+		if (this.terminal || this.qMemory.length <= iteration) return this.reward;
 		else return this.reward + this.qMemory[iteration]
 	}
 
@@ -271,8 +277,11 @@ class MDPTile {
 	}
 
 	getLabel(iteration=this.qMemory.length - 1) {
-		return this.getQValue(iteration).toFixed(2)
-			+ (this.reachedAt(store.state.displayIteration) && !this.terminal? "*":"");
+		if (this.terminal) {
+			return this.reward.toFixed(2);
+		} else  {
+			return this.getQValue(iteration).toFixed(2);
+		}
 	}
 
 	reachedAt(iteration) {
@@ -314,6 +323,10 @@ class Action {
 		this.cost = cost;
 
 		this.results = results;
+		for(let res of results) {
+			// forces Vues observer creation to go breath-first through the level, to reduce call stack size
+			Object.freeze(res);
+		}
 		this.defaultResult = defaultResult;
 		this.qMemory = [0];
 	}
@@ -327,6 +340,7 @@ class Action {
 
 	addResult(result) {
 		// TODO should warn if total chance of results is greater than 1
+		Object.freeze(result);
 		this.results.push(result);
 	}
 
@@ -382,8 +396,7 @@ class Action {
 	getFormula(iteration=this.qMemory.length-1) {
 		let formula = this.nts(this.discount) + " * (";
 		let sumChance = 0;
-		for (let i in this.results) {
-			let res = this.results[i];
+		for (let res of this.results) {
 			if (res.getChance() === 0)
 				continue;
 			sumChance += res.getChance();
