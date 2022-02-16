@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.5.0",
+    "plotly.js": "^2.9.0",
     "vue": "^2.6.11",
     "vue-numeric-input": "^2.0.0",
     "vuetify": "^2.5.14",

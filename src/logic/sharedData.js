@@ -20,6 +20,7 @@ const store = new Vuex.Store({
 
 			// advanced settings
 			enableAdvancedSettings: true,
+			enableActionEditing: false,
 			tileWidth: 100,
 			tileHeight: 100,
 			tileInsets: 5,
@@ -62,6 +63,11 @@ const store = new Vuex.Store({
 	mutations: {
 		setSettings(state, settings) {
 			state.settings = settings;
+		},
+
+		setZoom(state, zoom) {
+			state.settings.tileWidth = zoom;
+			state.settings.tileHeight = zoom;
 		},
 
 		setLevel(state, level) {

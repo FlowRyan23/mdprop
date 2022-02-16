@@ -59,7 +59,7 @@ export function inBounds(x, y, array) {
 	return x >= 0 && x < array.length && y >= 0 && y < array[0].length;
 }
 
-export function print2d(array, toString) {
+export function print2d(array, toString= v=>v) {
 	let cells = [];
 
 	for (let x = 0; x < array.length; x++) {

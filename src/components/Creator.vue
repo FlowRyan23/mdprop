@@ -50,7 +50,17 @@
 						></v-text-field>
 					</div>
 
-					<v-slider v-model="connectivity" :step="0.01" :max="1" :min="0" :label="'Connectivity'" hide-details>
+					<v-select
+						v-model="selectedAlgorithm"
+						:items="carvingAlgorithms"
+						item-text="name"
+						item-value="carver"
+						label="Carving Algorithm"
+						return-object
+						>
+					</v-select>
+
+					<v-slider v-if="selectedAlgorithm==='Random'" v-model="connectivity" :step="0.01" :max="1" :min="0" :label="'Connectivity'" hide-details>
 						<template v-slot:append>
 							<v-text-field
 								v-model="connectivity"
@@ -63,14 +73,7 @@
 						</template>
 					</v-slider>
 
-					<v-select
-						v-model="selectedAlgorithm"
-						:items="carvingAlgorithms"
-						item-text="name"
-						item-value="carver"
-						return-object
-						single-line>
-					</v-select>
+					<v-switch label="Braid" v-model="braid"></v-switch>
 				</div>
 
 				<div v-if="store.state.settings.enableAdvancedSettings" id="constraints">
@@ -83,7 +86,8 @@
 				</div>
 			</div>
 			
-			<v-btn @click="create()">create</v-btn>
+			<v-btn @click="create()" style="margin-right: 32px">create</v-btn>
+			<v-btn @click="store.commit('displayMDP')">cancel</v-btn>
 		</v-card>
 	</v-overlay>
 </template>
@@ -95,6 +99,7 @@ import BoolConstraintInput from './BoolConstraintInput';
 import {carveDFS} from '../logic/maze_generators/backtracker';
 import carveKruskal from '../logic/maze_generators/kruskal';
 import {hamiltonian} from '../logic/maze_generators/unicursal';
+import { carveRandom } from '../logic/maze_generators/random';
 
 export default {
 	components: {BoolConstraintInput},
@@ -103,20 +108,24 @@ export default {
 		store: store,
 		width: 5,
 		height: 5,
-		goals: 0,
+		goals: 1,
 		traps: 0,
-		connectivity: 0.0,
+		connectivity: 0.6,
+		braid: false,
 		carvingAlgorithms: [
 			"Recursive Backtracking",
 			"Kruskal",
 			"Unicursal",
+			"Random"
 		],
 		algTable: {
 			"Recursive Backtracking": carveDFS,
 			"Kruskal": carveKruskal,
 			"Unicursal": hamiltonian,
+			"Random": carveRandom
 		},
-		selectedAlgorithm: "Recursive Backtracking"
+		selectedAlgorithm: "Recursive Backtracking",
+		test: null
 	}},
 
 	methods: {
@@ -125,7 +134,8 @@ export default {
 			reqs.size.width = this.width;
 			reqs.size.height = this.height;
 			reqs.carver = this.algTable[this.selectedAlgorithm];
-			reqs.connectivity = this.connectivity;
+			reqs.braid = this.braid;
+			reqs.carverArgs.chance = this.connectivity;
 
 			reqs.numberOfGoals = this.goals;
 			reqs.numberOfTraps = this.traps;
@@ -143,7 +153,7 @@ export default {
 		//		reqs.fullyAmbigousPolicy = this.$refs["fullyAmbigousPolicy"].value;
 		//	}
 			
-			this.$parent.create(reqs);
+			this.$emit("create", reqs)
 		}
 	},
 

@@ -1,6 +1,7 @@
 import { shuffle, inBounds } from "../util";
 
-export function carveDFS(level, start={"x": 0, "y": 0}) {
+export function carveDFS(level, args={}) {
+	let start = args.start?args.start:{"x": 0, "y": 0};
 	let fringe = [];
 
 	start.entry = start;

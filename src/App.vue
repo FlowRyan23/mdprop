@@ -1,17 +1,17 @@
 <template>
 	<v-app>
-		<Baseline />
+		<GridMDP />
 	</v-app>
 </template>
 
 <script>
-import Baseline from "./components/Baseline.vue";
+import GridMDP from "./components/GridMDP.vue";
 
 export default {
 	name: "App",
 
 	components: {
-		Baseline
+		GridMDP
 	}
 };
 </script>

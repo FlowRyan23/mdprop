@@ -1,91 +1,126 @@
 <template>
 	<div>
-		<div v-if="store.state.displayMode===1" id="content" class="d-flex">
-			<div></div>
+		<v-navigation-drawer id="nav-drawer" v-model="drawer" app clipped floating mobile-breakpoint="1200">
+			<Settings id="settings" @apply-settings="applySettings()"/>
+		</v-navigation-drawer>
 
-			<div v-if="mdp" class="d-flex flex-column">
-				<div>
-					<v-toolbar>
-						<!-- Display iteration -->
-						<v-btn plain fab @click="prevIter()"><v-icon>mdi-chevron-left</v-icon></v-btn>
-						<v-text-field
-							v-model="displayIteration"
-							class="mt-0 pt-0 centered-text shrink"
-							readonly
-							flat
-							solo
-							hide-details
-							single-line
-							type="number"
-						></v-text-field>
-						<v-btn plain fab @click="nextIter()"><v-icon>mdi-chevron-right</v-icon></v-btn>
+		<v-app-bar app clipped-left>
+			<v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+			<v-toolbar-title>MDP Q-Value-Propagation</v-toolbar-title>
 
-						<v-btn plain fab @click="reset()" style="margin-right: 32px"><v-icon>mdi-reload</v-icon></v-btn>
-						<v-btn plain fab @click="toggleReached()">
-							<v-icon>mdi-alpha-r-box-outline</v-icon>
-						</v-btn>
-
-						<v-spacer></v-spacer>
-
-						<v-toolbar-items>
-								<v-btn plain fab @click="save()"><v-icon>mdi-content-save</v-icon></v-btn>
-								<v-btn plain fab @click="kill()"><v-icon>mdi-new-box</v-icon></v-btn>
-								<v-btn plain fab @click="openDownloader()"><v-icon>mdi-page-next-outline</v-icon></v-btn>
-						</v-toolbar-items>
-					</v-toolbar>
-				</div>
-
-				<div class="d-flex" style="justify-content: center">
-					<GridMDPDisplay v-if="mdp" :ID="'primary'" :ref="'display'" :tiles="mdp.tiles" @interaction="setEdit"/>
-				</div>
-		
-			<!-- <div v-bind:key="x" v-for="(col, x) in mdp.tiles" class="d-flex">
-				<div v-bind:key="y" v-for="(tile, y) in col" class="d-flex flex-column">
-					<GridMDPTile :ref="'' + x + '-' + y" :tile="tile" @edit-tile="setEdit" class="tile"/>
-				</div>
-			</div> -->				
-			</div>
+			<v-spacer></v-spacer>
 			
-			<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw" @close="closeEditor"/>
-			<div v-else></div>
-		</div>
+			<!-- Display iteration -->
+			<v-btn plain fab @click="prevIter()"><v-icon>mdi-chevron-left</v-icon></v-btn>
+			<v-text-field
+				v-model="displayIteration"
+				class="mt-0 pt-0 centered-text shrink"
+				readonly
+				flat
+				solo
+				hide-details
+				single-line
+				type="number"
+			></v-text-field>
+			<v-btn plain fab @click="nextIter()"><v-icon>mdi-chevron-right</v-icon></v-btn>
 
-		<div v-else-if="store.state.displayMode===2" id="creator">
-			<creator/>
-		</div>
+			<v-btn plain fab @click="reset()" style="margin-right: 32px"><v-icon>mdi-reload</v-icon></v-btn>
 
-		<div v-else-if="store.state.displayMode===3" id="solution">
-			<Solution :mdp="mdp"/>
-		</div>
+			<v-btn-toggle rounded color="blue">
+				<v-btn @click="toggleReached()">
+					<!-- <v-icon>mdi-alpha-r</v-icon> -->
+					Reached
+				</v-btn>
+			</v-btn-toggle>
 
+			<v-select
+				id="display-mode-selector"
+				v-model="displayMode"
+				:items="displayModes"
+				label="Display Mode"
+				@change="redraw()"
+				style="margin-top: 24px; margin-left: 32px; max-width: 200px"
+				solo dense>
+			</v-select>
+
+			<v-spacer></v-spacer>
+
+			<v-toolbar-items>
+					<v-btn plain fab @click="save()"><v-icon>mdi-content-save</v-icon></v-btn>
+					<v-btn plain fab @click="displayCreator()">
+						<!-- <v-icon>mdi-new-box</v-icon> -->
+						New
+					</v-btn>
+					<v-btn plain fab @click="openDownloader()"><v-icon>mdi-page-next-outline</v-icon></v-btn>
+			</v-toolbar-items>
+
+			<v-spacer></v-spacer>
+		</v-app-bar>
+
+		<v-main>
+			<div class="d-flex" style="justify-content: space-between">
+				<div></div>
+
+				<div v-if="mdp && store.state.displayMode===1" class="d-flex" style="justify-content: center">
+					<div>
+						<Display :ID="'primary'" :ref="'display'" :tiles="mdp.tiles" :mode="displayMode" @interaction="setEdit"/>
+					</div>
+				</div>
+
+				<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw" @close="closeEditor"/>
+				<div v-else></div>
+
+			</div>
+
+			<div v-if="plotting" id="plotDiv" ref="plt"></div>
+			<v-btn @click="plot()">plot</v-btn>
+			
+			<div v-if="store.state.displayMode===2" id="creator">
+				<Creator @create="create"/>
+			</div>
+
+			<div v-else-if="store.state.displayMode===3" id="solution">
+				<Solution :mdp="mdp"/>
+			</div>
+		</v-main>
+
+		<v-footer app>
+		</v-footer>
 	</div>
 </template>
 
 <script>
-import TileEditor from './TileEditor';
-import Creator from './Creator';
-import Solution from './Solution'
+import Settings from "./Settings.vue";
+import Solution from "./Solution.vue";
+import Creator from "./Creator.vue";
+import Display from "./Display.vue";
+import TileEditor from "./TileEditor.vue";
 
-import store from '../logic/sharedData';
+import store from "../logic/sharedData";
 import GridMDP from '../logic/mdp_prop';
 import create from '../logic/levelGeneration';
-import GridMDPDisplay from './GridMDPDisplay.vue';
+import {plotAvrgDistance} from "../logic/analytics/effective_distance"
 
 export default {
-	name: "GridMDP",
-	components : {Creator, TileEditor, Solution, GridMDPDisplay},
+	name: 'GridMDP',
+	components: {Display, Settings, Solution, Creator, TileEditor},
+	props: {source: String},
+
 	data() {return {
 		store: store,
+		drawer: false,
 		mdp: null,
 		editTile: null,
-		hover: false,
-
-		// temporary
-		checkRes: null,
-		reqs: null
+		displayModes: ["values", "policy", "detail"],
+		displayMode: "values",
+		plotting: true
 	}},
 
 	methods: {
+		plot() {
+			plotAvrgDistance(this.$refs["plt"], this.mdp.compact());
+		},
+
 		nextIter() {
 			store.commit('nextIteration');
 
@@ -102,12 +137,6 @@ export default {
 
 		redraw() {
 			this.$refs['display'].render();
-		},
-
-		closeEditor() {
-			this.editTile = null;
-			this.$refs['display'].clearSelected();
-			this.redraw();
 		},
 
 		reset() {
@@ -130,10 +159,6 @@ export default {
 			this.editTile = this.mdp.tiles[parseInt(indexes[0])][parseInt(indexes[1])];
 		},
 
-		isTileRef(ref) {
-			return this.$refs[ref] && this.$refs[ref][0] && ref !== "editor" && ref !== "settings";
-		},
-
 		applySettings() {
 			this.mdp.apply(store.state.settings);
 			this.redraw();
@@ -143,21 +168,32 @@ export default {
 			store.commit('toggleReachedPreview');
 			this.redraw();
 		},
-
-		kill() {
-			this.mdp = null;
-			store.commit('displayCreator');
-		},
-
+		
 		create(requirements) {
-			// TODO levels with 1400 Tiles or more exceed the maximum call stack size
 			this.reqs = requirements;
+			this.mdp = null;
 			this.mdp = create(requirements);
 			this.checkRes = requirements.check(this.mdp, true);
 			store.commit('setLevel', this.mdp.compact());
-			//this.setEdit("0-0");
 			this.editTile = null;
 			store.commit('displayMDP');
+			if(this.mdp.tiles.length * store.state.settings.tileWidth > 0.8 * window.innerWidth) {
+				store.commit('setZoom', (0.8 * window.innerWidth) / this.mdp.tiles.length);
+			}
+			if(this.mdp.tiles[0].length * store.state.settings.tileHeight > 0.8 * window.innerHeight) {
+				store.commit('setZoom', (0.8 * window.innerHeight) / this.mdp.tiles[0].length);
+			}
+			this.redraw(); //TODO does not redraw the mdp
+		},
+
+		displayCreator() {
+			store.commit('displayCreator');
+		},
+
+		closeEditor() {
+			this.editTile = null;
+			this.$refs['display'].clearSelected();
+			this.redraw();
 		},
 
 		openDownloader() {
@@ -182,37 +218,22 @@ export default {
 </script>
 
 <style scoped>
-	.tile {
-		display: inline-block;
+	#nav-drawer {
+		min-width: 400px;
 	}
 
-	.selected {
-		border: 1px solid goldenrod;
+	#display-mode-selector {
+		margin-top: 16px;
+		margin-left: 32px;
 	}
 
 	.centered-text >>> input {
 		text-align: center;
 	}
 
-	#content {
-		justify-content: space-between;
-	}
-
-	#settings {
-		display: inline-block;
-		min-width: 20%;
-		max-width: 25%;
-	}
-
-	#display {
-		display: inline-block;
-		flex-grow: 1;
-	}
-
 	#editor {
 		display: inline-block;
-		min-width: 20%;
-		max-width: 35%;
+		max-width: 600px;
 		flex-grow: 0;
 	}
 </style>

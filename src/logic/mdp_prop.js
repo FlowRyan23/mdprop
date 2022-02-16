@@ -95,6 +95,12 @@ export default class GridMDP {
 		}
 	}
 
+	calculate(iterations=100) {
+		for (let i = 0; i < iterations; i++) {
+			this.next();
+		}
+	}
+
 	next() {
 		this.iteration++;
 		
@@ -147,7 +153,7 @@ export default class GridMDP {
 			this.next();
 		}
 
-		let solution = "Solution\n\n";
+		let solution = "Solution\n";
 		for(let it=0; it<=iteration; it++) {
 			solution += "\nk=" + it.toString() + ":";
 			for(let t of this.allTiles()) {
@@ -328,6 +334,12 @@ class Action {
 			Object.freeze(res);
 		}
 		this.defaultResult = defaultResult;
+		this.stepChances = {
+			"front": store.state.settings.scFront,
+			"back": store.state.settings.scBack,
+			"left": store.state.settings.scLeft,
+			"right": store.state.settings.scRight,
+		};
 		this.qMemory = [0];
 	}
 
@@ -335,7 +347,12 @@ class Action {
 		this.cost = settings.stepCost;
 		this.discount = settings.discount;
 
-		// TODO stepChances
+		this.stepChances = {
+			"scFront": settings.scFront,
+			"scBack": settings.scBack,
+			"scLeft": settings.scLeft,
+			"scRight": settings.scRight,
+		};
 	}
 
 	addResult(result) {
@@ -358,16 +375,15 @@ class Action {
 		for(let i=0; i<this.results.length; i++) {
 			let res = this.results[i];
 			res.node.marked = true;
-			chance += res.getChance();
+			chance += res.getChance(this.stepChances);
 			if (!res.node.accessible) {
-				qValue += res.getChance() * (this.reward - this.cost + this.discount * this.defaultResult.node.getQValue(this.qMemory.length - 1));
+				qValue += res.getChance(this.stepChances) * (this.reward - this.cost + this.discount * this.defaultResult.node.getQValue(this.qMemory.length - 1));
 			} else if (useNewest) {
-				qValue += res.getChance() * (this.reward - this.cost + this.discount * res.node.getQValue());
+				qValue += res.getChance(this.stepChances) * (this.reward - this.cost + this.discount * res.node.getQValue());
 			} else {
-				qValue += res.getChance() * (this.reward - this.cost + this.discount * res.node.getQValue(this.qMemory.length - 1));
+				qValue += res.getChance(this.stepChances) * (this.reward - this.cost + this.discount * res.node.getQValue(this.qMemory.length - 1));
 			}
 		}
-
 		qValue += this.discount * (1 - chance) * (this.reward - this.cost + this.defaultResult.node.getQValue(this.qMemory.length -1));
 		
 		if (store.state.settings.useRounded) qValue = Math.round(qValue * 100) / 100;
@@ -397,10 +413,10 @@ class Action {
 		let formula = this.nts(this.discount) + " * (";
 		let sumChance = 0;
 		for (let res of this.results) {
-			if (res.getChance() === 0)
+			if (res.getChance(this.stepChances) === 0)
 				continue;
-			sumChance += res.getChance();
-			formula += this.nts(res.getChance()) + " * " + (this.nts(res.node.accessible?res.node.getQValue(iteration-1):this.defaultResult.node.getQValue(iteration-1))) + " + ";
+			sumChance += res.getChance(this.stepChances);
+			formula += this.nts(res.getChance(this.stepChances)) + " * " + (this.nts(res.node.accessible?res.node.getQValue(iteration-1):this.defaultResult.node.getQValue(iteration-1))) + " + ";
 		}
 		let defaultChance = (Math.round((1 - sumChance) * 100) / 100)
 		if (defaultChance > 0)
@@ -430,7 +446,7 @@ class Result {
 		this.chanceID = chanceID;	// the chance of moving to the node after performing the action
 	}
 
-	getChance() {
-		return store.state.settings[this.chanceID];
+	getChance(stepChances) {
+		return stepChances[this.chanceID];
 	}
 }

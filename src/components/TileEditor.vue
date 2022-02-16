@@ -22,7 +22,7 @@
 				<v-checkbox v-if="store.state.settings.enableAdvancedSettings" v-model="tile.accessible" :label="'Accesible'" color="blue"></v-checkbox>
 			</div>
 			
-			<h3 v-if="store.state.settings.enableAdvancedSettings" style="text-align: center">Reward</h3>
+			<h3 v-if="store.state.settings.enableAdvancedSettings">Reward</h3>
 			<div class="myRow" v-if="store.state.settings.enableAdvancedSettings">
 				<v-btn class="incBtn" rounded @click="incReward(-10)">-10</v-btn>
 				<v-btn class="incBtn" rounded @click="incReward(-1)">-1</v-btn>
@@ -40,7 +40,7 @@
 				<v-btn class="incBtn" rounded @click="incReward(+10)">+10</v-btn>
 			</div>
 
-			<v-expansion-panels style="margin-top: 16px" v-if="store.state.settings.enableAdvancedSettings">
+			<v-expansion-panels style="margin-top: 16px" v-if="store.state.settings.enableActionEditing">
 				<h3>Actions</h3>
 				<v-expansion-panel v-for="action in tile.actions" :key="action.name">
 					<v-expansion-panel-header>{{action.name}}</v-expansion-panel-header>
@@ -50,7 +50,8 @@
 				</v-expansion-panel>
 			</v-expansion-panels>
 			
-			<div v-else class="d-flex flex-column">
+			<div v-else class="d-flex flex-column" style="margin-top: 32px">
+				<h3>Actions</h3>
 				<ActionEditor v-for="action in tile.actions" :key="action.name" :action="action" />
 			</div>
 		</div>
@@ -136,6 +137,10 @@ export default {
 <style scoped>
 	* {
 		max-width: 500px;
+	}
+
+	h3 {
+		text-align: center;
 	}
 
 	.incBtn {

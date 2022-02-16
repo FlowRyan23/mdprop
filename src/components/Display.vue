@@ -12,8 +12,8 @@ import store from '../logic/sharedData';
 import '../logic/renderUtils';
 
 export default {
-	name: "GridMDPDisplay",
-	props: ["ID", "tiles"],
+	name: "Display",
+	props: ["ID", "tiles", "mode"],
 	data() {return {
 		store: store,
 		displayModes: {
@@ -29,6 +29,7 @@ export default {
 	}},
 	methods: {
 		clickHandler(event) {
+			this.test = this.$parent;
 			this.clickEvent = event.button;
 			if (event.button === 0) {
 				// TODO x and y are inconsistent
@@ -77,7 +78,6 @@ export default {
 					}
 
 					// overlay to show which tiles have been reached
-					this.test = this.store.state.reachedPreview;
 					if(this.store.state.reachedPreview && tile.reachedAt(store.state.displayIteration) && tile.accessible && !tile.terminal) {
 						drawContext.fillStyle = "rgba(" + 30 +", " + 144 + ", " + 255 + ", " + 0.3 + ")";
 						drawContext.fillRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
@@ -278,12 +278,7 @@ export default {
 		displayMode() {
 			if (this.isSmall) {
 				return "policy";
-			} else	if (store.state.settings.detailedDisplay) {
-					return "detail";
-			} else {
-				// return "values";
-				return "policy";
-			}
+			} else return this.mode;
 		},
 		tileWidth() {return store.state.settings.tileWidth},
 		tileHeight() {return store.state.settings.tileHeight},

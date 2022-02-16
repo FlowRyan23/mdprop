@@ -1,10 +1,10 @@
 <template>
 	<v-col id="conatiner">
 		<!-- Formula -->
-		<p v-if="store.state.settings.enableAdvancedSettings">{{action.getFormula()}}</p>
+		<p v-if="store.state.settings.enableActionEditing">{{action.getFormula()}}</p>
 		<p v-else>{{action.name + ": " + action.getFormula(store.state.displayIteration)}}</p>
 
-		<div v-if="store.state.settings.enableAdvancedSettings">
+		<div v-if="store.state.settings.enableActionEditing">
 			<!-- Reward slider-->
 			<v-slider v-model="action.reward" :step="0.01" :max="1.0" :min="-1.0" :label="'Reward'" hide-details>
 				<template v-slot:append>

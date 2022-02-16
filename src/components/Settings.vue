@@ -161,7 +161,7 @@ import store from '../logic/sharedData'
 import {sleep} from '../logic/util'
 
 export default {
-	name: "GridMDPSettings",
+	name: "Settings",
 	data() {return {
 		settings: {...store.state.defaultSettings},
 		noise: 0.2,
@@ -195,6 +195,7 @@ export default {
 			this.settings.detailedDisplay = hDetailToggle;
 			this.settings.useRounded = roundedToggle;
 			this.settings.enableAdvancedSettings = advancedToggle;
+			this.apply();
 		}
 	},
 

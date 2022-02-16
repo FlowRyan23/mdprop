@@ -3,7 +3,7 @@
 		<v-card>
 			<div v-if="worlds">
 				<div :key="x" v-for="(level, x) of worlds" id="container">
-					<grid-mdp-display :level="level"/>
+					<Display :level="level"/>
 				</div>
 			</div>
 		</v-card>
@@ -11,9 +11,9 @@
 </template>
 
 <script>
-import GridMDPDisplay from './GridMDPDisplay.vue'
+import Display from './Display.vue'
 export default {
-  components: { GridMDPDisplay },
+  components: { Display },
 	name: "LevelSelector",
 	data()  {return {
 		worlds: null

@@ -19,6 +19,7 @@ export default class Requirements {
 		this.connectivity = 0.3;			// likelyhood of any tile being accessible
 
 		this.carver = null;
+		this.carverArgs = {};
 		
 		// boolean constraints - can be required(true), optional(null) or disallowed(false)
 		this.fullReachability = null;		// every tile an agent can be on must be reachable from all other tiles
