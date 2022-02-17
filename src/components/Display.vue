@@ -1,7 +1,5 @@
 <template>
 	<canvas
-		:width="width"
-		:height="height"
 		:ref="ID"
 		@click="clickHandler"
 		></canvas>
@@ -13,7 +11,7 @@ import '../logic/renderUtils';
 
 export default {
 	name: "Display",
-	props: ["ID", "tiles", "mode"],
+	props: ["ID", "tiles"],
 	data() {return {
 		store: store,
 		displayModes: {
@@ -29,12 +27,10 @@ export default {
 	}},
 	methods: {
 		clickHandler(event) {
-			this.test = this.$parent;
 			this.clickEvent = event.button;
 			if (event.button === 0) {
-				// TODO x and y are inconsistent
-				this.selectedX = Math.floor(event.offsetY / this.tileWidth);
-				this.selectedY = Math.floor(event.offsetX / this.tileHeight);
+				this.selectedX = Math.floor(event.offsetY / this.tileHeight);
+				this.selectedY = Math.floor(event.offsetX / this.tileWidth);
 				this.render();
 				this.$emit("interaction", this.selectedX+"-"+this.selectedY);
 			}
@@ -42,6 +38,8 @@ export default {
 
 		render() {
 			let drawContext = this.$refs[this.ID].getContext("2d");
+			drawContext.canvas.width = this.width;
+			drawContext.canvas.height = this.height;
 			// clear the entire canvas in case any part fails to render
 			drawContext.fillStyle = this.backGroundColor;
 			drawContext.fillRect(0, 0, this.width, this.height);
@@ -49,7 +47,7 @@ export default {
 			for(let x=0; x<this.tiles.length; x++) {
 				for(let y=0; y<this.tiles[x].length; y++) {
 					let tile = this.tiles[x][y];
-					let offset = {"y": x*store.state.settings.tileWidth, "x": y*store.state.settings.tileHeight};
+					let offset = {"y": x*this.tileHeight, "x": y*this.tileWidth};
 
 					// background color for the tile is given by the qValue
 					drawContext.fillStyle = this.tileColor(tile);
@@ -119,14 +117,44 @@ export default {
 				// TODO does not draw anything
 				if (tile.bestAction()) {
 					ctx.fillStyle = "white";
-					if (tile.getPolicy(store.state.displayIteration)["up"])
-						ctx.fillRect(offset.x + this.tileWidth / 2 - this.diSize/2, offset.y + this.inset, this.diSize, this.diSize);
-					if (tile.getPolicy(store.state.displayIteration)["right"])
-						ctx.fillRect(offset.x + this.tileWidth - this.inset - this.diSize, offset.y + this.tileHeight / 2 - this.diSize / 2, this.diSize, this.diSize);
-					if (tile.getPolicy(store.state.displayIteration)["left"])
-						ctx.fillRect(offset.x + this.inset, offset.y + this.tileHeight / 2 - this.diSize / 2, this.diSize, this.diSize);
-					if (tile.getPolicy(store.state.displayIteration)["down"])
-						ctx.fillRect(offset.x + this.tileWidth / 2 - this.diSize / 2, offset.y + this.tileHeight - this.inset - this.diSize, this.diSize, this.diSize);
+					let diSize = Math.max(1, Math.min(this.tileWidth/10, this.tileHeight/10));
+					let inset = Math.max(0, diSize/2);
+					if (tile.getPolicy(store.state.displayIteration)["up"]) {
+						// ctx.fillRect(offset.x + this.tileWidth / 2 - diSize/2, offset.y + inset, diSize, diSize);
+						ctx.fillPoly([
+							[offset.x + this.tileWidth / 2 - diSize/2, offset.y + inset + diSize],
+							[offset.x + this.tileWidth / 2 + diSize/2, offset.y + inset + diSize],
+							[offset.x + this.tileWidth / 2, offset.y + inset]],
+							"white", "white"
+						);
+					}
+					if (tile.getPolicy(store.state.displayIteration)["right"]) {
+						// ctx.fillRect(offset.x + this.tileWidth - inset - diSize, offset.y + this.tileHeight / 2 - diSize / 2, diSize, diSize);
+						ctx.fillPoly([
+							[offset.x + this.tileWidth - diSize - inset, offset.y + this.tileHeight/2 - diSize/2],
+							[offset.x + this.tileWidth - diSize - inset, offset.y + this.tileHeight/2 + diSize/2],
+							[offset.x + this.tileWidth - inset, offset.y + this.tileHeight/2]],
+							"white", "white"
+						);
+					}
+					if (tile.getPolicy(store.state.displayIteration)["left"]) {
+						// ctx.fillRect(offset.x + inset, offset.y + this.tileHeight / 2 - diSize / 2, diSize, diSize);
+						ctx.fillPoly([
+							[offset.x + diSize + inset, offset.y + this.tileHeight/2 - diSize/2],
+							[offset.x + diSize + inset, offset.y + this.tileHeight/2 + diSize/2],
+							[offset.x + inset, offset.y + this.tileHeight/2]],
+							"white", "white"
+						);
+					}
+					if (tile.getPolicy(store.state.displayIteration)["down"]) {
+						// ctx.fillRect(offset.x + this.tileWidth / 2 - diSize / 2, offset.y + this.tileHeight - inset - diSize, diSize, diSize);
+						ctx.fillPoly([
+							[offset.x + this.tileWidth / 2 - diSize/2, offset.y + this.tileHeight - inset - diSize],
+							[offset.x + this.tileWidth / 2 + diSize/2, offset.y + this.tileHeight - inset - diSize],
+							[offset.x + this.tileWidth / 2, offset.y + this.tileHeight - inset]],
+							"white", "white"
+						);
+					}
 				}
 			}
 		},
@@ -228,9 +256,10 @@ export default {
 					let tl = [offset.x + this.tileWidth / 3 , offset.y + this.tileHeight / 3]; // top left of the center square
 					let br = [offset.x + 2 * this.tileWidth / 3 , offset.y + 2 * this.tileHeight / 3]; // bottom right of the center square
 					let bl = [offset.x + this.tileWidth / 3 , offset.y + 2 * this.tileHeight / 3]; // bottom left of the center square
-					let insetH = tr[1] - offset.y - (tr[0] - tl[0]) * Math.sqrt(3)/2; // vertical insets to make equalateral triangles
-					let insetW = tl[0] - offset.x - (br[1] - tr[1]) * Math.sqrt(3)/2; // horizontal insets to make equalateral triangles
+					let insetH = Math.max(1, tr[1] - offset.y - (tr[0] - tl[0]) * Math.sqrt(3)/2); // vertical insets to make equalateral triangles
+					let insetW = Math.max(1, tl[0] - offset.x - (br[1] - tr[1]) * Math.sqrt(3)/2); // horizontal insets to make equalateral triangles
 
+					ctx.lineWidth = 1;
 					if (direction === "up") {
 						ctx.fillPoly([tl, tr, [offset.x + this.tileWidth / 2, offset.y + insetH]], fillColor, borderColor);
 					} else if (direction === "right") {
@@ -278,17 +307,15 @@ export default {
 		displayMode() {
 			if (this.isSmall) {
 				return "policy";
-			} else return this.mode;
+			} else return store.state.renderMode;
 		},
-		tileWidth() {return store.state.settings.tileWidth},
-		tileHeight() {return store.state.settings.tileHeight},
-		// TODO height and width are not used consistently
-		height() {return store.state.settings.tileWidth * this.tiles.length},
-		width() {return store.state.settings.tileHeight * this.tiles[0].length},
-		isSmall() {return store.state.settings.tileWidth <= 30 || store.state.settings.tileHeight <= 25},
+		tileWidth() {return store.state.tileWidth},
+		tileHeight() {return store.state.tileHeight},
+		height() {return store.state.tileHeight * this.tiles.length},
+		width() {return store.state.tileWidth * this.tiles[0].length},
+		isSmall() {return store.state.tileWidth <= 30 || store.state.tileHeight <= 25},
 		// backGroundColor()  {return "hsl(" + 160 +", " + 0 + "%, " + 36 + "%)";}
-		backGroundColor()  {return "rgb(" + 38 +", " + 38 + ", " + 38 + ")"},
-		diSize() {return store.state.settings.directionIndicatorSize},
+		backGroundColor()  {return "rgb(" + 38 +", " + 38 + ", " + 38 + ")"}
 	},
 	mounted() {
 		this.render();

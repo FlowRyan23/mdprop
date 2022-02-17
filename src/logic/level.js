@@ -1,4 +1,4 @@
-import { print2d, shuffle } from "./util";
+import { shuffle } from "./util";
 
 export const tileWall = {
 	"accessible": false,
@@ -21,7 +21,7 @@ export const tileGoal = {
 	"initial": false
 };
 
-export const tileDeath = {
+export const tileTrap = {
 	"accessible": true,
 	"reward": -1,
 	"terminal": true,
@@ -93,8 +93,6 @@ function isDeadEnd(level, pos) {
 }
 
 export function braid(level, start=null, degree=1) {
-	console.log("braiding");
-	print2d(level, t=>t.accessible);
 	// if no accesible starting tile is given, one must found to start walking the maze
 	if(start===null || !level[start.x][start.y].accessible) {
 		for(let x=0; start===null && x<level.length; x++) {
@@ -106,17 +104,14 @@ export function braid(level, start=null, degree=1) {
 		}
 	}
 
-	console.log("starting from " + start.x + ", " + start.y);
 
 	// find all dead end tiles in the level
 	walkLevel(level, start, p => level[p.x][p.y].accessible, p => {
 		if(Math.random() > degree) return;
 
 		let current = p;
-		console.log("checking " + p.x + ", " + p.y);
 		// carve through walls in dead ends until they reach a previous exiting path
 		while(isDeadEnd(level, current)) {
-			console.log("isDead");
 			let cut = shuffle(neighbors(level, current).filter(e => !level[e.x][e.y].accessible))[0];
 			level[cut.x][cut.y].accessible = true;
 			current = cut;

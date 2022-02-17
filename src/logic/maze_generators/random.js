@@ -1,6 +1,5 @@
 export function carveRandom(level, args={}) {
 	let chance = args.chance?args.chance:0;
-	console.log(level);
 	for (let x = 0; x < level.length; x++) {
 		for (let y = 0; y < level[x].length; y++) {
 			if(Math.random() < chance) {

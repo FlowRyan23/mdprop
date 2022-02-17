@@ -9,6 +9,7 @@
 					class="mt-0 pt-0"
 					type="number"
 					outlined
+					@wheel.prevent="scrollHandler"
 				></v-text-field>
 
 				<v-btn class="spaced" :name="'download'" @click="save()">download</v-btn>
@@ -43,6 +44,14 @@ export default {
 
 		getSolutionTxt() {
 			return this.mdp.getSolution(this.iteration);
+		},
+
+		scrollHandler(event, attribute="iteration", min=0, max=10000, step=1) {
+			if(event.deltaY > 0) {
+				this[attribute] = Math.min(max, Math.max(min, this[attribute] - step));
+			} else {
+				this[attribute] = Math.min(max, Math.max(min, this[attribute] + step));
+			}
 		}
 	}
 }

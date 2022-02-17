@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<v-navigation-drawer id="nav-drawer" v-model="drawer" app clipped floating mobile-breakpoint="1200">
-			<Settings id="settings" @apply-settings="applySettings()"/>
+			<Settings :ref="'settings'" @apply-settings="applySettings()" @redraw="redraw()"/>
 		</v-navigation-drawer>
 
 		<v-app-bar app clipped-left>
@@ -13,7 +13,7 @@
 			<!-- Display iteration -->
 			<v-btn plain fab @click="prevIter()"><v-icon>mdi-chevron-left</v-icon></v-btn>
 			<v-text-field
-				v-model="displayIteration"
+				v-model="store.state.displayIteration"
 				class="mt-0 pt-0 centered-text shrink"
 				readonly
 				flat
@@ -21,6 +21,7 @@
 				hide-details
 				single-line
 				type="number"
+				@wheel.prevent="iterScrollHandler"
 			></v-text-field>
 			<v-btn plain fab @click="nextIter()"><v-icon>mdi-chevron-right</v-icon></v-btn>
 
@@ -38,7 +39,7 @@
 				v-model="displayMode"
 				:items="displayModes"
 				label="Display Mode"
-				@change="redraw()"
+				@input="changeRender()"
 				style="margin-top: 24px; margin-left: 32px; max-width: 200px"
 				solo dense>
 			</v-select>
@@ -47,11 +48,11 @@
 
 			<v-toolbar-items>
 					<v-btn plain fab @click="save()"><v-icon>mdi-content-save</v-icon></v-btn>
-					<v-btn plain fab @click="displayCreator()">
+					<v-btn plain fab @click="store.commit('displayCreator')">
 						<!-- <v-icon>mdi-new-box</v-icon> -->
 						New
 					</v-btn>
-					<v-btn plain fab @click="openDownloader()"><v-icon>mdi-page-next-outline</v-icon></v-btn>
+					<v-btn plain fab @click="store.commit('displaySolution')"><v-icon>mdi-page-next-outline</v-icon></v-btn>
 			</v-toolbar-items>
 
 			<v-spacer></v-spacer>
@@ -61,7 +62,7 @@
 			<div class="d-flex" style="justify-content: space-between">
 				<div></div>
 
-				<div v-if="mdp && store.state.displayMode===1" class="d-flex" style="justify-content: center">
+				<div v-if="mdp && store.state.focus==='mdp'" class="d-flex" style="justify-content: center">
 					<div>
 						<Display :ID="'primary'" :ref="'display'" :tiles="mdp.tiles" :mode="displayMode" @interaction="setEdit"/>
 					</div>
@@ -72,14 +73,16 @@
 
 			</div>
 
-			<div v-if="plotting" id="plotDiv" ref="plt"></div>
-			<v-btn @click="plot()">plot</v-btn>
+			<div v-if="plotting">
+				<v-btn @click="plot()">plot</v-btn>
+				<div id="plotDiv" ref="plt"></div>
+			</div>
 			
-			<div v-if="store.state.displayMode===2" id="creator">
+			<div v-if="store.state.focus==='creator'" id="creator">
 				<Creator @create="create"/>
 			</div>
 
-			<div v-else-if="store.state.displayMode===3" id="solution">
+			<div v-else-if="store.state.focus==='solution'" id="solution">
 				<Solution :mdp="mdp"/>
 			</div>
 		</v-main>
@@ -113,7 +116,7 @@ export default {
 		editTile: null,
 		displayModes: ["values", "policy", "detail"],
 		displayMode: "values",
-		plotting: true
+		plotting: false
 	}},
 
 	methods: {
@@ -124,7 +127,7 @@ export default {
 		nextIter() {
 			store.commit('nextIteration');
 
-			if (store.state.displayIteration > this.mdp.iteration)
+			while (store.state.displayIteration > this.mdp.iteration)
 				this.mdp.next();
 			
 			this.redraw();
@@ -135,10 +138,6 @@ export default {
 			this.redraw();
 		},
 
-		redraw() {
-			this.$refs['display'].render();
-		},
-
 		reset() {
 			store.commit('resetIteration');
 
@@ -146,7 +145,7 @@ export default {
 				this.mdp.reset();
 				this.redraw();
 			} else {
-				this.mdp = new GridMDP(store.state.level, store.state.settings.discount, store.state.settings.stepCost);
+				this.mdp = new GridMDP(store.state.level, store.state.discount, store.state.stepCost);
 			}
 		},
 
@@ -160,7 +159,7 @@ export default {
 		},
 
 		applySettings() {
-			this.mdp.apply(store.state.settings);
+			this.mdp.apply(this.mdpSettings);
 			this.redraw();
 		},
 
@@ -168,26 +167,30 @@ export default {
 			store.commit('toggleReachedPreview');
 			this.redraw();
 		},
+
+		changeRender() {
+			store.commit('setRender', this.displayMode);
+			this.redraw();
+		},
 		
 		create(requirements) {
 			this.reqs = requirements;
 			this.mdp = null;
+			store.commit('resetIteration');
 			this.mdp = create(requirements);
+			this.mdp.apply(this.mdpSettings)
 			this.checkRes = requirements.check(this.mdp, true);
 			store.commit('setLevel', this.mdp.compact());
 			this.editTile = null;
 			store.commit('displayMDP');
-			if(this.mdp.tiles.length * store.state.settings.tileWidth > 0.8 * window.innerWidth) {
-				store.commit('setZoom', (0.8 * window.innerWidth) / this.mdp.tiles.length);
+			if(this.mdp.tiles.length * store.state.tileWidth > 0.8 * window.innerWidth) {
+				this.$refs.settings.zoom = (0.8 * window.innerWidth) / this.mdp.tiles.length;
+				this.$refs.settings.setTileSizes();
 			}
-			if(this.mdp.tiles[0].length * store.state.settings.tileHeight > 0.8 * window.innerHeight) {
-				store.commit('setZoom', (0.8 * window.innerHeight) / this.mdp.tiles[0].length);
+			if(this.mdp.tiles[0].length * store.state.tileHeight > 0.8 * window.innerHeight) {
+				this.$refs.settings.zoom = (0.8 * window.innerHeight) / this.mdp.tiles[0].length;
+				this.$refs.settings.setTileSizes();
 			}
-			this.redraw(); //TODO does not redraw the mdp
-		},
-
-		displayCreator() {
-			store.commit('displayCreator');
 		},
 
 		closeEditor() {
@@ -195,20 +198,35 @@ export default {
 			this.$refs['display'].clearSelected();
 			this.redraw();
 		},
+		
+		redraw() {
+			// when zoom is set by the creator, settings initiates rendering before display is ready
+			if(this.$refs['display'])
+				this.$refs['display'].render();
+		},
 
-		openDownloader() {
-			store.commit('displayDownloader');
+		iterScrollHandler(event) {
+			if(event.deltaY > 0) {
+				this.prevIter();
+			} else {
+				this.nextIter();
+			}
 		}
 	},
 
 	computed: {
 		displayIteration() {
 			return store.state.displayIteration;
-		}
-	},
+		},
 
-	created() {
-		store.commit('setSettings', {...store.state.defaultSettings});
+		mdpSettings() {return  {
+			discount: store.state.discount,
+			stepCost: store.state.stepCost,
+			scFront: store.state.scFront,
+			scBack: store.state.scBack,
+			scLeft: store.state.scLeft,
+			scRight: store.state.scRight
+		}}
 	},
 
 	mounted() {

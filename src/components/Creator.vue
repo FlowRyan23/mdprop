@@ -16,6 +16,7 @@
 							class="mt-0 pt-0"
 							type="number"
 							style="margin-right: 8px"
+							@wheel.prevent="scrollHandler($event, 'width', min=1)"
 						></v-text-field>
 
 						<v-text-field
@@ -25,6 +26,7 @@
 							min="1"
 							class="mt-0 pt-0"
 							type="number"
+							@wheel.prevent="scrollHandler($event, 'height', min=1)"
 						></v-text-field>
 					</div>
 
@@ -38,6 +40,7 @@
 							class="mt-0 pt-0"
 							type="number"
 							style="margin-right: 8px"
+							@wheel.prevent="scrollHandler($event, 'goals')"
 						></v-text-field>
 
 						<v-text-field
@@ -47,6 +50,7 @@
 							min="0"
 							class="mt-0 pt-0"
 							type="number"
+							@wheel.prevent="scrollHandler($event, 'traps')"
 						></v-text-field>
 					</div>
 
@@ -76,7 +80,7 @@
 					<v-switch label="Braid" v-model="braid"></v-switch>
 				</div>
 
-				<div v-if="store.state.settings.enableAdvancedSettings" id="constraints">
+				<div v-if="store.state.enableAdvancedSettings" id="constraints">
 					<BoolConstraintInput ref="fullReachability" class="no-pad" :name="'Fully Reachable'" />
 					<BoolConstraintInput ref="winnable" class="no-pad" :name="'Winnable'" />
 					<BoolConstraintInput ref="survivable" class="no-pad" :name="'Survivable'" />
@@ -109,7 +113,7 @@ export default {
 		width: 5,
 		height: 5,
 		goals: 1,
-		traps: 0,
+		traps: 1,
 		connectivity: 0.6,
 		braid: false,
 		carvingAlgorithms: [
@@ -141,7 +145,7 @@ export default {
 			reqs.numberOfTraps = this.traps;
 
 			//todo fix -> constraints have changed and implementation is ugly
-		//	if (this.store.state.settings.enableAdvancedSettings) {
+		//	if (this.store.state.enableAdvancedSettings) {
 		//		reqs.fullReachability = this.$refs["fullReachability"].value;
 		//		reqs.winnable = this.$refs["winnable"].value;
 		//		reqs.losable = this.$refs["losable"].value;
@@ -154,12 +158,14 @@ export default {
 		//	}
 			
 			this.$emit("create", reqs)
-		}
-	},
+		},
 
-	computed: {
-		maxWidth() {
-			return store.state.settings.maxWidth;
+		scrollHandler(event, attribute, min=0, max=200) {
+			if(event.deltaY > 0) {
+				this[attribute] = Math.min(max, Math.max(min, this[attribute] - 1));
+			} else {
+				this[attribute] = Math.min(max, Math.max(min, this[attribute] + 1));
+			}
 		}
 	}
 }

@@ -17,13 +17,13 @@
 			</div>
 
 			<div class="myRow">
-				<v-checkbox v-if="store.state.settings.enableAdvancedSettings" v-model="tile.terminal" :label="'Terminal'" color="blue"></v-checkbox>
+				<v-checkbox v-model="tile.terminal" :label="'Terminal'" color="blue"></v-checkbox>
 				<v-checkbox v-model="tile.initial" :label="'Initial'" color="blue" @click.passive="setInit()"></v-checkbox>
-				<v-checkbox v-if="store.state.settings.enableAdvancedSettings" v-model="tile.accessible" :label="'Accesible'" color="blue"></v-checkbox>
+				<v-checkbox v-model="tile.accessible" :label="'Accesible'" color="blue"></v-checkbox>
 			</div>
 			
-			<h3 v-if="store.state.settings.enableAdvancedSettings">Reward</h3>
-			<div class="myRow" v-if="store.state.settings.enableAdvancedSettings">
+			<h3>Reward</h3>
+			<div class="myRow">
 				<v-btn class="incBtn" rounded @click="incReward(-10)">-10</v-btn>
 				<v-btn class="incBtn" rounded @click="incReward(-1)">-1</v-btn>
 				<v-text-field
@@ -40,7 +40,7 @@
 				<v-btn class="incBtn" rounded @click="incReward(+10)">+10</v-btn>
 			</div>
 
-			<v-expansion-panels style="margin-top: 16px" v-if="store.state.settings.enableActionEditing">
+			<v-expansion-panels style="margin-top: 16px" v-if="store.state.enableActionEditing">
 				<h3>Actions</h3>
 				<v-expansion-panel v-for="action in tile.actions" :key="action.name">
 					<v-expansion-panel-header>{{action.name}}</v-expansion-panel-header>

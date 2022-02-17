@@ -1,7 +1,7 @@
 import store from "./sharedData";
 
 export default class GridMDP {
-	constructor(level, discount=store.state.settings.discount, stepCost=store.state.settings.stepCost) {
+	constructor(level, discount=store.state.discount, stepCost=store.state.stepCost) {
 		// todo the level in memory is transposed to how it is displayed
 		this.level = level;
 		this.iteration = 0;
@@ -23,51 +23,51 @@ export default class GridMDP {
 				let rightAction = new Action("right", new Result(this.tiles[x][y], 1), stepCost, discount);
 
 				if (this.inBounds(x, y-1)) {
-					leftAction.addResult(new Result(this.tiles[x][y-1], "scFront"));
-					downAction.addResult(new Result(this.tiles[x][y-1], "scRight"));
-					rightAction.addResult(new Result(this.tiles[x][y-1], "scBack"));
-					upAction.addResult(new Result(this.tiles[x][y-1], "scLeft"));
+					leftAction.addResult(new Result(this.tiles[x][y-1], "front"));
+					downAction.addResult(new Result(this.tiles[x][y-1], "right"));
+					rightAction.addResult(new Result(this.tiles[x][y-1], "back"));
+					upAction.addResult(new Result(this.tiles[x][y-1], "left"));
 				} else {
-					leftAction.addResult(new Result(this.tiles[x][y], "scFront"));
-					downAction.addResult(new Result(this.tiles[x][y], "scRight"));
-					rightAction.addResult(new Result(this.tiles[x][y], "scBack"));
-					upAction.addResult(new Result(this.tiles[x][y], "scLeft"));
+					leftAction.addResult(new Result(this.tiles[x][y], "front"));
+					downAction.addResult(new Result(this.tiles[x][y], "right"));
+					rightAction.addResult(new Result(this.tiles[x][y], "back"));
+					upAction.addResult(new Result(this.tiles[x][y], "left"));
 				}
 
 				if (this.inBounds(x, y+1)) {
-					leftAction.addResult(new Result(this.tiles[x][y+1], "scBack"));
-					downAction.addResult(new Result(this.tiles[x][y+1], "scLeft"));
-					rightAction.addResult(new Result(this.tiles[x][y+1], "scFront"));
-					upAction.addResult(new Result(this.tiles[x][y+1], "scRight"));
+					leftAction.addResult(new Result(this.tiles[x][y+1], "back"));
+					downAction.addResult(new Result(this.tiles[x][y+1], "left"));
+					rightAction.addResult(new Result(this.tiles[x][y+1], "front"));
+					upAction.addResult(new Result(this.tiles[x][y+1], "right"));
 				} else {
-					leftAction.addResult(new Result(this.tiles[x][y], "scBack"));
-					downAction.addResult(new Result(this.tiles[x][y], "scLeft"));
-					rightAction.addResult(new Result(this.tiles[x][y], "scFront"));
-					upAction.addResult(new Result(this.tiles[x][y], "scRight"));
+					leftAction.addResult(new Result(this.tiles[x][y], "back"));
+					downAction.addResult(new Result(this.tiles[x][y], "left"));
+					rightAction.addResult(new Result(this.tiles[x][y], "front"));
+					upAction.addResult(new Result(this.tiles[x][y], "right"));
 				}
 
 				if (this.inBounds(x-1, y)) {
-					leftAction.addResult(new Result(this.tiles[x-1][y], "scRight"));
-					downAction.addResult(new Result(this.tiles[x-1][y], "scBack"));
-					rightAction.addResult(new Result(this.tiles[x-1][y], "scLeft"));
-					upAction.addResult(new Result(this.tiles[x-1][y], "scFront"));
+					leftAction.addResult(new Result(this.tiles[x-1][y], "right"));
+					downAction.addResult(new Result(this.tiles[x-1][y], "back"));
+					rightAction.addResult(new Result(this.tiles[x-1][y], "left"));
+					upAction.addResult(new Result(this.tiles[x-1][y], "front"));
 				} else {
-					leftAction.addResult(new Result(this.tiles[x][y], "scRight"));
-					downAction.addResult(new Result(this.tiles[x][y], "scBack"));
-					rightAction.addResult(new Result(this.tiles[x][y], "scLeft"));
-					upAction.addResult(new Result(this.tiles[x][y], "scFront"));
+					leftAction.addResult(new Result(this.tiles[x][y], "right"));
+					downAction.addResult(new Result(this.tiles[x][y], "back"));
+					rightAction.addResult(new Result(this.tiles[x][y], "left"));
+					upAction.addResult(new Result(this.tiles[x][y], "front"));
 				}
 
 				if (this.inBounds(x+1, y)) {
-					leftAction.addResult(new Result(this.tiles[x+1][y], "scLeft"));
-					downAction.addResult(new Result(this.tiles[x+1][y], "scFront"));
-					rightAction.addResult(new Result(this.tiles[x+1][y], "scRight"));
-					upAction.addResult(new Result(this.tiles[x+1][y], "scBack"));
+					leftAction.addResult(new Result(this.tiles[x+1][y], "left"));
+					downAction.addResult(new Result(this.tiles[x+1][y], "front"));
+					rightAction.addResult(new Result(this.tiles[x+1][y], "right"));
+					upAction.addResult(new Result(this.tiles[x+1][y], "back"));
 				} else {
-					leftAction.addResult(new Result(this.tiles[x][y], "scLeft"));
-					downAction.addResult(new Result(this.tiles[x][y], "scFront"));
-					rightAction.addResult(new Result(this.tiles[x][y], "scRight"));
-					upAction.addResult(new Result(this.tiles[x][y], "scBack"));
+					leftAction.addResult(new Result(this.tiles[x][y], "left"));
+					downAction.addResult(new Result(this.tiles[x][y], "front"));
+					rightAction.addResult(new Result(this.tiles[x][y], "right"));
+					upAction.addResult(new Result(this.tiles[x][y], "back"));
 				}
 
 				this.tiles[x][y].addAction(upAction);
@@ -267,7 +267,7 @@ class MDPTile {
 		}
 		this.policyMemory.push(newPolicy);
 
-		if (store.state.settings.useRounded) maxQ = Math.round(maxQ * 100) / 100;
+		if (store.state.useRounded) maxQ = Math.round(maxQ * 100) / 100;
 		this.qMemory.push(maxQ);
 	}
 
@@ -320,7 +320,7 @@ class MDPTile {
 }
 
 class Action {
-	constructor(name, defaultResult=null, cost=store.state.settings.stepCost, discount=store.state.settings.discount, results=[], reward=0) {
+	constructor(name, defaultResult=null, cost=store.state.stepCost, discount=store.state.discount, results=[], reward=0) {
 		this.name = name;
 
 		this.defaultReward = reward;
@@ -335,10 +335,10 @@ class Action {
 		}
 		this.defaultResult = defaultResult;
 		this.stepChances = {
-			"front": store.state.settings.scFront,
-			"back": store.state.settings.scBack,
-			"left": store.state.settings.scLeft,
-			"right": store.state.settings.scRight,
+			"front": store.state.scFront,
+			"back": store.state.scBack,
+			"left": store.state.scLeft,
+			"right": store.state.scRight,
 		};
 		this.qMemory = [0];
 	}
@@ -348,10 +348,10 @@ class Action {
 		this.discount = settings.discount;
 
 		this.stepChances = {
-			"scFront": settings.scFront,
-			"scBack": settings.scBack,
-			"scLeft": settings.scLeft,
-			"scRight": settings.scRight,
+			"front": settings.scFront,
+			"back": settings.scBack,
+			"left": settings.scLeft,
+			"right": settings.scRight,
 		};
 	}
 
@@ -386,7 +386,7 @@ class Action {
 		}
 		qValue += this.discount * (1 - chance) * (this.reward - this.cost + this.defaultResult.node.getQValue(this.qMemory.length -1));
 		
-		if (store.state.settings.useRounded) qValue = Math.round(qValue * 100) / 100;
+		if (store.state.useRounded) qValue = Math.round(qValue * 100) / 100;
 		this.qMemory.push(qValue);
 		return qValue;
 	}
@@ -399,8 +399,8 @@ class Action {
 	reset(hard=true) {
 		if (hard) {
 			this.reward = this.defaultReward;
-			this.discount = store.state.settings.discount;
-			this.cost = store.state.settings.stepCost;
+			this.discount = store.state.discount;
+			this.cost = store.state.stepCost;
 		}
 		this.qMemory = [0];
 	}
