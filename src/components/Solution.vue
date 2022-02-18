@@ -3,7 +3,7 @@
 		<v-card id="card">
 			<div id="buttons" class="d-flex">
 				<v-text-field
-					label="Iteration"
+					:label="$t('solution.iteration')"
 					v-model="iteration"
 					min="1"
 					class="mt-0 pt-0"
@@ -12,8 +12,8 @@
 					@wheel.prevent="scrollHandler"
 				></v-text-field>
 
-				<v-btn class="spaced" :name="'download'" @click="save()">download</v-btn>
-				<v-btn class="spaced" :name="'back'" @click="store.commit('displayMDP')">back</v-btn>
+				<v-btn class="spaced" :name="'download'" @click="save()">{{$t('solution.download')}}</v-btn>
+				<v-btn class="spaced" :name="'back'" @click="store.commit('displayMDP')">{{$t('solution.back')}}</v-btn>
 			</div>
 			
 			<div>

@@ -1,8 +1,8 @@
 <template>
-	<div class="col">
-		<h2>Settings</h2>
+	<div class="d-flex flex-column" style="margin: 16px;">
+		<h2>{{$t('settings.title')}}</h2>
 		<!-- Discount slider -->
-		<v-slider v-model="discount" :step="0.01" :max="1" :min="0" :label="'Discount'" hide-details @change="setDiscount">
+		<v-slider v-model="discount" :step="0.01" :max="1" :min="0" :label="$t('settings.discount')" hide-details @change="setDiscount">
 			<template v-slot:append>
 				<v-text-field
 					v-model="discount"
@@ -17,7 +17,7 @@
 		</v-slider>
 
 		<!-- step cost slider -->
-		<v-slider v-model="stepCost" :step="0.01" :max="5" :min="0" :label="'Step Cost'" hide-details @change="setStepCost">
+		<v-slider v-model="stepCost" :step="0.01" :max="5" :min="0" :label="$t('settings.stepCost')" hide-details @change="setStepCost">
 			<template v-slot:append>
 				<v-text-field
 					v-model="stepCost"
@@ -31,6 +31,10 @@
 			</template>
 		</v-slider>
 
+		<v-switch :label="$t('settings.useRounded')" v-model="useRounded" @change="store.commit('toggleRounded')" color="blue"></v-switch>
+
+		<v-divider></v-divider>
+		<!-- Step Chances -->
 		<div class="d-flex" style="justify-content: space-between; margin-top: 16px">
 			<p style="margin-top:16px">Step Chances</p>
 			<v-btn plain fab @click="expandStepChances = !expandStepChances">
@@ -41,7 +45,7 @@
 
 		<div v-if="expandStepChances">
 			<!-- StepChanceFront -->
-			<v-slider v-model="stepChances.front" :step="0.01" :max="1" :min="0" :label="'Front'" hide-details @change="setStepChances">
+			<v-slider v-model="stepChances.front" :step="0.01" :max="1" :min="0" :label="$t('settings.front')" hide-details @change="setStepChances">
 				<template v-slot:append>
 					<v-text-field
 						v-model="stepChances.front"
@@ -56,7 +60,7 @@
 			</v-slider>
 
 			<!-- StepChanceLeft -->
-			<v-slider v-model="stepChances.left" :step="0.01" :max="1" :min="0" :label="'Left'" hide-details @change="setStepChances">
+			<v-slider v-model="stepChances.left" :step="0.01" :max="1" :min="0" :label="$t('settings.left')" hide-details @change="setStepChances">
 				<template v-slot:append>
 					<v-text-field
 						v-model="stepChances.left"
@@ -71,7 +75,7 @@
 			</v-slider>
 
 			<!-- StepChanceRight -->
-			<v-slider v-model="stepChances.right" :step="0.01" :max="1" :min="0" :label="'Right'" hide-details @change="setStepChances">
+			<v-slider v-model="stepChances.right" :step="0.01" :max="1" :min="0" :label="$t('settings.right')" hide-details @change="setStepChances">
 				<template v-slot:append>
 					<v-text-field
 						v-model="stepChances.right"
@@ -86,7 +90,7 @@
 			</v-slider>
 
 			<!-- StepChanceBack -->
-			<v-slider v-model="stepChances.back" :step="0.01" :max="1" :min="0" :label="'Back'" hide-details @change="setStepChances">
+			<v-slider v-model="stepChances.back" :step="0.01" :max="1" :min="0" :label="$t('settings.back')" hide-details @change="setStepChances">
 				<template v-slot:append>
 					<v-text-field
 						v-model="stepChances.back"
@@ -101,7 +105,7 @@
 			</v-slider>
 		</div>
 
-		<v-slider v-else v-model="noise" :step="0.01" :max="1" :min="0" :label="'Noise'" hide-details @change="setStepChances">
+		<v-slider v-else v-model="noise" :step="0.01" :max="1" :min="0" :label="$t('settings.noise')" hide-details @change="setStepChances">
 			<template v-slot:append>
 				<v-text-field
 					v-model="noise"
@@ -115,7 +119,9 @@
 			</template>
 		</v-slider>
 
-		<p v-if="stepChanceSum !== 1" style="color: red">Step chances should sum to 1.00</p>
+		<p v-if="stepChanceSum !== 1" style="color: red">{{$t('settings.scWarning')}}</p>
+
+		<v-divider style="margin-top: 16px;"></v-divider>
 
 		<div class="d-flex" style="justify-content: space-between; margin-top: 16px">
 			<p style="margin-top:16px">UI</p>
@@ -127,7 +133,7 @@
 
 		<div v-if="expandTileSizes">
 			<!-- tile width slider -->
-			<v-slider v-model="tileWidth" :step="1" :max="512" :min="1" :label="'Tile Width'" hide-details @change="setTileSizes">
+			<v-slider v-model="tileWidth" :step="1" :max="512" :min="1" :label="$t('settings.width')" hide-details @change="setTileSizes">
 				<template v-slot:append>
 					<v-text-field
 						v-model="tileWidth"
@@ -139,7 +145,7 @@
 			</v-slider>
 
 			<!-- tile height slider -->
-			<v-slider v-model="tileHeight" :step="1" :max="512" :min="1" :label="'Tile Height'" hide-details @change="setTileSizes">
+			<v-slider v-model="tileHeight" :step="1" :max="512" :min="1" :label="$t('settings.height')" hide-details @change="setTileSizes">
 				<template v-slot:append>
 					<v-text-field
 						v-model="tileHeight"
@@ -153,7 +159,7 @@
 
 		<div v-else>
 			<!-- zoom slider -->
-			<v-slider v-model="zoom" :step="5" :max="500" :min="5" :label="'Zoom'" hide-details @change="setTileSizes">
+			<v-slider v-model="zoom" :step="5" :max="500" :min="5" :label="$t('settings.zoom')" hide-details @change="setTileSizes">
 				<template v-slot:append>
 					<v-text-field
 						v-model="zoom"
@@ -165,12 +171,24 @@
 			</v-slider>
 		</div>
 
-		<!-- detail toggle -->
-		<v-switch label="Use Rounded" v-model="useRounded" @change="store.commit('toggleRounded')" color="blue"></v-switch>
-		<v-switch label="Dark Mode" v-model="$vuetify.theme.dark" color="blue"></v-switch>
+		<v-switch :label="$t('settings.darkMode')" v-model="$vuetify.theme.dark" color="blue"></v-switch>
+		<v-switch :label="$t('settings.colorTiles')" v-model="tileColors" @change="toggleTileColors()" color="blue"></v-switch>
 
-		<v-btn @click="reset()">Reset</v-btn>
+		<v-btn @click="reset()">{{$t('settings.reset')}}</v-btn>
 
+		<!-- <v-select
+			:items="locales"
+			v-model="$i18n.locale"
+			:label="$t('settings.lang')"
+			style="margin-top: 32px"
+		></v-select> -->
+
+		<div class="d-flex" id="langSelector">
+			<p style="margin-top: 16px">{{$t('settings.lang')}}</p>
+			<img :class="{langImg: true, selLang: $i18n.locale==='de'}" src="../assets/flag-de.svg" width="64" @click="$i18n.locale='de'">
+			<img :class="{langImg: true, selLang: $i18n.locale==='en'}" src="../assets/flag-en.svg" width="64" @click="$i18n.locale='en'">
+			<div></div>
+		</div>
 	</div>
 </template>
 
@@ -192,6 +210,7 @@ export default {
 		tileWidth: store.state.tileWidth,
 		tileHeight: store.state.tileHeight,
 		useRounded: store.state.useRounded,
+		tileColors: store.state.tileColors,
 		noise: 0.2,
 		zoom: 100,
 		expandStepChances: false,
@@ -235,6 +254,11 @@ export default {
 			this.$emit('redraw');
 		},
 
+		toggleTileColors() {
+			store.commit('toggleTileColors');
+			this.$emit('redraw');
+		},
+
 		scrollHandler(event, attribute, min=0, max=200, step) {
 			if(event.deltaY > 0) {
 				this[attribute] = Math.min(max, Math.max(min, this[attribute] - step));
@@ -274,7 +298,9 @@ export default {
 			if(this.expandStepChances) {
 				return this.stepChances.front + this.stepChances.back + this.stepChances.left + this.stepChances.right;
 			} else return 1;
-		}
+		},
+
+		locales() {return Object.keys(this.$i18n.messages)}
 	},
 
 	created () {
@@ -284,6 +310,16 @@ export default {
 </script>
 
 <style scoped>
+	.langImg {
+		margin: 8px;
+		border: solid rgb(38, 38, 38);
+		background-color: rgb(38, 38, 38);
+	}
+
+	.selLang {
+		border: solid cornflowerblue;
+	}
+
 	.no-spins input[type='number'] {
     -moz-appearance:textfield;
 	}
@@ -293,5 +329,10 @@ export default {
 		appearance: none;
 		-webkit-appearance: none;
 		-moz-appearance: none;
+	}
+
+	#langSelector {
+		margin-top: 64px;
+		justify-content: space-between;
 	}
 </style>

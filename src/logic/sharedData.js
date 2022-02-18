@@ -22,6 +22,7 @@ const store = new Vuex.Store({
 		focus: "mdp",		// "mdp": Standard GridMDP view; "creator": Level Creator Dialog; "solution": Solution Downloader
 		reachedPreview: false,
 		renderMode: "values",
+		tileColors: true,
 		
 		// advanced settings
 		enableActionEditing: false,
@@ -97,6 +98,10 @@ const store = new Vuex.Store({
 
 		toggleRounded(state) {
 			state.useRounded = !state.useRounded;
+		},
+
+		toggleTileColors(state) {
+			state.tileColors = !state.tileColors;
 		},
 
 		displayMDP(state) {

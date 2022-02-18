@@ -39,17 +39,38 @@ export function fill(width, height, type=tileWall) {
 	return level;
 }
 
-export function walkLevel(level, start, accessCondidion, operation=()=>null) {
-	let fringe = [start];
+export function walkAll(level, accessCondidion, operation=()=>null) {
 	for (let x = 0; x < level.length; x++) {
 		for (let y = 0; y < level[x].length; y++) {
 			level[x][y].closed = false;
 			level[x][y].pathCost = 10000000;
+			level[x][y].predecessor = null;
+		}
+	}
+	
+	for (let x = 0; x < level.length; x++) {
+		for (let y = 0; y < level[x].length; y++) {
+			let start = {x:x,y:y};
+			if (accessCondidion(start)) {
+				walkLevel(level, start, accessCondidion, operation, false);
+			}
+		}
+	}
+}
+
+export function walkLevel(level, start, accessCondidion, operation=()=>null, clear=true) {
+	let fringe = [start];
+	if (clear) {
+		for (let x = 0; x < level.length; x++) {
+			for (let y = 0; y < level[x].length; y++) {
+				level[x][y].closed = false;
+				level[x][y].pathCost = 10000000;
+				level[x][y].predecessor = null;
+			}
 		}
 	}
 	level[start.x][start.y].pathCost = 0;
 	
-
 	while(fringe.length > 0) {
 		let current = fringe.pop();
 		// console.log("visiting " + current.x + ", " + current.y);
@@ -62,10 +83,9 @@ export function walkLevel(level, start, accessCondidion, operation=()=>null) {
 		level[current.x][current.y].closed = true;
 		for(const neighbor of neighbors(level, current)) {
 			if (accessCondidion(neighbor) && !level[neighbor.x][neighbor.y].closed) {
-				if (level[current.x][current.y].pathCost+1 < level[neighbor.x][neighbor.y].pathCost) {
-					level[neighbor.x][neighbor.y].pathCost = level[current.x][current.y].pathCost+1;
-				}
-				fringe.push(neighbor);
+				level[neighbor.x][neighbor.y].pathCost = level[current.x][current.y].pathCost+1;
+				level[neighbor.x][neighbor.y].predecessor = current;
+				fringe[fringe.length] = neighbor;
 			}
 		}
 	}

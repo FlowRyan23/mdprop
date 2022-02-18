@@ -6,7 +6,7 @@
 
 		<v-app-bar app clipped-left>
 			<v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-			<v-toolbar-title>MDP Q-Value-Propagation</v-toolbar-title>
+			<v-toolbar-title>{{$t('toolbar.title')}}</v-toolbar-title>
 
 			<v-spacer></v-spacer>
 			
@@ -27,30 +27,33 @@
 
 			<v-btn plain fab @click="reset()" style="margin-right: 32px"><v-icon>mdi-reload</v-icon></v-btn>
 
-			<v-btn-toggle rounded color="blue">
+			<v-btn-toggle :ref="'reachedToggle'" rounded color="blue">
 				<v-btn @click="toggleReached()">
 					<!-- <v-icon>mdi-alpha-r</v-icon> -->
-					Reached
+					{{$t('toolbar.reached')}}
 				</v-btn>
 			</v-btn-toggle>
 
-			<v-select
-				id="display-mode-selector"
-				v-model="displayMode"
-				:items="displayModes"
-				label="Display Mode"
-				@input="changeRender()"
-				style="margin-top: 24px; margin-left: 32px; max-width: 200px"
-				solo dense>
-			</v-select>
+			<v-btn-toggle mandatory v-model="displayMode" @change="changeRender" style="margin-left: 16px">
+				<v-btn text value="values">
+					{{$t('toolbar.modeValues')}}
+				</v-btn>
+				<v-btn text value="policy">
+					{{$t('toolbar.modePolicy')}}
+				</v-btn>
+				<v-btn text value="detail">
+					{{$t('toolbar.modeDetail')}}
+				</v-btn>
+			</v-btn-toggle>
 
 			<v-spacer></v-spacer>
+
 
 			<v-toolbar-items>
 					<v-btn plain fab @click="save()"><v-icon>mdi-content-save</v-icon></v-btn>
 					<v-btn plain fab @click="store.commit('displayCreator')">
 						<!-- <v-icon>mdi-new-box</v-icon> -->
-						New
+						{{$t('toolbar.new')}}
 					</v-btn>
 					<v-btn plain fab @click="store.commit('displaySolution')"><v-icon>mdi-page-next-outline</v-icon></v-btn>
 			</v-toolbar-items>
@@ -114,7 +117,6 @@ export default {
 		drawer: false,
 		mdp: null,
 		editTile: null,
-		displayModes: ["values", "policy", "detail"],
 		displayMode: "values",
 		plotting: false
 	}},
@@ -164,8 +166,10 @@ export default {
 		},
 
 		toggleReached() {
-			store.commit('toggleReachedPreview');
-			this.redraw();
+			if ((this.$refs.reachedToggle.selectedItems.length===0) != store.state.reachedPreview) {
+				store.commit('toggleReachedPreview');
+				this.redraw();
+			}
 		},
 
 		changeRender() {

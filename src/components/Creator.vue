@@ -1,7 +1,7 @@
 <template>
 	<v-overlay :value="true">
 		<v-card id="card">
-			<h2 id="headline">Create new Level</h2>
+			<h2 id="headline">{{$t('creator.title')}}</h2>
 
 			<div class="d-flex">
 				<div id="settings" class="d-flex flex-column">
@@ -9,8 +9,8 @@
 					<!-- Size -->
 					<div class="d-flex">
 						<v-text-field
-							label="Width"
-							placeholder="Width"
+							:label="$t('creator.width')"
+							:placeholder="$t('creator.width')"
 							v-model="width"
 							min="1"
 							class="mt-0 pt-0"
@@ -20,8 +20,8 @@
 						></v-text-field>
 
 						<v-text-field
-							label="Height"
-							placeholder="Height"
+							:label="$t('creator.height')"
+							:placeholder="$t('creator.height')"
 							v-model="height"
 							min="1"
 							class="mt-0 pt-0"
@@ -33,8 +33,8 @@
 					<!-- Goals and Traps -->
 					<div class="d-flex">
 						<v-text-field
-							label="Goals"
-							placeholder="Number of Goals"
+							:label="$t('creator.goals')"
+							:placeholder="$t('creator.goals')"
 							v-model="goals"
 							min="0"
 							class="mt-0 pt-0"
@@ -44,8 +44,8 @@
 						></v-text-field>
 
 						<v-text-field
-							label="Traps"
-							placeholder="Number of Traps"
+							:label="$t('creator.traps')"
+							:placeholder="$t('creator.traps')"
 							v-model="traps"
 							min="0"
 							class="mt-0 pt-0"
@@ -59,12 +59,12 @@
 						:items="carvingAlgorithms"
 						item-text="name"
 						item-value="carver"
-						label="Carving Algorithm"
+						:label="$t('creator.alg')"
 						return-object
 						>
 					</v-select>
 
-					<v-slider v-if="selectedAlgorithm==='Random'" v-model="connectivity" :step="0.01" :max="1" :min="0" :label="'Connectivity'" hide-details>
+					<v-slider v-if="selectedAlgorithm==='Random'" v-model="connectivity" :step="0.01" :max="1" :min="0" :label="$t('creator.connectivity')" hide-details>
 						<template v-slot:append>
 							<v-text-field
 								v-model="connectivity"
@@ -77,10 +77,10 @@
 						</template>
 					</v-slider>
 
-					<v-switch label="Braid" v-model="braid"></v-switch>
+					<v-switch :label="$t('creator.braid')" v-model="braid"></v-switch>
 				</div>
 
-				<div v-if="store.state.enableAdvancedSettings" id="constraints">
+				<div id="constraints">
 					<BoolConstraintInput ref="fullReachability" class="no-pad" :name="'Fully Reachable'" />
 					<BoolConstraintInput ref="winnable" class="no-pad" :name="'Winnable'" />
 					<BoolConstraintInput ref="survivable" class="no-pad" :name="'Survivable'" />
@@ -90,8 +90,8 @@
 				</div>
 			</div>
 			
-			<v-btn @click="create()" style="margin-right: 32px">create</v-btn>
-			<v-btn @click="store.commit('displayMDP')">cancel</v-btn>
+			<v-btn @click="create()" style="margin-right: 32px">{{$t('creator.create')}}</v-btn>
+			<v-btn @click="store.commit('displayMDP')">{{$t('creator.cancel')}}</v-btn>
 		</v-card>
 	</v-overlay>
 </template>
@@ -110,8 +110,8 @@ export default {
 
 	data() {return {
 		store: store,
-		width: 5,
-		height: 5,
+		width: 9,
+		height: 7,
 		goals: 1,
 		traps: 1,
 		connectivity: 0.6,

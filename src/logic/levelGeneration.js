@@ -11,13 +11,17 @@ export default function create(requirements) {
 	if (requirements.braid) {
 		braid(level);
 	}
-	placeRandom(level, tileTrap, requirements.numberOfTraps);
-	let goalPos = placeRandom(level, tileGoal, requirements.numberOfGoals);
-	placeInitial(level, goalPos[0], goalPos[1]);
+	placeRandom(level, tileGoal, requirements.numberOfGoals, function(tile) {
+		return !tile.accessible;
+	});
+	placeRandom(level, tileTrap, requirements.numberOfTraps, function (tile) {
+		return !tile.accessible;
+	});
+	placeInitial(level);
 	return new GridMDP(level);
 }
 
-function placeInitial(level, all=true, onTraps=true) {
+function placeInitial(level, all=true, onTraps=false) {
 	for (let x = 0; x < level.length; x++) {
 		for (let y = 0; y < level[x].length; y++) {
 			if(level[x][y].terminal && level[x][y].accessible && (onTraps || level[x][y].reward > 0)) {

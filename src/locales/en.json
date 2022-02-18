@@ -1,0 +1,72 @@
+{
+  "lang": "English",
+	"settings": {
+		"title": "Settings",
+		"discount": "Discount",
+		"stepCost": "Step Cost",
+		"stepChances": "Step Chances",
+		"front": "Front",
+		"left": "Left",
+		"right": "Rright",
+		"back": "Back",
+		"scWarning": "Step chances should sum to 1.00",
+		"noise": "Noise",
+		"ui": "UI",
+		"width": "Tile Width",
+		"height": "Tile Height",
+		"zoom": "Zoom",
+		"useRounded": "Use Rounded",
+		"darkMode": "Dark Mode",
+		"colorTiles": "Color Tiles",
+		"reset": "Reset",
+		"lang": "Language"
+	},
+	"toolbar": {
+		"title": "MDP Q-Value-Propagation",
+		"displayMode": "Display Mode",
+		"modeValues": "Values",
+		"modePolicy": "Policy",
+		"modeDetail": "Detail",
+		"reached": "Reached",
+		"new": "new"
+	},
+	"tileEditor": {
+		"title": "Editing Tile {id}",
+		"free": "free",
+		"wall": "wall",
+		"goal": "goal",
+		"trap": "trap",
+		"terminal": "terminal",
+		"initial": "initial",
+		"accessible": "accessible",
+		"reward": "Reward",
+		"actions": "Actions"
+	},
+	"creator": {
+		"title": "Create new level",
+		"width": "Width",
+		"height": "Height",
+		"goals": "Goals",
+		"traps": "Traps",
+		"alg": "Carving Algorithm",
+		"dfs": "Recursive Backtracking",
+		"kruskal": "Kruskal",
+		"unic": "Unicursal",
+		"random": "Random",
+		"connectivity": "Connectivity",
+		"braid": "Braid",
+		"create": "Create",
+		"cancel": "Cancel"
+	},
+	"solution": {
+		"iteration": "Iteration",
+		"download": "Download",
+		"back": "Back"
+	},
+	"action": {
+		"up": "up",
+		"down": "down",
+		"left": "left",
+		"right": "right"
+	}
+}

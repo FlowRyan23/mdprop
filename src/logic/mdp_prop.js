@@ -283,10 +283,11 @@ class MDPTile {
 	}
 
 	getLabel(iteration=this.qMemory.length - 1) {
-		if (this.terminal) {
-			return this.reward.toFixed(2);
+		if (this.terminal) { 
+			return Math.abs(this.reward) < 0.01?"0.00":this.reward.toFixed(2);
 		} else  {
-			return this.getQValue(iteration).toFixed(2);
+			let l = this.getQValue(iteration).toFixed(2)
+			return Math.abs(l) < 0.01?"0.00":l;
 		}
 	}
 

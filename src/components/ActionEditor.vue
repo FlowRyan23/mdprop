@@ -2,7 +2,7 @@
 	<v-col id="conatiner">
 		<!-- Formula -->
 		<p v-if="store.state.enableActionEditing">{{action.getFormula()}}</p>
-		<p v-else>{{action.name + ": " + action.getFormula(store.state.displayIteration)}}</p>
+		<p v-else>{{$t('action.' + action.name) + ": " + action.getFormula(store.state.displayIteration)}}</p>
 
 		<div v-if="store.state.enableActionEditing">
 			<!-- Reward slider-->

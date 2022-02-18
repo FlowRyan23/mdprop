@@ -50,8 +50,10 @@ export default {
 					let offset = {"y": x*this.tileHeight, "x": y*this.tileWidth};
 
 					// background color for the tile is given by the qValue
-					drawContext.fillStyle = this.tileColor(tile);
-					drawContext.fillRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
+					if (store.state.tileColors || !tile.accessible) {
+						drawContext.fillStyle = this.tileColor(tile);
+						drawContext.fillRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
+					}
 
 					// non-accessible tiles are always just black
 					if (tile.accessible) {
@@ -170,25 +172,25 @@ export default {
 				[offset.x + 0, offset.y + 0],
 				[offset.x + 0, offset.y + this.tileHeight],
 				center],
-				this.colorOf(tile.actions["left"].getQValue(store.state.displayIteration)), "white");
+				store.state.tileColors?this.colorOf(tile.actions["left"].getQValue(store.state.displayIteration)):this.backGroundColor, "white");
 
 			ctx.fillPoly([
 				[offset.x + 0, offset.y + 0],
 				[offset.x + this.tileWidth, offset.y + 0],
 				center],
-				this.colorOf(tile.actions["up"].getQValue(store.state.displayIteration)), "white");
+				store.state.tileColors?this.colorOf(tile.actions["up"].getQValue(store.state.displayIteration)):this.backGroundColor, "white");
 
 			ctx.fillPoly([
 				[offset.x + this.tileWidth, offset.y + this.tileHeight],
 				[offset.x + 0, offset.y + this.tileHeight],
 				center],
-				this.colorOf(tile.actions["down"].getQValue(store.state.displayIteration)), "white");
+				store.state.tileColors?this.colorOf(tile.actions["down"].getQValue(store.state.displayIteration)):this.backGroundColor, "white");
 
 			ctx.fillPoly([
 				[offset.x + this.tileWidth, offset.y + this.tileHeight],
 				[offset.x + this.tileWidth, offset.y + 0],
 				center],
-				this.colorOf(tile.actions["right"].getQValue(store.state.displayIteration)), "white");
+				store.state.tileColors?this.colorOf(tile.actions["right"].getQValue(store.state.displayIteration)):this.backGroundColor, "white");
 		
 			let textSize = Math.min(this.tileWidth/8, this.tileHeight/6);
 			ctx.drawText(tile.actions.up.getQValue(store.state.displayIteration).toFixed(2), offset.x + this.tileWidth/2, offset.y + this.tileHeight/5, "white", textSize);

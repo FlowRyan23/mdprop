@@ -1,0 +1,72 @@
+{
+	"lang": "Deutsch",
+	"settings": {
+		"title": "Einstellungen",
+		"discount": "Discount",
+		"stepCost": "Schrittkosten",
+		"stepChances": "Schrittwahrscheinlichkeiten",
+		"front": "Vorne",
+		"left": "Links",
+		"right": "Rechts",
+		"back": "Hinten",
+		"scWarning": "Die Summe der Schrittwahrscheinlichkeiten sollte 1 betragen",
+		"noise": "Rauschen",
+		"ui": "UI",
+		"width": "Feldbreite",
+		"height": "Feldhöhe",
+		"zoom": "Zoom",
+		"useRounded": "Gerundete Werte",
+		"darkMode": "Dunkler Modus",
+		"colorTiles": "Farbige Felder",
+		"reset": "Zurücksetzen",
+		"lang": "Sprache"
+	},
+	"toolbar": {
+		"title": "MDP Q-Wert-Propagierung",
+		"displayMode": "Darstellungsmodus",
+		"modeValues": "Werte",
+		"modePolicy": "Policy",
+		"modeDetail": "Detail",
+		"reached": "Erreicht",
+		"new": "neu"
+	},
+	"tileEditor": {
+		"title": "Feld {id} bearbeiten",
+		"free": "Frei",
+		"wall": "Wand",
+		"goal": "Ziel",
+		"trap": "Falle",
+		"terminal": "terminal",
+		"initial": "initial",
+		"accessible": "betretbar",
+		"reward": "Belohnung",
+		"actions": "Aktionen"
+	},
+	"creator": {
+		"title": "Neues Level erzeugen",
+		"width": "Breite",
+		"height": "Höhe",
+		"goals": "Ziele",
+		"traps": "Fallen",
+		"alg": "Pfadgenerierer",
+		"dfs": "Rekursives Backtracking",
+		"kruskal": "Kruskal",
+		"unic": "Kreuzungsfrei",
+		"random": "Zufall",
+		"connectivity": "Anteil freier Felder",
+		"braid": "Flechten",
+		"create": "Erzeugen",
+		"cancel": "Abbrechen"
+	},
+	"solution": {
+		"iteration": "Iteration",
+		"download": "Download",
+		"back": "Zurück"
+	},
+	"action": {
+		"up": "oben",
+		"down": "unten",
+		"left": "links",
+		"right": "rechts"
+	}
+}

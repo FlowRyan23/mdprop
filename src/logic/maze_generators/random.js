@@ -11,14 +11,14 @@ export function carveRandom(level, args={}) {
 	return level;
 }
 
-export function placeRandom(level, tile, number) {
+export function placeRandom(level, tile, number, replace=()=>true) {
 	let tries = 0;
 	let x, y = -1;
 	while (number > 0 && tries < number + 10) {
 		x = Math.round(Math.random() * (level.length -1));
 		y = Math.round(Math.random() * (level[0].length -1));
 
-		if (level[x][y] !== tile) {
+		if (replace(level[x][y])) {
 			level[x][y] = tile;
 			number--;
 			tries = 0;
