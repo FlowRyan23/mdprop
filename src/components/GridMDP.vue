@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-navigation-drawer id="nav-drawer" v-model="drawer" app clipped floating mobile-breakpoint="1200">
+		<v-navigation-drawer v-if="store.state.focus==='mdp'" id="nav-drawer" v-model="drawer" app clipped floating mobile-breakpoint="1200">
 			<Settings :ref="'settings'" @apply-settings="applySettings()" @redraw="redraw()"/>
 		</v-navigation-drawer>
 
@@ -11,63 +11,139 @@
 			<v-spacer></v-spacer>
 			
 			<!-- Display iteration -->
-			<v-btn plain fab @click="prevIter()"><v-icon>mdi-chevron-left</v-icon></v-btn>
-			<v-text-field
-				v-model="store.state.displayIteration"
-				class="mt-0 pt-0 centered-text shrink"
-				readonly
-				flat
-				solo
-				hide-details
-				single-line
-				type="number"
-				@wheel.prevent="iterScrollHandler"
-			></v-text-field>
-			<v-btn plain fab @click="nextIter()"><v-icon>mdi-chevron-right</v-icon></v-btn>
+			<v-tooltip bottom>
+				<template v-slot:activator="{on, attrs}">
+					<v-btn plain fab @click="prevIter()" v-on="on" v-bind="attrs">
+						<v-icon>mdi-chevron-left</v-icon>
+					</v-btn>
+				</template>
+				<span>{{$t('toolbar.tip.prevIter')}}</span>
+			</v-tooltip>
 
-			<v-btn plain fab @click="reset()" style="margin-right: 32px"><v-icon>mdi-reload</v-icon></v-btn>
+			<v-tooltip bottom>
+				<template v-slot:activator="{on, attrs}">
+					<v-text-field
+						v-model="store.state.displayIteration"
+						class="mt-0 pt-0 centered-text shrink"
+						readonly
+						flat
+						solo
+						hide-details
+						single-line
+						type="number"
+						v-on="on"
+						v-bind="attrs"
+						@wheel.prevent="iterScrollHandler"
+					></v-text-field>
+				</template>
+				<span>{{$t('toolbar.tip.iter')}}</span>
+			</v-tooltip>
 
-			<v-btn-toggle :ref="'reachedToggle'" rounded color="blue">
-				<v-btn @click="toggleReached()">
-					<!-- <v-icon>mdi-alpha-r</v-icon> -->
-					{{$t('toolbar.reached')}}
-				</v-btn>
-			</v-btn-toggle>
+			<v-tooltip bottom>
+				<template v-slot:activator="{on, attrs}">
+					<v-btn plain fab @click="nextIter()" v-on="on" v-bind="attrs">
+						<v-icon>mdi-chevron-right</v-icon>
+					</v-btn>
+				</template>
+				<span>{{$t('toolbar.tip.nextIter')}}</span>
+			</v-tooltip>
 
-			<v-btn-toggle mandatory v-model="displayMode" @change="changeRender" style="margin-left: 16px">
-				<v-btn text value="values">
-					{{$t('toolbar.modeValues')}}
-				</v-btn>
-				<v-btn text value="policy">
-					{{$t('toolbar.modePolicy')}}
-				</v-btn>
-				<v-btn text value="detail">
-					{{$t('toolbar.modeDetail')}}
-				</v-btn>
-			</v-btn-toggle>
+			<!-- Reset displayIteration -->
+			<v-tooltip bottom>
+				<template v-slot:activator="{on, attrs}">
+					<v-btn plain fab @click="reset()" style="margin-right: 32px" v-on="on" v-bind="attrs">
+						<v-icon>mdi-reload</v-icon>
+					</v-btn>
+				</template>
+				<span>{{$t('toolbar.tip.reset')}}</span>
+			</v-tooltip>
+
+			<!-- Display reached Tiles -->
+			<v-tooltip bottom>
+				<template v-slot:activator="{on}">
+					<v-btn-toggle :ref="'reachedToggle'" rounded color="blue">
+						<v-btn @click="toggleReached()" v-on="on">
+							<!-- <v-icon>mdi-alpha-r</v-icon> -->
+							{{$t('toolbar.reached')}}
+						</v-btn>
+					</v-btn-toggle>
+				</template>
+				<span>{{$t('toolbar.tip.reached')}}</span>
+			</v-tooltip>
+
+			<!-- Render Mode -->
+			<v-tooltip bottom>
+				<template v-slot:activator="{on, attrs}">
+					<v-btn-toggle mandatory v-model="displayMode" @change="changeRender" style="margin-left: 16px">
+						<v-btn text value="values" v-on="on" v-bind="attrs">
+							{{$t('toolbar.modeValues')}}
+						</v-btn>
+						<v-btn text value="policy" v-on="on" v-bind="attrs">
+							{{$t('toolbar.modePolicy')}}
+						</v-btn>
+						<v-btn text value="detail" v-on="on" v-bind="attrs">
+							{{$t('toolbar.modeDetail')}}
+						</v-btn>
+					</v-btn-toggle>
+				</template>
+				<span>{{$t('toolbar.tip.renderMode')}}</span>
+			</v-tooltip>
 
 			<v-spacer></v-spacer>
 
 
 			<v-toolbar-items>
-					<v-btn plain fab @click="save()"><v-icon>mdi-content-save</v-icon></v-btn>
-					<v-btn plain fab @click="store.commit('displayCreator')">
-						<!-- <v-icon>mdi-new-box</v-icon> -->
-						{{$t('toolbar.new')}}
-					</v-btn>
-					<v-btn plain fab @click="store.commit('displaySolution')"><v-icon>mdi-page-next-outline</v-icon></v-btn>
+				<!-- open Saver -->
+				<v-tooltip bottom>
+					<template v-slot:activator="{on, attrs}">
+						<v-btn plain fab @click="store.commit('displaySaver')" v-on="on" v-bind="attrs">
+							<v-icon>mdi-content-save</v-icon>
+						</v-btn>
+					</template>
+					<span>{{$t('toolbar.tip.save')}}</span>
+				</v-tooltip>
+
+				<!-- open level -->
+				<v-tooltip bottom>
+					<template v-slot:activator="{on, attrs}">
+						<v-btn plain fab @click="store.commit('displaySelector')" v-on="on" v-bind="attrs">
+							<v-icon>mdi-folder-open-outline</v-icon>
+						</v-btn>
+					</template>
+					<span>{{$t('toolbar.tip.open')}}</span>
+				</v-tooltip>
+
+				<!-- open creator -->
+				<v-tooltip bottom>
+					<template v-slot:activator="{on, attrs}">
+						<v-btn plain fab @click="store.commit('displayCreator')" v-on="on" v-bind="attrs">
+							{{$t('toolbar.new')}}
+						</v-btn>
+					</template>
+					<span>{{$t('toolbar.tip.new')}}</span>
+				</v-tooltip>
+
+				<!-- open solution view -->
+				<v-tooltip bottom>
+					<template v-slot:activator="{on, attrs}">
+						<v-btn plain fab @click="store.commit('displaySolution')" v-on="on" v-bind="attrs">
+							<v-icon>mdi-page-next-outline</v-icon>
+						</v-btn>
+					</template>
+					<span>{{$t('toolbar.tip.solution')}}</span>
+				</v-tooltip>
 			</v-toolbar-items>
 
 			<v-spacer></v-spacer>
 		</v-app-bar>
 
 		<v-main>
-			<div class="d-flex" style="justify-content: space-between">
+			<div v-if="store.state.focus==='mdp'" class="d-flex" style="justify-content: space-between">
 				<div></div>
 
-				<div v-if="mdp && store.state.focus==='mdp'" class="d-flex" style="justify-content: center">
+				<div v-if="mdp" class="d-flex" style="justify-content: center">
 					<div>
-						<Display :ID="'primary'" :ref="'display'" :tiles="mdp.tiles" :mode="displayMode" @interaction="setEdit"/>
+						<Display :ID="'primary'" :ref="'display'" :mdp="mdp" :mode="displayMode" @interaction="setEdit"/>
 					</div>
 				</div>
 
@@ -76,17 +152,25 @@
 
 			</div>
 
-			<div v-if="plotting">
-				<v-btn @click="plot()">plot</v-btn>
-				<div id="plotDiv" ref="plt"></div>
-			</div>
-			
-			<div v-if="store.state.focus==='creator'" id="creator">
-				<Creator @create="create"/>
+			<div v-else-if="store.state.focus==='creator'" id="creator">
+				<Creator @created="setMDP"/>
 			</div>
 
 			<div v-else-if="store.state.focus==='solution'" id="solution">
 				<Solution :mdp="mdp"/>
+			</div>
+
+			<div v-else-if="store.state.focus==='selector'">
+				<LevelSelector/>
+			</div>
+
+			<div v-else-if="store.state.focus==='saver'">
+				<SaveDialogue :mdp="mdp" />
+			</div>
+
+			<div v-if="plotting">
+				<v-btn @click="plot()">plot</v-btn>
+				<div id="plotDiv" ref="plt"></div>
 			</div>
 		</v-main>
 
@@ -101,15 +185,16 @@ import Solution from "./Solution.vue";
 import Creator from "./Creator.vue";
 import Display from "./Display.vue";
 import TileEditor from "./TileEditor.vue";
+import LevelSelector from "./LevelSelector.vue";
+import SaveDialogue from "./SaveDialogue.vue";
 
 import store from "../logic/sharedData";
 import GridMDP from '../logic/mdp_prop';
-import create from '../logic/levelGeneration';
 import {plotAvrgDistance} from "../logic/analytics/effective_distance"
 
 export default {
 	name: 'GridMDP',
-	components: {Display, Settings, Solution, Creator, TileEditor},
+	components: {Display, Settings, Solution, Creator, TileEditor, LevelSelector, SaveDialogue},
 	props: {source: String},
 
 	data() {return {
@@ -147,17 +232,17 @@ export default {
 				this.mdp.reset();
 				this.redraw();
 			} else {
-				this.mdp = new GridMDP(store.state.level, store.state.discount, store.state.stepCost);
+				this.mdp = new GridMDP(store.state.worlds.default.level, store.state.worlds.default.discount, store.state.worlds.default.stepCost);
 			}
 		},
 
-		save() {
-			store.commit('setLevel', this.mdp.compact());
-		},
+		setEdit(tilePos) {
+			if (!this.editTile) {
+				this.test = "hey";
+				window.addEventListener("keydown", this.selectionListener);
+			}
 
-		setEdit(tileID) {
-			let indexes = tileID.split("-");
-			this.editTile = this.mdp.tiles[parseInt(indexes[0])][parseInt(indexes[1])];
+			this.editTile = this.mdp.tiles[tilePos.x][tilePos.y];
 		},
 
 		applySettings() {
@@ -177,27 +262,33 @@ export default {
 			this.redraw();
 		},
 		
-		create(requirements) {
-			this.reqs = requirements;
+		setMDP(mdp) {
+			// clear previous state
 			this.mdp = null;
-			store.commit('resetIteration');
-			this.mdp = create(requirements);
-			this.mdp.apply(this.mdpSettings)
-			this.checkRes = requirements.check(this.mdp, true);
-			store.commit('setLevel', this.mdp.compact());
 			this.editTile = null;
+			store.commit('resetIteration');
+
+			// generate new mdp
+			this.mdp = mdp;
+			this.mdp.apply(this.mdpSettings);
+			mdp.reset();
 			store.commit('displayMDP');
-			if(this.mdp.tiles.length * store.state.tileWidth > 0.8 * window.innerWidth) {
-				this.$refs.settings.zoom = (0.8 * window.innerWidth) / this.mdp.tiles.length;
+
+			// normalizing zoom to fit the new level and utilize available space
+			this.$refs.settings.zoom = 100;
+			this.$refs.settings.setTileSizes();
+			if(this.mdp.tiles[0].length * store.state.tileWidth > 0.7 * window.innerWidth) {
+				this.$refs.settings.zoom = (0.7 * window.innerWidth) / this.mdp.tiles[0].length;
 				this.$refs.settings.setTileSizes();
 			}
-			if(this.mdp.tiles[0].length * store.state.tileHeight > 0.8 * window.innerHeight) {
-				this.$refs.settings.zoom = (0.8 * window.innerHeight) / this.mdp.tiles[0].length;
+			if(this.mdp.tiles.length * store.state.tileHeight > 0.9 * window.innerHeight) {
+				this.$refs.settings.zoom = (0.9 * window.innerHeight) / this.mdp.tiles.length;
 				this.$refs.settings.setTileSizes();
 			}
 		},
 
 		closeEditor() {
+			window.removeEventListener("keydown", this.selectionListener);
 			this.editTile = null;
 			this.$refs['display'].clearSelected();
 			this.redraw();
@@ -215,6 +306,39 @@ export default {
 			} else {
 				this.nextIter();
 			}
+		},
+
+		selectionListener(event) {
+			let display = this.$refs.display;
+			this.test = display;
+			switch (event.key) {
+				case "ArrowUp":
+					if (display.selectedX > 0) {
+						display.selectedX--;
+					}
+					break;
+				case "ArrowDown":
+					if (display.selectedX < this.mdp.tiles.length - 1) {
+						display.selectedX++;
+					}
+					break;
+				case "ArrowLeft":
+					if (display.selectedY > 0) {
+						display.selectedY--;
+					}
+					break;
+				case "ArrowRight":
+					if (display.selectedY < this.mdp.tiles[0].length -1) {
+						display.selectedY++;
+					}
+					break;
+			
+				default:
+					break;
+			}
+
+			this.setEdit({x:display.selectedX, y:display.selectedY});
+			this.redraw();
 		}
 	},
 

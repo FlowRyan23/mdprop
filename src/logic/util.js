@@ -8,7 +8,7 @@ export function sleep(milliseconds) {
 	return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
-export function download(filename, text) {
+export function downloadText(filename, text) {
 	var element = document.createElement('a');
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
 	element.setAttribute('download', filename);
@@ -70,4 +70,8 @@ export function print2d(array, toString= v=>v) {
 	}
 
 	console.table(cells);
+}
+
+export function log(s) {
+	console.log(s);
 }

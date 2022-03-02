@@ -1,13 +1,15 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import worlds from '../assets/worlds.json'
 
 Vue.use(Vuex);
 const store = new Vuex.Store({
 	state: {
-		discount: 0.9,				// the default discount applied to every action (overridden wehn individual discounts are givin)
-		stepCost: 0,				// the default stepCost applied to every action (overridden wehn individual costs are givin)
-		useRounded: true,
+		useRounded: true,		// round all values to two decimal places
+		showTooltips: false,	// tooltips explaining most components
 		
+		discount: 0.9,			// discount applied to every action (overridden wehn individual discounts are givin)
+		stepCost: 0,				// stepCost applied to every action (overridden wehn individual costs are givin)
 		//stepChances
 		scFront: 0.8,
 		scLeft: 0.1,
@@ -19,42 +21,18 @@ const store = new Vuex.Store({
 		tileWidth: 100,
 		tileHeight: 100,
 		
-		focus: "mdp",		// "mdp": Standard GridMDP view; "creator": Level Creator Dialog; "solution": Solution Downloader
+		focus: "mdp",		// "mdp": Standard GridMDP view; "creator": Level Creator Dialog; "solution": Solution Downloader; "selector": Open Level; "saver": Save Level Dialogue
 		reachedPreview: false,
 		renderMode: "values",
 		tileColors: true,
 		
 		// advanced settings
 		enableActionEditing: false,
-		
-		// default level
-		level: [
-			[
-				{"accessible":true,"reward":0,"terminal":false,"initial":false},
-				{"accessible":true,"reward":0,"terminal":false,"initial":false},
-				{"accessible":true,"reward":0,"terminal":false,"initial":true},
-				{"accessible":true,"reward":1,"terminal":true,"initial":false}
-			],
-			[
-				{"accessible":true,"reward":0,"terminal":false,"initial":false},
-				{"accessible":false,"reward":0,"terminal":false,"initial":false},
-				{"accessible":true,"reward":0,"terminal":false,"initial":false},
-				{"accessible":true,"reward":-1,"terminal":true,"initial":false}
-			],
-			[
-				{"accessible":true,"reward":0,"terminal":false,"initial":false},
-				{"accessible":true,"reward":0,"terminal":false,"initial":false},
-				{"accessible":true,"reward":0,"terminal":false,"initial":false},
-				{"accessible":true,"reward":0,"terminal":false,"initial":false}
-			]
-		]
+
+		worlds: worlds
 	},
 
 	mutations: {
-		setLevel(state, level) {
-			state.level = level;
-		},
-
 		setRender(state, mode) {
 			state.renderMode = mode;
 		},
@@ -92,6 +70,10 @@ const store = new Vuex.Store({
 			state.scRight = chances.right;
 		},
 
+		toggleTooltips(state) {
+			state.showTooltips = !state.showTooltips;
+		},
+
 		toggleReachedPreview(state) {
 			state.reachedPreview = !state.reachedPreview;
 		},
@@ -104,6 +86,11 @@ const store = new Vuex.Store({
 			state.tileColors = !state.tileColors;
 		},
 
+		saveLevel(state, world) {
+			state.worlds[world.name] = world.mdp;
+			state.worlds[world.name].name = world.name;
+		},
+
 		displayMDP(state) {
 			state.focus = "mdp";
 		},
@@ -114,6 +101,14 @@ const store = new Vuex.Store({
 
 		displaySolution(state) {
 			state.focus = "solution";
+		},
+
+		displaySelector(state) {
+			state.focus = "selector";
+		},
+
+		displaySaver(state) {
+			state.focus = "saver";
 		}
 	}
 });

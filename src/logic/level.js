@@ -59,7 +59,6 @@ export function walkAll(level, accessCondidion, operation=()=>null) {
 }
 
 export function walkLevel(level, start, accessCondidion, operation=()=>null, clear=true) {
-	let fringe = [start];
 	if (clear) {
 		for (let x = 0; x < level.length; x++) {
 			for (let y = 0; y < level[x].length; y++) {
@@ -69,7 +68,18 @@ export function walkLevel(level, start, accessCondidion, operation=()=>null, cle
 			}
 		}
 	}
-	level[start.x][start.y].pathCost = 0;
+
+	let fringe = [];
+	if (start instanceof Array) {
+		fringe = start;
+		for (const pos of start) {
+			level[pos.x][pos.y].pathCost = 0;
+		}
+	} else {
+		fringe.push(start);
+		level[start.x][start.y].pathCost = 0;
+	}
+	
 	
 	while(fringe.length > 0) {
 		let current = fringe.pop();
@@ -91,42 +101,42 @@ export function walkLevel(level, start, accessCondidion, operation=()=>null, cle
 	}
 }
 
-export function neighbors(level, pos) {
+export function neighbors(level, pos, step=1) {
 	let n = [];
-	if(pos.x + 1 < level.length) {
-		n.push({"x": pos.x + 1, "y": pos.y});
+	if(pos.x + step < level.length) {
+		n.push({"x": pos.x + step, "y": pos.y});
 	}
-	if(pos.x - 1 >= 0) {
-		n.push({"x": pos.x - 1, "y": pos.y});
+	if(pos.x - step >= 0) {
+		n.push({"x": pos.x - step, "y": pos.y});
 	}
-	if(pos.y + 1 < level[0].length) {
-		n.push({"x": pos.x, "y": pos.y+1});
+	if(pos.y + step < level[0].length) {
+		n.push({"x": pos.x, "y": pos.y+step});
 	}
-	if(pos.y - 1 >= 0) {
-		n.push({"x": pos.x, "y": pos.y-1});
+	if(pos.y - step >= 0) {
+		n.push({"x": pos.x, "y": pos.y-step});
 	}
 	return n;
 }
-
+	
 function isDeadEnd(level, pos) {
-	return neighbors(level, pos).filter(e => level[e.x][e.y].accessible).length === 1;
+	return neighbors(level, pos).filter(e => level[e.x][e.y].accessible).length < 2;
 }
 
-export function braid(level, start=null, degree=1) {
+export function braid(level, degree=1) {
 	// if no accesible starting tile is given, one must found to start walking the maze
-	if(start===null || !level[start.x][start.y].accessible) {
-		for(let x=0; start===null && x<level.length; x++) {
-			for(let y=0; start===null && y<level[x].length; y++) {
-				if(level[x][y].accessible) {
-					start = {"x": x, "y": y};
-				}
-			}
-		}
-	}
+	// if(start===null || !level[start.x][start.y].accessible) {
+	// 	for(let x=0; start===null && x<level.length; x++) {
+	// 		for(let y=0; start===null && y<level[x].length; y++) {
+	// 			if(level[x][y].accessible) {
+	// 				start = {"x": x, "y": y};
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 
 	// find all dead end tiles in the level
-	walkLevel(level, start, p => level[p.x][p.y].accessible, p => {
+	walkAll(level, p => level[p.x][p.y].accessible, p => {
 		if(Math.random() > degree) return;
 
 		let current = p;

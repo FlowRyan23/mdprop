@@ -5,9 +5,7 @@ export default function carveKruskal(level, args) {
 	let edgeLength = args.edgeLength?args.edgeLength:2;
 	// edges are shuffeled once to choose randomly
 	let edges = genEdges(level, edgeLength, true, false);
-	console.log("found " + edges.length + " edges");
 	edges = randomSample(edges, edges.length);
-	console.log("selected " + edges.length + " edges");
 	// edges.forEach(e => e.forEach(t => console.log(t)));
 
 	// gives each tile its own identifier; used to check if two tiles are part of the same connected tree

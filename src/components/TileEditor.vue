@@ -26,16 +26,26 @@
 			<div class="myRow">
 				<v-btn class="incBtn" rounded @click="incReward(-10)">-10</v-btn>
 				<v-btn class="incBtn" rounded @click="incReward(-1)">-1</v-btn>
-				<v-text-field
-					v-model="reward"
-					id="rewardField"
-					class="shrink no-spins"
-					hide-details
-					solo-inverted
-					type="number"
-					@change="updateTileReward()"
-					@wheel.prevent="scrollHandler"
-				></v-text-field>
+
+				<v-tooltip bottom>
+					<template v-slot:activator="{on, attrs}">
+						<v-text-field
+							v-model="reward"
+							id="rewardField"
+							class="shrink no-spins"
+							hide-details
+							solo-inverted
+							type="number"
+							validate-on-blur
+							v-on="on"
+							v-bind="attrs"
+							@change="updateTileReward()"
+							@wheel.prevent="scrollHandler"
+						></v-text-field>
+					</template>
+					<span>{{$t('tileEditor.tip.reward')}}</span>
+				</v-tooltip>
+
 				<v-btn class="incBtn" rounded @click="incReward(+1)">+1</v-btn>
 				<v-btn class="incBtn" rounded @click="incReward(+10)">+10</v-btn>
 			</div>
@@ -101,6 +111,7 @@ export default {
 		},
 
 		setInit() {
+			// todo modifying initial after the tile has been reached causes bad behaviour
 			this.tile.reached = this.tile.initial;
 		},
 
@@ -119,6 +130,31 @@ export default {
 				this.tile.reward += 0.01;
 			}
 			this.$emit('redraw');
+		},
+
+		inputHandler(event) {
+			switch (event.key) {
+				case "f":
+					this.setType("free");
+					break;
+				case "w":
+					this.setType("wall");
+					break;
+				case "g":
+					this.setType("goal");
+					break;
+				case "t":
+					this.setType("trap");
+					break;
+				case "i":
+					this.tile.initial = !this.tile.initial;
+					this.tile.reached = this.tile.initial;
+					break;
+			
+				default:
+					break;
+			}
+			this.$emit("redraw");
 		}
 	},
 
@@ -131,6 +167,14 @@ export default {
 			let r = this.tile.reward.toFixed(2);
 			return Math.abs(r) < 0.01? "0.00": r;
 		}
+	},
+
+	created() {
+		window.addEventListener("keydown", this.inputHandler);
+	},
+
+	destroyed() {
+		window.removeEventListener("keydown", this.inputHandler)
 	}
 }
 </script>

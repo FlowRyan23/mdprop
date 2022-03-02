@@ -1,72 +1,112 @@
 {
+  "action": {
+    "down": "down",
+    "left": "left",
+    "right": "right",
+    "up": "up"
+  },
+  "creator": {
+    "alg": "Carving Algorithm",
+    "braid": "Braid",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "connectivity": "Connectivity",
+    "constraints": {
+      "ambiguous": "Ambiguous Policy",
+      "connected": "Fully Connected",
+      "dangerous": "Dangerous",
+      "deadEnds": "Dead Ends",
+      "lost": "Lost",
+      "partiallyLost": "Partially Lost",
+      "partiallySurvivable": "Partially Survivable",
+      "partiallyWinnable": "Partially Winnable",
+      "partiallyWon": "Partially Won",
+      "survivable": "Survivable",
+      "trivial": "Trivial Policy",
+      "winnable": "Winnable",
+      "won": "Won"
+    },
+    "dfs": "Recursive Backtracking",
+    "goals": "Goals",
+    "height": "Height",
+    "kruskal": "Kruskal",
+    "random": "Random",
+    "refresh": "Refresh",
+    "title": "Create new level",
+    "traps": "Traps",
+    "unic": "Unicursal",
+    "width": "Width"
+  },
   "lang": "English",
-	"settings": {
-		"title": "Settings",
-		"discount": "Discount",
-		"stepCost": "Step Cost",
-		"stepChances": "Step Chances",
-		"front": "Front",
-		"left": "Left",
-		"right": "Rright",
-		"back": "Back",
-		"scWarning": "Step chances should sum to 1.00",
-		"noise": "Noise",
-		"ui": "UI",
-		"width": "Tile Width",
-		"height": "Tile Height",
-		"zoom": "Zoom",
-		"useRounded": "Use Rounded",
-		"darkMode": "Dark Mode",
-		"colorTiles": "Color Tiles",
-		"reset": "Reset",
-		"lang": "Language"
-	},
-	"toolbar": {
-		"title": "MDP Q-Value-Propagation",
-		"displayMode": "Display Mode",
-		"modeValues": "Values",
-		"modePolicy": "Policy",
-		"modeDetail": "Detail",
-		"reached": "Reached",
-		"new": "new"
-	},
-	"tileEditor": {
-		"title": "Editing Tile {id}",
-		"free": "free",
-		"wall": "wall",
-		"goal": "goal",
-		"trap": "trap",
-		"terminal": "terminal",
-		"initial": "initial",
-		"accessible": "accessible",
-		"reward": "Reward",
-		"actions": "Actions"
-	},
-	"creator": {
-		"title": "Create new level",
-		"width": "Width",
-		"height": "Height",
-		"goals": "Goals",
-		"traps": "Traps",
-		"alg": "Carving Algorithm",
-		"dfs": "Recursive Backtracking",
-		"kruskal": "Kruskal",
-		"unic": "Unicursal",
-		"random": "Random",
-		"connectivity": "Connectivity",
-		"braid": "Braid",
-		"create": "Create",
-		"cancel": "Cancel"
-	},
-	"solution": {
-		"iteration": "Iteration",
-		"download": "Download",
-		"back": "Back"
-	},
-	"action": {
-		"up": "up",
-		"down": "down",
-		"left": "left",
-		"right": "right"
-	}
+  "saver": {
+    "confirm": "save",
+    "nameInput": "Name",
+    "namePlaceholder": "name for the level",
+    "title": "Enter a name"
+  },
+  "selector": {
+    "title": "Select a level to open it"
+  },
+  "settings": {
+    "back": "Back",
+    "colorTiles": "Color Tiles",
+    "darkMode": "Dark Mode",
+    "discount": "Discount",
+    "front": "Front",
+    "height": "Tile Height",
+    "lang": "Language",
+    "left": "Left",
+    "noise": "Noise",
+    "reset": "Reset",
+    "right": "Rright",
+    "scWarning": "Step chances should sum to 1.00",
+    "stepChances": "Step Chances",
+    "stepCost": "Step Cost",
+    "title": "Settings",
+    "ui": "UI",
+    "useRounded": "Use Rounded",
+    "width": "Tile Width",
+    "zoom": "Zoom"
+  },
+  "solution": {
+    "back": "Back",
+    "download": "Download",
+    "iteration": "Iteration"
+  },
+  "tileEditor": {
+    "accessible": "accessible",
+    "actions": "Actions",
+    "free": "free",
+    "goal": "goal",
+    "initial": "initial",
+    "reward": "Reward",
+    "terminal": "terminal",
+    "tip": {
+      "reward": "Reward (scroll to change)"
+    },
+    "title": "Editing Tile {id}",
+    "trap": "trap",
+    "wall": "wall"
+  },
+  "toolbar": {
+    "displayMode": "Display Mode",
+    "modeDetail": "Detail",
+    "modePolicy": "Policy",
+    "modeValues": "Values",
+    "new": "new",
+    "reached": "Reached",
+    "tip": {
+      "iter": "Policy Iteration (scroll to advance)",
+      "new": "create new level",
+      "nextIter": "next Iteration",
+      "open": "open level",
+      "prevIter": "previous Iteration",
+      "reached": "shows tiles calculated in the next iteration",
+      "renderMode": "choose display mode",
+      "reset": "reset level and policy",
+      "save": "save level",
+      "solution": "show solution"
+    },
+    "title": "MDP Q-Value-Propagation"
+  }
 }

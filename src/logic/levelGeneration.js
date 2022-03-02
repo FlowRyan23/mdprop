@@ -3,7 +3,7 @@ import {tileWall, tileGoal, tileTrap, fill, braid} from './level';
 import { inBounds } from './util';
 import { placeRandom } from './maze_generators/random';
 
-export default function create(requirements) {
+export default async function create(requirements) {
 	// TODO create a level fulfilling the constraints set by requirements
 	//let level = random(requirements.size.height, requirements.size.width, requirements.connectivity);
 	let level = fill(requirements.size.width, requirements.size.height, tileWall);
@@ -18,6 +18,7 @@ export default function create(requirements) {
 		return !tile.accessible;
 	});
 	placeInitial(level);
+	// this.checkRes = requirements.check(this.mdp, true);
 	return new GridMDP(level);
 }
 

@@ -1,294 +1,321 @@
+import { walkLevel } from "./level";
+
 export default class Requirements {
 	constructor() {
-		/** 
-		 * The different requirements have different probabilities for being met when
-		 * set to optional, e.g. 'goal' and 'death' are likely to be true but 'fullyAmbigousPolicy'
-		 * is likely to be false.
-		 * 
-		 * Some Requirements imply others:
-		 * 		winnable -> goal
-		 * 		losable -> death
-		 * 		noUnreachableGoal -> goal
-		 * 		noUnreachableDeath -> death
-		 * 		fullyReachableGoals -> goal and winnable and noUnreachableGoal
-		 * 		size.width + size.height > timeToConverge -> false (unless the level has thick edges)
-		 * 		etc.
-		 */
-
-		this.size = {"width": 7, "height": 5};
-		this.connectivity = 0.3;			// likelyhood of any tile being accessible
-
 		this.carver = null;
 		this.carverArgs = {};
-		
-		// boolean constraints - can be required(true), optional(null) or disallowed(false)
-		this.fullReachability = null;		// every tile an agent can be on must be reachable from all other tiles
-		this.winnable = null;				// from any location a goal can be reached
-		this.losable = null;				// from any loaction a death can be reached
-		this.noUnreachableGoal = null;		// every goal must be reachable from at least one location
-		this.noUnreachableDeath = null;		// every death must be reachable from at least one location
-		this.fullyReachableGoals = null;	// every goal must be reachable from all locations
-		this.fullyReachableDeaths = null;	// every death must be reachable from all locations
-		this.unambigousPolicy = null;		// the policy can not have any location at wich two or more actions are rated equally as best actions
-		this.fullyAmbigousPolicy = null;	// at all locations the policy must have at least two equally rated actions as best actions
-		
+
 		// integer constraints - can be > 0 or optional(null)
-		this.timeToConverge = null;			// number of iterations after wich the policy does not change
+		// this.timeToConverge = null;			// number of iterations after wich the policy does not change
+		this.size = { "width": 7, "height": 5 };
 		this.numberOfGoals = null;
 		this.numberOfTraps = null;
+
+		// boolean constraints - can be required(true), optional(null) or disallowed(false)
+		this.connected = null;					// every tile an agent can be on must be reachable from all other tiles
+		this.deadEnds = null;						// dead ends exist in the world
+		this.winnable = null;						// from all tiles a goal can be reached with a positve score
+		this.partiallyWinnable = null;	// at least one tile has access to a goal with positve score
+		this.survivable = null;					// from all tiles a goal can be reached
+		this.partiallySurvivable = null	// at least one tile has acess to a goal
+		this.dangerous = null;					// from all tiles a trap can be reached
+		this.partiallyLost = null;			// at least one tile has a guaranteed negative score
+		this.lost = null;								// all tiles have guaranteed negative scores
+		this.ambiguousPolicy = null;		// the policy must atleast at one tile have two or more optimal actions
+		this.trivialPolicy = null;			// the policy is equivalent to an optimal search for goals
+
+		this.satisfaction = null;		// keeps track of which constraints are met and which aren't
 	}
 
-	check(mdp, full=false) {
-		let failed = [];
-		// TODO implications can be used to improve performance -> ordring matters
-		// TODO some tests are more costly so they should be done later
-
-		// the size check is the fastest with O(1) so it is done first eventhough the
-		// likelyhood of it being false is very low (would need to be provoked intentionally)
-		if (mdp.size().width !== this.size.width || mdp.size().height !== this.size.height) {
-			failed.push("size");
-			if (!full) return false;
-		}
-
-		if (this.fullReachability !== null && this.fullReachability !== fullyReachable(mdp)) {
-			failed.push("fullReachability");
-			if(!full) return false;
-		}
-
-		if (this.goal !== null) {
-			let goalTile = mdp.getAny(t => t.terminal && t.reward > 0)
-			let fullfillsGoal = (goalTile !== null && this.goal) || (goalTile === null && !this.goal);
-			if(!fullfillsGoal) failed.push("goal");
-			if(!full && !fullfillsGoal) return false;
-		}
-
-		if (this.death !== null) {
-			let deathTile = mdp.getAny(t => t.terminal && t.reward < 0)
-			let fullfillsDeath = (deathTile !== null && this.death) || (deathTile === null && !this.death);
-			if(!fullfillsDeath) failed.push("death");
-			if(!full && !fullfillsDeath) return false;
-		}
-
-		// TODO winnable and losable could be combined
-		if (this.winnable !== null && this.winnable !== winnable(mdp)) {
-			failed.push("winnable");
-			if(!full) return false;
-		}
-
-		if (this.losable !== null && this.losable !== losable(mdp)) {
-			failed.push("losable");
-			if(!full) return false;
-		}
-
-		if (this.noUnreachableGoal !== null && this.noUnreachableGoal !== noUnreachableGoal(mdp)) {
-			failed.push("noUnreachableGoals");
-			if(!full) return false;
-		}
-
-		if (this.noUnreachableDeath !== null && this.noUnreachableDeath !== noUnreachableDeath(mdp)) {
-			failed.push("noUnreacheableDeaths");
-			if(!full) return false;
-		}
-
-		if (this.fullyReachableGoals !== null && this.fullyReachableGoals !== fullyReachableGoals(mdp)) {
-			failed.push("fullyReachableGoals");
-			if(!full) return false;
-		}
-
-		if (this.fullyReachableDeaths !== null && this.fullyReachableDeaths !== fullyReachableDeaths(mdp)) {
-			failed.push("fullyReachableDeaths");
-			if(!full) return false;
-		}
-
-		// TODO policy tests
-		if (full) return failed;
-		else return true;
+	reset() {
+		this.satisfaction = {
+			// phase1
+			width: null,
+			height: null,
+			// phase2
+			goals: null,
+			traps: null,
+			deadEnds: this.deadEnds===null?true:null,
+			// phase3
+			connected: this.connected===null?true:null,
+			survivable: this.survivable===null?true:null,
+			partiallySurvivable: this.partiallySurvivable===null?true:null,
+			dangerous: this.dangerous===null?true:null,
+			// phase4
+			winnable: this.winnable===null?true:null,
+			partiallyWinnable: this.partiallyWinnable===null?true:null,
+			lost: this.lost===null?true:null,
+			partiallyLost: this.partiallyLost===null?true:null,
+			ambiguousPolicy: this.ambiguousPolicy===null?true:null,
+			//phase5
+			trivialPolicy: this.trivialPolicy===null?true:null
+		};
 	}
 
-	
+	check(mdp, strict = false) {
+		this.reset();
+		this.phase1(mdp, strict);
+		if (strict && (this.satisfaction.width === false || this.satisfaction.height === false)) {
+			return false;
+		}
+
+		let compCands = this.phase2(mdp, strict);
+		if (strict && (
+			this.satisfaction.deadEnds === false
+			|| this.satisfaction.goals === false
+			|| this.satisfaction.traps === false)) {
+			return false;
+		}
+
+		let components = [];
+		let tag = 1;
+		for (const candidate of compCands) {
+			if (!candidate.tag) {
+				components.push(makeComponent(candidate, tag));
+				tag++;
+			}
+		}
+
+		let goals = this.phase3(components, strict);
+		if (strict && (
+			this.satisfaction.connected === false
+			|| this.satisfaction.survivable === false
+			|| this.satisfaction.partiallySurvivable === false
+			|| this.satisfaction.dangerous === false)) {
+			return false;
+		}
+
+		this.phase4(mdp);
+		if (strict && (
+			this.satisfaction.winnable === false
+			|| this.satisfaction.partiallyWinnable === false
+			|| this.satisfaction.lost === false
+			|| this.satisfaction.partiallyLost === false
+			|| this.satisfaction.ambiguousPolicy === false)) {
+			return false;
+		}
+
+		this.phase5(mdp, goals);
+		mdp.reset();
+
+		console.log(JSON.stringify(this.satisfaction));
+		for (const constraint in this.satisfaction) {
+			if (Object.hasOwnProperty.call(this.satisfaction, constraint)) {
+				if (!this.satisfaction[constraint]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	phase1(mdp, strict = false) {
+		if (!mdp || !mdp.tiles) {
+			throw new Error("level generation did not produce a mdp");
+		}
+
+		this.satisfaction.width = mdp.tiles.length !== this.size.width;
+		if(strict && !this.satisfaction.width) return;
+		
+		this.satisfaction.height = mdp.tiles[0].length !== this.size.height;
+		if(strict && !this.satisfaction.height) return;
+	}
+
+	phase2(mdp, strict = false) {
+		let componentCandidates = [];	// will be used in phase3 to calculate subcomponents
+		let tileCounts = {
+			wall: 0,
+			free: 0,
+			rewarding: 0,
+			penalising: 0,
+			goal: 0,
+			trap: 0,
+			exit: 0
+		}
+
+		// for (let x = 0; x < mdp.tiles.length; x++) {
+		// 	for (let y = 0; y < mdp.tiles[x].length; y++) {
+
+		// 	}
+		// }
+
+		for (const tile of mdp.allTiles()) {
+			// wall counter; walls are otherwise uninteresting -> skip to the next tile
+			if (!tile.accessible) {
+				tileCounts.wall++;
+				continue;
+			}
+
+			// dead end check; only performed if relevant and not yet determined
+			// TODO should dead ends that are terminal be considered dead?
+			if (this.deadEnds !== null
+				&& this.satisfaction.deadEnds === null
+				&& neighbors(tile).filter(t => t.accessible).length < 2) {
+				this.satisfaction.deadEnds = this.deadEnds;
+				if (strict) {
+					return;
+				}
+			}
+
+			if (tile.terminal) {
+				// counters for goals, traps and exits
+				if (tile.reward > 0) {
+					tileCounts.goal++;
+				} else if (tile.reward < 0) {
+					tileCounts.trap++;
+				} else {
+					tileCounts.exit++;
+				}
+			} else {
+				// counters for goals, traps and exits
+				if (tile.reward > 0) {
+					tileCounts.rewarding++;
+				} else if (tile.reward < 0) {
+					tileCounts.penalising++;
+				} else {
+					tileCounts.free++;
+				}
+
+				// this tile is valid as anchor for a component
+				componentCandidates.push(tile);
+			}
+		}
+
+		if(this.satisfaction.deadEnds === null) this.satisfaction.deadEnds = !this.deadEnds;
+		this.satisfaction.goals = tileCounts.goal === this.numberOfGoals;
+		this.satisfaction.traps = tileCounts.trap === this.numberOfTraps;
+
+		return componentCandidates;
+	}
+
+	phase3(components, strict=false) {
+		let goals = [];
+
+		// full reacability can be checked by length of component list
+		this.satisfaction.connected = matches(this.connected, components.length===1);
+		if (strict && !this.satisfaction.connected) {
+			return;
+		}
+
+		// todo strict exits
+		let survivable = 0;
+		let dangerous = 0;
+		for (const component of components) {
+			for (const terminal of component.terminals) {
+				if (terminal.reward > 0) {
+					survivable++;
+					goals.push({x:terminal.x, y:terminal.y});
+				} else if (terminal.reward < 0) {
+					dangerous++;
+				}
+			}
+		}
+
+
+		this.satisfaction.survivable = matches(this.survivable, components.length === survivable);
+		// todo are survivable worlds also parially survivable?
+		this.satisfaction.partiallySurvivable = matches(this.partiallySurvivable, survivable > 0 && survivable < components.length);
+		this.satisfaction.dangerous = matches(this.dangerous, components.length === dangerous);
+
+		return goals;
+	}
+
+	phase4(mdp) {
+		// todo strict breaks
+		let policyStagnation = 0;
+		let startTime = Date.now();
+		while (policyStagnation < 5 && Date.now() - startTime < 1e+3) {
+			// todo use mdp.calculate(n) to reduce checks if neccessary
+			if(mdp.next()) {
+				policyStagnation = 0;
+			} else {
+				policyStagnation++;
+			}
+		}
+
+		let counts = {
+			total: 0,
+			winnable: 0,
+			lost: 0
+		}
+		let ambiguousPolicy = false;
+		
+		for (const tile of mdp.allMatching(t => t.accessible && !t.terminal)) {
+			counts.total++;
+			let qValue = tile.getQValue();
+			if (qValue > 0) {
+				counts.winnable++;
+			} else if(qValue < 0) {
+				counts.lost++;
+			}
+
+			if (tile.isAmbiguous()) {
+				ambiguousPolicy = true;
+			}
+		}
+
+		this.satisfaction.winnable = matches(this.winnable, counts.winnable === counts.total);
+		this.satisfaction.partiallyWinnable = matches(this.partiallyWinnable, counts.winnable > 0 && counts.winnable < counts.total);
+		this.satisfaction.lost = matches(this.lost, counts.lost === counts.total);
+		this.satisfaction.partiallyLost = matches(this.partiallyLost, counts.lost > 0 && counts.lost < counts.total);
+		this.satisfaction.ambiguousPolicy = matches(this.ambiguousPolicy, ambiguousPolicy);
+	}
+
+	phase5(mdp, goals) {
+		walkLevel(mdp.tiles, goals, t => t.accessible);
+		for (const tile of mdp.allMatching(t => t.accessible && !t.terminal)) {
+			let target = tile.actions[tile.bestAction()].getResult("front").node;
+			if (target.pathCost !== tile.pathCost - 1) {
+				this.satisfaction.trivialPolicy = matches(this.trivialPolicy, false);
+				return;
+			}
+		}
+		this.satisfaction.trivialPolicy = matches(this.trivialPolicy, true);
+	}
+
 }
 
-function* traverse(start, mode="bfs") {
+function matches(constraint, value) {
+	return constraint===null || constraint===value;
+}
+
+/**
+ * 
+ * @param {MDPTile} start an initial accessible non terminal tile anchoring the component
+ * @param {*} tag identifier added to tiles to facilitate component.contains
+ * @returns Component with list of all connected tiles and a list of terminal tiles
+ */
+function makeComponent(start, tag) {
+	let component = {
+		tiles: [],
+		terminals: []
+	}
 	let fringe = [start];
-	let visited = {}
 	while (fringe.length > 0) {
 		let current = fringe.pop()
-		visited[current] = true
-		yield current
+		if (current.closed) {
+			continue;
+		}
 
-		if (!current.terminal)
-			for (let action of current.actions)
-				for (let result of action.results)
-					if (!visited[result.node])
-						if (mode === "bfs")
-							fringe.unshift(result.node)
-						else
-							fringe.push(result.node)
-	}
-}
+		current.tag = tag;
+		current.closed = true;
+		component.tiles.push(current);
+		if (current.terminal) {
+			component.terminals.push(current);
+			continue;
+		}
 
-function fullyReachable(mdp) {
-	/**
-	 * 1. choose one starting tile
-	 * 2. mark all tiles connected to this tile via breadth first search
-	 * 3. check all tiles if they have been marked
-	 * 
-	 * time complexity:
-	 * 	n = number of tiles (mdp.size.width * mdp.size.height)
-	 * 	worst case:
-	 * 		- getAny returns the last tile -> n	(this result could be cached to save time on subsequent calls)
-	 * 		- all tiles are reachable -> traverseBFS -> n
-	 * 		- all tiles were marked -> n
-	 * 		=> O(3n)
-	 */
-	let marked = {}
-	for(let tile of traverse(mdp.getAny(t => t.accessible)))
-		marked[tile] = true
-
-	for(let tile of mdp.allTiles) {
-		if (!marked[tile]) {
-			return false
+		for (const neighbor of neighbors(current).filter(t => t.accessible && !t.closed)) {
+			fringe.unshift(neighbor);
 		}
 	}
-	return true
+
+	return component;
 }
 
-function winnable(mdp) {
-	/**
-	 * 1. find all goals
-	 * 2. mark all tiles connected to them via bfs
-	 * 3. check if any tile is not marked
-	 * 
-	 * time complexity:
-	 * 	n = number of tiles (mdp.size.width * mdp.size.height)
-	 * 	
-	 * 	as the number of goals increases more traversals are performed -> nGoals * n
-	 * 	but at the same time less paths are available, because goals are terminal
-	 * 	=> if all tiles are goal n traversals are started but they all finish in O(1)
-	 * 		so the worst case is somewhere in between
-	 */
-	let marked = {}
-	for(let goal of mdp.allMatching(t => t.terminal && t.reward > 0))
-		for(let tile of traverse(goal))
-			marked[tile] = true
-
-	for(let tile of mdp.allTiles) {
-		if (!marked[tile]) {
-			return false
-		}
-	}
-	return true
-}
-
-function losable(mdp) {
-	/**
-	 * 1. find all goals
-	 * 2. mark all tiles connected to them via bfs
-	 * 3. check if any tile is not marked
-	 * 
-	 * time complexity:
-	 * 	see winnable
-	 */
-	let marked = {}
-	for(let death of mdp.allMatching(t => t.terminal && t.reward < 0))
-		for(let tile of traverse(death))
-			marked[tile] = true
-
-	for(let tile of mdp.allTiles) {
-		if (!marked[tile]) {
-			return false
-		}
-	}
-	return true
-}
-
-function noUnreachableGoal(mdp) {
-	/**
-	 * 1. find all goals
-	 * 2. check if the goal has at least one free tile next to it
-	 * 
-	 * time complexity:
-	 * 	n = number of tiles (mdp.size.width * mdp.size.height)
-	 * 	worst case:
-	 * 		- finding all goals -> n
-	 * 		- checking if free neighbor -> 4
-	 * 		- most tiles are goals with one free neighbor except the last
-	 * 			-> n
-	 * 		=> O(2n)
-	 */
-	for(let goal of mdp.allMatching(t => t.terminal && t.reward > 0)) {
-		let accessible = false
-		for(let tile of traverse(goal))
-			if (tile.accessible && !tile.terminal) {
-				accessible = true
-				break
-			}
-		if (!accessible) return false
-	}
-	return true
-}
-
-function noUnreachableDeath(mdp) {
-	/**
-	 * 1. find all deaths
-	 * 2. check if the death has at least one free tile next to it
-	 * 
-	 * time complexity:
-	 * 	see noUnreachableGoal
-	 */
-	for(let death of mdp.allMatching(t => t.terminal && t.reward < 0)) {
-		let accessible = false
-		for(let tile of traverse(death))
-			if (tile.accessible && !tile.terminal) {
-				accessible = true
-				break
-			}
-		if (!accessible) return false
-	}
-	return true
-}
-
-function fullyReachableGoals(mdp) {
-	/**
-	 * 1. find all goals
-	 * 2. traverse the mdp from all goals
-	 * 3. check all tiles if they have been marked
-	 * 
-	 * time complexity:
-	 * 	n = number of tiles (mdp.size.width * mdp.size.height)
-	 * 	worst case:
-	 * 		- finding goals -> n
-	 * 		- traversal passes all tiles except one -> n
-	 * 		- the only unmarked tile is the last one -> n
-	 * 		=> O(n^2)
-	 */
-	for(let goal of mdp.allMatching(t => t.terminal && t.reward > 0)) {
-		let marked = {};
-		for(let tile of traverse(goal))
-			marked[tile] = true;
-		
-		for (let tile of mdp.allTiles())
-			if (!marked[tile]) return false;
-	}
-	return true
-}
-
-function fullyReachableDeaths(mdp) {
-	/**
-	 * 1. find all deaths
-	 * 2. traverse the mdp from all deaths
-	 * 3. check all tiles if they have been marked
-	 * 
-	 * time complexity:
-	 * 	see fullyReachableGoals
-	 */
-	for(let death of mdp.allMatching(t => t.terminal && t.reward < 0)) {
-		let marked = {};
-		for(let tile of traverse(death))
-			marked[tile] = true;
-		
-		for (let tile of mdp.allTiles())
-			if (!marked[tile]) return false;
-	}
-	return true
+function neighbors(tile) {
+	let neighbors = [];
+	for (let aName in tile.actions)
+			neighbors.push(tile.actions[aName].getResult("front").node);
+	return neighbors;
 }

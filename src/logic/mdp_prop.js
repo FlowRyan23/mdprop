@@ -5,6 +5,7 @@ export default class GridMDP {
 		// todo the level in memory is transposed to how it is displayed
 		this.level = level;
 		this.iteration = 0;
+		this.discount = discount;
 		this.stepCost = stepCost;
 		
 		this.tiles = [];
@@ -79,6 +80,8 @@ export default class GridMDP {
 	}
 
 	apply(settings) {
+		this.stepCost = settings.stepCost;
+		this.discount = settings.discount;
 		for (let x=0; x<this.tiles.length; x++) {
 			for (let y=0; y<this.tiles[x].length; y++) {
 				this.tiles[x][y].apply(settings);
@@ -107,11 +110,12 @@ export default class GridMDP {
 		let policyChange = false;
 		for (let x=0; x<this.tiles.length; x++) {
 			for (let y=0; y<this.tiles[x].length; y++) {
-				this.tiles[x][y].next();
-				if (this.tiles[x][y].policyChanged)
+				if (this.tiles[x][y].next())
 					policyChange = true;
 			}
 		}
+		// console.log("i: " + this.iteration + ", change: " + policyChange);
+
 		//todo if no tile is set to initial an error message should be displayed
 		for (let x=0; x<this.tiles.length; x++) {
 			for (let y=0; y<this.tiles[x].length; y++) {
@@ -127,11 +131,15 @@ export default class GridMDP {
 	}
 
 	compact() {
-		let mdp = [];
+		let mdp = {
+			level: [],
+			discount: this.discount,
+			stepCost: this.stepCost
+		};
 		for (let x=0; x<this.tiles.length; x++) {
-			mdp[x] = [];
+			mdp.level[x] = [];
 			for (let y=0; y<this.tiles[x].length; y++) {
-				mdp[x][y] = {
+				mdp.level[x][y] = {
 					accessible: this.tiles[x][y].accessible,
 					reward: this.tiles[x][y].reward,
 					terminal: this.tiles[x][y].terminal,
@@ -207,20 +215,14 @@ class MDPTile {
 		this.policyChanged = true;
 	}
 
-	reset(hard=true) {
-		if (hard) {
-			this.reached = store.state.level[this.x][this.y].initial;
-			this.accessible = store.state.level[this.x][this.y].accessible;
-			this.reward = store.state.level[this.x][this.y].reward;
-			this.terminal = store.state.level[this.x][this.y].terminal;
-		}
+	reset() {
 		this.marked = false;
 		this.reached = this.initial;
 		this.qMemory = [0];
 		this.policyMemory = [{}];
 		this.policyChanged = true;
 		for(let aName in this.actions)
-			this.actions[aName].reset(hard);
+			this.actions[aName].reset();
 	}
 
 	apply(settings) {
@@ -238,12 +240,12 @@ class MDPTile {
 	}
 
 	next(useNewest=false) {
-		if (this.terminal || !this.accessible || !this.reached) {
+		if (this.terminal || !this.accessible || (!this.initial && !this.reached)) {
 			this.qMemory.push(0);
 			this.policyMemory.push({});
 			for (let aName in this.actions)
 				this.actions[aName].qMemory.push(0);
-			return;
+			return false;
 		}
 
 		let maxQ = null;
@@ -257,18 +259,20 @@ class MDPTile {
 		}
 
 		let newPolicy = {};
-		this.policyChanged = false;
+		let policyChanged = false;
 		for (let aName in this.actions) {
 			if (this.actions[aName].getQValue() >= maxQ) {
 				newPolicy[aName] = true;
-				if (!(aName in this.getPolicy()))
-					this.policyChanged = true;
+				if (!(aName in this.getPolicy())) {
+					policyChanged = true;
+				}
 			}
 		}
 		this.policyMemory.push(newPolicy);
 
 		if (store.state.useRounded) maxQ = Math.round(maxQ * 100) / 100;
 		this.qMemory.push(maxQ);
+		return policyChanged;
 	}
 
 	getQValue(iteration=this.qMemory.length-1) {
@@ -293,7 +297,7 @@ class MDPTile {
 
 	reachedAt(iteration) {
 		if (!this.accessible || this.terminal) return false;
-		if (this.reached === true) return true;		// reached is only bool if it got its value from initial
+		if (this.reached === true || this.initial) return true;		// reached is only bool if it got its value from initial
 		if (this.reached === false) return false;
 		return this.reached <= iteration;
 	}
@@ -305,6 +309,25 @@ class MDPTile {
 				bestAction = this.actions[aName];
 		}
 		return bestAction;
+	}
+
+	isAmbiguous(iteration=this.qMemory.length-1) {
+		if (!this.reachedAt(iteration)) {
+			return false
+		}
+
+		let action = null;
+		for(let aName in this.actions) {
+			if(this.actions[aName]) {
+				if (action !== null) {
+					return true;
+				} else {
+					action = aName;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	getName() {
@@ -321,7 +344,7 @@ class MDPTile {
 }
 
 class Action {
-	constructor(name, defaultResult=null, cost=store.state.stepCost, discount=store.state.discount, results=[], reward=0) {
+	constructor(name, defaultResult=null, cost=store.state.mdp.stepCost, discount=store.state.mdp.discount, results=[], reward=0) {
 		this.name = name;
 
 		this.defaultReward = reward;
@@ -331,7 +354,7 @@ class Action {
 
 		this.results = results;
 		for(let res of results) {
-			// forces Vues observer creation to go breath-first through the level, to reduce call stack size
+			// forces Vues observer creation to go breadth-first through the level, to reduce call stack size
 			Object.freeze(res);
 		}
 		this.defaultResult = defaultResult;
@@ -360,6 +383,14 @@ class Action {
 		// TODO should warn if total chance of results is greater than 1
 		Object.freeze(result);
 		this.results.push(result);
+	}
+
+	getResult(name) {
+		for (const res of this.results) {
+			if (res.chanceID === name) {
+				return res;
+			}
+		}
 	}
 
 	removeResult(result) {
@@ -397,12 +428,7 @@ class Action {
 		else return 0;
 	}
 
-	reset(hard=true) {
-		if (hard) {
-			this.reward = this.defaultReward;
-			this.discount = store.state.discount;
-			this.cost = store.state.stepCost;
-		}
+	reset() {
 		this.qMemory = [0];
 	}
 

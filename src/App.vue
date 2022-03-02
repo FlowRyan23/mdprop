@@ -29,6 +29,17 @@ export default {
 		justify-content: space-evenly;
 	}
 
+	.no-spins input[type='number'] {
+    -moz-appearance:textfield;
+	}
+
+	::v-deep input::-webkit-outer-spin-button,
+	::v-deep input::-webkit-inner-spin-button {
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+	}
+
 	.no-pad {
 		padding: 0px;
 	}

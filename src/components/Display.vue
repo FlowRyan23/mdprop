@@ -3,6 +3,7 @@
 		:ref="ID"
 		@click="clickHandler"
 		></canvas>
+		<!-- :style="'margin: ' + this.margins" -->
 </template>
 
 <script>
@@ -11,28 +12,27 @@ import '../logic/renderUtils';
 
 export default {
 	name: "Display",
-	props: ["ID", "tiles"],
+	props: ["ID", "mdp", "preview", "size"],
 	data() {return {
 		store: store,
 		displayModes: {
 			"values": this.renderTileValues,
 			"policy": this.renderTilePolicy,
-			"detail": this.renderTileDetailed
+			"detail": this.renderTileDetailed,
+			"preview": this.renderTilePreview
 		},
 		selectedX: null,
-		selectedY: null,
-		clickEvent: null,
-		lightBlue: "cornflowerblue",//"rgb(" + 33 +", " + 150 + ", " + 243 + ")",
-		test: null
+		selectedY: null
 	}},
 	methods: {
 		clickHandler(event) {
-			this.clickEvent = event.button;
 			if (event.button === 0) {
-				this.selectedX = Math.floor(event.offsetY / this.tileHeight);
-				this.selectedY = Math.floor(event.offsetX / this.tileWidth);
-				this.render();
-				this.$emit("interaction", this.selectedX+"-"+this.selectedY);
+				if (!this.preview) {
+					this.selectedX = Math.floor(event.offsetY / this.tileHeight);
+					this.selectedY = Math.floor(event.offsetX / this.tileWidth);
+					this.render();
+				}
+				this.$emit("interaction", {x:this.selectedX, y: this.selectedY});
 			}
 		},
 
@@ -41,12 +41,14 @@ export default {
 			drawContext.canvas.width = this.width;
 			drawContext.canvas.height = this.height;
 			// clear the entire canvas in case any part fails to render
-			drawContext.fillStyle = this.backGroundColor;
-			drawContext.fillRect(0, 0, this.width, this.height);
+			// drawContext.fillStyle = "black";
+			// drawContext.fillRect(0, 0, this.width, this.height);
+			drawContext.clearRect(0, 0, this.width, this.height);
 
-			for(let x=0; x<this.tiles.length; x++) {
-				for(let y=0; y<this.tiles[x].length; y++) {
-					let tile = this.tiles[x][y];
+			// todo aparently mdp.tiles is undefined but mdp is not
+			for(let x=0; x<this.mdp.tiles.length; x++) {
+				for(let y=0; y<this.mdp.tiles[x].length; y++) {
+					let tile = this.mdp.tiles[x][y];
 					let offset = {"y": x*this.tileHeight, "x": y*this.tileWidth};
 
 					// background color for the tile is given by the qValue
@@ -78,9 +80,11 @@ export default {
 					}
 
 					// overlay to show which tiles have been reached
-					if(this.store.state.reachedPreview && tile.reachedAt(store.state.displayIteration) && tile.accessible && !tile.terminal) {
-						drawContext.fillStyle = "rgba(" + 30 +", " + 144 + ", " + 255 + ", " + 0.3 + ")";
-						drawContext.fillRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
+					if (this.store.state.reachedPreview || this.displayMode==="preview") {
+						if(tile.reachedAt(store.state.displayIteration) && tile.accessible && !tile.terminal) {
+							drawContext.fillStyle = "rgba(" + 30 +", " + 144 + ", " + 255 + ", " + 0.3 + ")";
+							drawContext.fillRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
+						}
 					}
 				}
 			}
@@ -199,6 +203,19 @@ export default {
 			ctx.drawText(tile.actions.right.getQValue(store.state.displayIteration).toFixed(2), offset.x + 4 * this.tileWidth/5, offset.y + this.tileHeight/2, "white", textSize);
 		},
 
+		renderTilePreview(ctx, offset, tile) {
+			if (tile.terminal || tile.reward !== 0) {
+				if (this.isSmall) {
+					this.renderTilePolicy(ctx, offset, tile)	
+				} else {
+					this.renderTileValues(ctx, offset, tile);
+				}
+			} else {
+				ctx.fillStyle = this.backGroundColor;
+				ctx.fillRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
+			}
+		},
+
 		arrowsOf(policy) {
 			let arrows = [];
 			for (const action in policy) {
@@ -305,19 +322,50 @@ export default {
 			this.selectedY = null;
 		}
 	},
+
 	computed: {
 		displayMode() {
-			if (this.isSmall) {
+			// todo preview mode is inferred from size prop (size is only set when used as preview)
+			if (this.preview) {
+				return "preview";
+			} else if(this.isSmall) {
 				return "policy";
 			} else return store.state.renderMode;
 		},
-		tileWidth() {return store.state.tileWidth},
-		tileHeight() {return store.state.tileHeight},
-		height() {return store.state.tileHeight * this.tiles.length},
-		width() {return store.state.tileWidth * this.tiles[0].length},
-		isSmall() {return store.state.tileWidth <= 30 || store.state.tileHeight <= 25},
+		tileWidth() {
+			if (!this.size || this.size === "auto") {
+				return store.state.tileWidth;
+			} else {
+				return Math.floor(this.size.width / this.mdp.tiles[0].length);
+			}
+		},
+		tileHeight() {
+			if (!this.size || this.size === "auto") {
+				return store.state.tileHeight;
+			} else {
+				return Math.floor(this.size.height / this.mdp.tiles.length);
+			}
+		},
+		height() {
+			if (!this.size || this.size === "auto") {
+				return store.state.tileHeight * this.mdp.tiles.length
+			} else {
+				return this.size.height;
+			}
+		},
+		width() {
+			if (!this.size || this.size === "auto") {
+				return store.state.tileWidth * this.mdp.tiles[0].length
+			} else {
+				return this.size.width;
+			}
+		},
+		isSmall() {return this.tileWidth <= 30 || this.tileHeight <= 25},
 		// backGroundColor()  {return "hsl(" + 160 +", " + 0 + "%, " + 36 + "%)";}
-		backGroundColor()  {return "rgb(" + 38 +", " + 38 + ", " + 38 + ")"}
+		backGroundColor()  {return "rgb(" + 38 +", " + 38 + ", " + 38 + ")"},
+		margins() {
+			return Math.round((this.height % this.mdp.tiles.length)/2) + "px " + Math.round((this.width % this.mdp.tiles[0].length)/2) + "px";
+		}
 	},
 	mounted() {
 		this.render();

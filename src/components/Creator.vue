@@ -4,10 +4,9 @@
 			<h2 id="headline">{{$t('creator.title')}}</h2>
 
 			<div class="d-flex">
-				<div id="settings" class="d-flex flex-column">
-
+				<div class="d-flex flex-column justify-space-between" id="general">
 					<!-- Size -->
-					<div class="d-flex">
+					<div class="d-flex" style="margin-top: 18px">
 						<v-text-field
 							:label="$t('creator.width')"
 							:placeholder="$t('creator.width')"
@@ -54,6 +53,23 @@
 						></v-text-field>
 					</div>
 
+					<div>
+						<BoolConstraintInput ref="connected" class="no-pad" :name="$t('creator.constraints.connected')" />
+						<BoolConstraintInput ref="deadEnds" class="no-pad" :name="$t('creator.constraints.deadEnds')" />
+						<BoolConstraintInput ref="winnable" class="no-pad" :name="$t('creator.constraints.winnable')" />
+						<BoolConstraintInput ref="partiallyWinnable" class="no-pad" :name="$t('creator.constraints.partiallyWinnable')" />
+						<BoolConstraintInput ref="survivable" class="no-pad" :name="$t('creator.constraints.survivable')" />
+						<BoolConstraintInput ref="partiallySurvivable" class="no-pad" :name="$t('creator.constraints.partiallySurvivable')" />
+						<BoolConstraintInput ref="dangerous" class="no-pad" :name="$t('creator.constraints.dangerous')" />
+						<BoolConstraintInput ref="partiallyLost" class="no-pad" :name="$t('creator.constraints.partiallyLost')" />
+						<BoolConstraintInput ref="lost" class="no-pad" :name="$t('creator.constraints.lost')" />
+						<BoolConstraintInput ref="ambiguousPolicy" class="no-pad" :name="$t('creator.constraints.ambiguous')" />
+						<BoolConstraintInput ref="trivialPolicy" class="no-pad" :name="$t('creator.constraints.trivial')"/>
+					</div>
+				</div>
+				
+				<div id="generator" class="d-flex flex-column">
+
 					<v-select
 						v-model="selectedAlgorithm"
 						:items="carvingAlgorithms"
@@ -64,34 +80,39 @@
 						>
 					</v-select>
 
-					<v-slider v-if="selectedAlgorithm==='Random'" v-model="connectivity" :step="0.01" :max="1" :min="0" :label="$t('creator.connectivity')" hide-details>
+					<v-slider v-if="selectedAlgorithm==='Random'" v-model="connectivity" :step="0.01" :max="1" :min="0" :label="$t('creator.connectivity')">
 						<template v-slot:append>
 							<v-text-field
 								v-model="connectivity"
-								class="mt-0 pt-0"
+								class="mt-0 pt-0 no-spins"
 								hide-details
 								single-line
 								type="number"
-								style="width: 60px"
 							></v-text-field>
 						</template>
 					</v-slider>
 
 					<v-switch :label="$t('creator.braid')" v-model="braid"></v-switch>
-				</div>
 
-				<div id="constraints">
-					<BoolConstraintInput ref="fullReachability" class="no-pad" :name="'Fully Reachable'" />
-					<BoolConstraintInput ref="winnable" class="no-pad" :name="'Winnable'" />
-					<BoolConstraintInput ref="survivable" class="no-pad" :name="'Survivable'" />
-					<BoolConstraintInput ref="dangerous" class="no-pad" :name="'Dangerous'" />
-					<BoolConstraintInput ref="ambigousPolicy" class="no-pad" :name="'Ambiguous Policy'" />
-					<BoolConstraintInput ref="trivialPolicy" class="no-pad" :name="'Trivial Policy'" />
+					<Display
+						v-if="preview"
+						ref="previewDisplay"
+						:ID="'preview'"
+						:preview="true"
+						:size="{width: 300, height: 250}"
+						:mdp="preview"
+						@interaction="noHandler"
+					/>
+					
 				</div>
 			</div>
 			
-			<v-btn @click="create()" style="margin-right: 32px">{{$t('creator.create')}}</v-btn>
-			<v-btn @click="store.commit('displayMDP')">{{$t('creator.cancel')}}</v-btn>
+			<div class="d-flex justify-space-between">
+				<v-btn @click="confirm()" color="blue">{{$t('creator.confirm')}}</v-btn>
+				<div></div>
+				<v-btn @click="refreshPreview()">{{$t('creator.refresh')}}</v-btn>
+				<v-btn @click="store.commit('displayMDP')">{{$t('creator.cancel')}}</v-btn>
+			</div>
 		</v-card>
 	</v-overlay>
 </template>
@@ -100,13 +121,15 @@
 import store from '../logic/sharedData';
 import Requirements from '../logic/checks';
 import BoolConstraintInput from './BoolConstraintInput';
+import Display from "./Display.vue";
 import {carveDFS} from '../logic/maze_generators/backtracker';
 import carveKruskal from '../logic/maze_generators/kruskal';
 import {hamiltonian} from '../logic/maze_generators/unicursal';
-import { carveRandom } from '../logic/maze_generators/random';
+import { carveRandom, carveSnake } from '../logic/maze_generators/random';
+import create from '../logic/levelGeneration';
 
 export default {
-	components: {BoolConstraintInput},
+	components: {BoolConstraintInput, Display},
 
 	data() {return {
 		store: store,
@@ -120,20 +143,48 @@ export default {
 			"Recursive Backtracking",
 			"Kruskal",
 			"Unicursal",
-			"Random"
+			"Random",
+			"Snake"
 		],
 		algTable: {
 			"Recursive Backtracking": carveDFS,
 			"Kruskal": carveKruskal,
 			"Unicursal": hamiltonian,
-			"Random": carveRandom
+			"Random": carveRandom,
+			"Snake": carveSnake
 		},
-		selectedAlgorithm: "Recursive Backtracking",
-		test: null
+		selectedAlgorithm: "Kruskal",
+		preview: null
 	}},
 
 	methods: {
-		create() {
+		confirm() {
+			this.$emit("created", this.preview)
+		},
+
+		refreshPreview() {
+			this.preview = null;
+			this.test = this.requirements;
+			create(this.requirements).then(mdp => {
+				this.preview=mdp
+				this.test = this.requirements.check(this.preview);
+				// this.$refs.previewDisplay.render();
+			});
+		},
+
+		scrollHandler(event, attribute, min=0, max=200) {
+			if(event.deltaY > 0) {
+				this[attribute] = Math.min(max, Math.max(min, this[attribute] - 1));
+			} else {
+				this[attribute] = Math.min(max, Math.max(min, this[attribute] + 1));
+			}
+		},
+		
+		noHandler() {}
+	},
+
+	computed: {
+		requirements() {
 			let reqs = new Requirements();
 			reqs.size.width = this.width;
 			reqs.size.height = this.height;
@@ -144,29 +195,25 @@ export default {
 			reqs.numberOfGoals = this.goals;
 			reqs.numberOfTraps = this.traps;
 
-			//todo fix -> constraints have changed and implementation is ugly
-		//	if (this.store.state.enableAdvancedSettings) {
-		//		reqs.fullReachability = this.$refs["fullReachability"].value;
-		//		reqs.winnable = this.$refs["winnable"].value;
-		//		reqs.losable = this.$refs["losable"].value;
-		//		reqs.noUnreachableGoal = this.$refs["noUnreachableGoal"].value;
-		//		reqs.noUnreachableDeath = this.$refs["noUnreachableDeath"].value;
-		//		reqs.fullyReachableGoals = this.$refs["fullyReachableGoals"].value;
-		//		reqs.fullyReachableDeaths = this.$refs["fullyReachableDeaths"].value;
-		//		reqs.unambigousPolicy = this.$refs["unambigousPolicy"].value;
-		//		reqs.fullyAmbigousPolicy = this.$refs["fullyAmbigousPolicy"].value;
-		//	}
-			
-			this.$emit("create", reqs)
-		},
+			reqs.connected = this.$refs["connected"].value;
+			reqs.deadEnds = this.$refs["deadEnds"].value;
+			reqs.winnable = this.$refs["winnable"].value;
+			reqs.partiallyWinnable = this.$refs["partiallyWinnable"].value;
+			reqs.survivable = this.$refs["survivable"].value;
+			reqs.partiallySurvivable = this.$refs["partiallySurvivable"].value;
+			reqs.dangerous = this.$refs["dangerous"].value;
+			reqs.partiallyLost = this.$refs["partiallyLost"].value;
+			reqs.lost = this.$refs["lost"].value;
+			reqs.ambiguousPolicy = this.$refs["ambiguousPolicy"].value;
+			reqs.trivialPolicy = this.$refs["trivialPolicy"].value;
 
-		scrollHandler(event, attribute, min=0, max=200) {
-			if(event.deltaY > 0) {
-				this[attribute] = Math.min(max, Math.max(min, this[attribute] - 1));
-			} else {
-				this[attribute] = Math.min(max, Math.max(min, this[attribute] + 1));
-			}
+			reqs.reset();
+			return reqs;
 		}
+	},
+
+	mounted() {
+			this.refreshPreview();
 	}
 }
 </script>
@@ -174,6 +221,17 @@ export default {
 <style scoped>
 	* {
 		margin-bottom: 0px
+	}
+
+	.no-spins input[type='number'] {
+    -moz-appearance:textfield;
+	}
+
+	::v-deep input::-webkit-outer-spin-button,
+	::v-deep input::-webkit-inner-spin-button {
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
 	}
 	
 	#card {
@@ -186,22 +244,22 @@ export default {
 	}
 
 	#sizeSeperator {
-		margin-left: 8px;
-		margin-right: 8px
+		margin-left: 16px;
+		margin-right: 16px
 	}
 
-	#settings {
+	#generator {
 		/* display: flex;
 		flex-flow: column nowrap; */
 		/* align-content: flex-start;
 		justify-content: flex-start; */
-		width: 40%;
+		width: 50%;
 		padding: 8px;
-		margin-right: 25px;
 	}
 
-	#constraints {
-		width: 60%;
+	#general {
+		width: 50%;
 		padding: 8px;
+		margin-right: 25px;
 	}
 </style>

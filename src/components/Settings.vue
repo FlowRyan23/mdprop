@@ -36,7 +36,7 @@
 		<v-divider></v-divider>
 		<!-- Step Chances -->
 		<div class="d-flex" style="justify-content: space-between; margin-top: 16px">
-			<p style="margin-top:16px">Step Chances</p>
+			<p style="margin-top:16px">{{$t('settings.stepChances')}}</p>
 			<v-btn plain fab @click="expandStepChances = !expandStepChances">
 				<v-icon v-if="expandStepChances">mdi-chevron-up</v-icon>
 				<v-icon v-else>mdi-chevron-down</v-icon>
@@ -318,17 +318,6 @@ export default {
 
 	.selLang {
 		border: solid cornflowerblue;
-	}
-
-	.no-spins input[type='number'] {
-    -moz-appearance:textfield;
-	}
-
-	::v-deep input::-webkit-outer-spin-button,
-	::v-deep input::-webkit-inner-spin-button {
-		appearance: none;
-		-webkit-appearance: none;
-		-moz-appearance: none;
 	}
 
 	#langSelector {

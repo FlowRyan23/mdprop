@@ -1,72 +1,112 @@
 {
-	"lang": "Deutsch",
-	"settings": {
-		"title": "Einstellungen",
-		"discount": "Discount",
-		"stepCost": "Schrittkosten",
-		"stepChances": "Schrittwahrscheinlichkeiten",
-		"front": "Vorne",
-		"left": "Links",
-		"right": "Rechts",
-		"back": "Hinten",
-		"scWarning": "Die Summe der Schrittwahrscheinlichkeiten sollte 1 betragen",
-		"noise": "Rauschen",
-		"ui": "UI",
-		"width": "Feldbreite",
-		"height": "Feldhöhe",
-		"zoom": "Zoom",
-		"useRounded": "Gerundete Werte",
-		"darkMode": "Dunkler Modus",
-		"colorTiles": "Farbige Felder",
-		"reset": "Zurücksetzen",
-		"lang": "Sprache"
-	},
-	"toolbar": {
-		"title": "MDP Q-Wert-Propagierung",
-		"displayMode": "Darstellungsmodus",
-		"modeValues": "Werte",
-		"modePolicy": "Policy",
-		"modeDetail": "Detail",
-		"reached": "Erreicht",
-		"new": "neu"
-	},
-	"tileEditor": {
-		"title": "Feld {id} bearbeiten",
-		"free": "Frei",
-		"wall": "Wand",
-		"goal": "Ziel",
-		"trap": "Falle",
-		"terminal": "terminal",
-		"initial": "initial",
-		"accessible": "betretbar",
-		"reward": "Belohnung",
-		"actions": "Aktionen"
-	},
-	"creator": {
-		"title": "Neues Level erzeugen",
-		"width": "Breite",
-		"height": "Höhe",
-		"goals": "Ziele",
-		"traps": "Fallen",
-		"alg": "Pfadgenerierer",
-		"dfs": "Rekursives Backtracking",
-		"kruskal": "Kruskal",
-		"unic": "Kreuzungsfrei",
-		"random": "Zufall",
-		"connectivity": "Anteil freier Felder",
-		"braid": "Flechten",
-		"create": "Erzeugen",
-		"cancel": "Abbrechen"
-	},
-	"solution": {
-		"iteration": "Iteration",
-		"download": "Download",
-		"back": "Zurück"
-	},
-	"action": {
-		"up": "oben",
-		"down": "unten",
-		"left": "links",
-		"right": "rechts"
-	}
+  "toolbar": {
+    "title": "MDP Q-Wert-Propagierung",
+    "tip": {
+      "solution": "Musterlösung",
+      "save": "Level speichern",
+      "reset": "Welt und Policy zurücksetzen",
+      "renderMode": "Anzeige Modus",
+      "reached": "zeigt zu berechnende Felder",
+      "prevIter": "Vorherige Iteration",
+      "open": "Level öffnen",
+      "nextIter": "Nächste Iteration",
+      "new": "Neues Level",
+      "iter": "Policy Iteration (scrollen zum Fortfahren)"
+    },
+    "reached": "Erreicht",
+    "new": "neu",
+    "modeValues": "Werte",
+    "modePolicy": "Policy",
+    "modeDetail": "Detail",
+    "displayMode": "Darstellungsmodus"
+  },
+  "tileEditor": {
+    "wall": "Wand",
+    "trap": "Falle",
+    "title": "Feld {id} bearbeiten",
+    "tip": {
+      "reward": "Belohnung (zum Ändern scrollen)"
+    },
+    "terminal": "terminal",
+    "reward": "Belohnung",
+    "initial": "initial",
+    "goal": "Ziel",
+    "free": "Frei",
+    "actions": "Aktionen",
+    "accessible": "betretbar"
+  },
+  "solution": {
+    "iteration": "Iteration",
+    "download": "Download",
+    "back": "Zurück"
+  },
+  "settings": {
+    "zoom": "Zoom",
+    "width": "Feldbreite",
+    "useRounded": "Gerundete Werte",
+    "ui": "UI",
+    "title": "Einstellungen",
+    "stepCost": "Schrittkosten",
+    "stepChances": "Schrittwahrscheinlichkeiten",
+    "scWarning": "Die Summe der Schrittwahrscheinlichkeiten sollte 1 betragen",
+    "right": "Rechts",
+    "reset": "Zurücksetzen",
+    "noise": "Rauschen",
+    "left": "Links",
+    "lang": "Sprache",
+    "height": "Feldhöhe",
+    "front": "Vorne",
+    "discount": "Discount",
+    "darkMode": "Dunkler Modus",
+    "colorTiles": "Farbige Felder",
+    "back": "Hinten"
+  },
+  "selector": {
+    "title": "Wählen Sie ein Level aus"
+  },
+  "saver": {
+    "title": "Geben Sie einen Namen ein",
+    "namePlaceholder": "Name der Welt",
+    "nameInput": "Name",
+    "confirm": "Speichern"
+  },
+  "lang": "Deutsch",
+  "creator": {
+    "width": "Breite",
+    "unic": "Kreuzungsfrei",
+    "traps": "Fallen",
+    "title": "Neues Level erzeugen",
+    "refresh": "Anwenden",
+    "random": "Zufall",
+    "kruskal": "Kruskal",
+    "height": "Höhe",
+    "goals": "Ziele",
+    "dfs": "Rekursives Backtracking",
+    "constraints": {
+      "won": "Gewonnen",
+      "winnable": "Gewinnbar",
+      "trivial": "Triviale Policy",
+      "survivable": "Überlebbar",
+      "partiallyWon": "Teilweise Gewonnen",
+      "partiallyWinnable": "Teilweise Gewinnbar",
+      "partiallySurvivable": "Teilweise Überlebbar",
+      "partiallyLost": "Teilweise Verloren",
+      "lost": "Verloren",
+      "deadEnds": "Sackgassen",
+      "dangerous": "Gefährlich",
+      "connected": "Verbunden",
+      "ambiguous": "Eindeutige Policy"
+    },
+    "connectivity": "Anteil freier Felder",
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen",
+    "braid": "Flechten",
+    "alg": "Pfadgenerierer"
+  },
+  "action": {
+    "up": "oben",
+    "right": "rechts",
+    "left": "links",
+    "down": "unten"
+  }
 }
