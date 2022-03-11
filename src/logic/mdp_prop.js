@@ -162,12 +162,12 @@ export default class GridMDP {
 		}
 
 		let solution = "Solution\n";
-		for(let it=0; it<=iteration; it++) {
+		for(let it=1; it<=iteration; it++) {
 			solution += "\nk=" + it.toString() + ":";
 			for(let t of this.allTiles()) {
 				// console.log(t);
-				if(t.reachedAt(it)) {
-					solution += "\n\tField " + t.getFormula() + "\n";
+				if(t.reachedAt(it-1)) {
+					solution += "\n\tField " + t.getFormula(it) + "\n";
 				}
 			}
 		}
@@ -340,6 +340,13 @@ class MDPTile {
 				formula += "\n\t" + this.actions[aName].getFormula(iteration);
 		}
 		return formula;
+	}
+
+	neighbors() {
+		let neighbors = [];
+		for (let aName in this.actions)
+				neighbors.push(this.actions[aName].getResult("front").node);
+		return neighbors;
 	}
 }
 

@@ -52,10 +52,8 @@ export default {
 					let offset = {"y": x*this.tileHeight, "x": y*this.tileWidth};
 
 					// background color for the tile is given by the qValue
-					if (store.state.tileColors || !tile.accessible) {
-						drawContext.fillStyle = this.tileColor(tile);
-						drawContext.fillRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
-					}
+					drawContext.fillStyle = this.tileColor(tile);
+					drawContext.fillRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
 
 					// non-accessible tiles are always just black
 					if (tile.accessible) {
@@ -295,12 +293,13 @@ export default {
 		},
 
 		tileColor(tile) {
+			if(!tile.accessible) return "hsl(160, 0%, 5%)";
+			if(!store.state.tileColors) return this.backGroundColor;
+
 			let qValue = tile.getQValue(store.state.displayIteration);
 			let hue = Math.max(0, Math.min(120, (120 * (1 + qValue) / 2)));
 			let sat = Math.max(0, Math.min(75, 75 * Math.abs(qValue)));
 			let bri = Math.max(0, Math.min(55, 15 + 40 * Math.abs(qValue)));
-			if (!tile.accessible)
-				bri = 5;
 
 			return "hsl(" + hue +", " + sat + "%, " + bri + "%)";	
 		},

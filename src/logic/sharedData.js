@@ -29,7 +29,9 @@ const store = new Vuex.Store({
 		// advanced settings
 		enableActionEditing: false,
 
-		worlds: worlds
+		worlds: worlds,
+
+		savedPlotData: null
 	},
 
 	mutations: {
@@ -109,6 +111,10 @@ const store = new Vuex.Store({
 
 		displaySaver(state) {
 			state.focus = "saver";
+		},
+
+		setPlotData(state, data) {
+			state.savedPlotData = data;
 		}
 	}
 });

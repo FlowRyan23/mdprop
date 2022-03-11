@@ -1,8 +1,8 @@
 <template>
 	<v-col id="conatiner">
 		<!-- Formula -->
-		<p v-if="store.state.enableActionEditing">{{action.getFormula()}}</p>
-		<p v-else>{{$t('action.' + action.name) + ": " + action.getFormula(store.state.displayIteration)}}</p>
+		<p v-if="store.state.enableActionEditing">{{formula()}}</p>
+		<p v-else>{{$t('action.' + action.name) + ": " + formula()}}</p>
 
 		<div v-if="store.state.enableActionEditing">
 			<!-- Reward slider-->
@@ -57,7 +57,19 @@ export default {
 	props: ["action"],
 	data() {return {
 		store: store
-	}}
+	}},
+	methods: {
+		formula() {
+			let tile = this.$parent.$parent.tile;
+			let now = store.state.displayIteration;
+
+			if (!tile.reachedAt(now-1) || now===0) {
+				return "0 (" + this.$t('action.noFormula') + ")";
+			} else {
+				return this.action.getFormula(store.state.displayIteration);
+			}
+		}
+	}
 }
 </script>
 

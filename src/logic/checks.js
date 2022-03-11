@@ -98,7 +98,7 @@ export default class Requirements {
 		this.phase5(mdp, goals);
 		mdp.reset();
 
-		console.log(JSON.stringify(this.satisfaction));
+		// console.log(JSON.stringify(this.satisfaction));
 		for (const constraint in this.satisfaction) {
 			if (Object.hasOwnProperty.call(this.satisfaction, constraint)) {
 				if (!this.satisfaction[constraint]) {
@@ -150,7 +150,7 @@ export default class Requirements {
 			// TODO should dead ends that are terminal be considered dead?
 			if (this.deadEnds !== null
 				&& this.satisfaction.deadEnds === null
-				&& neighbors(tile).filter(t => t.accessible).length < 2) {
+				&& tile.neighbors().filter(t => t.accessible).length < 2) {
 				this.satisfaction.deadEnds = this.deadEnds;
 				if (strict) {
 					return;
@@ -305,17 +305,10 @@ function makeComponent(start, tag) {
 			continue;
 		}
 
-		for (const neighbor of neighbors(current).filter(t => t.accessible && !t.closed)) {
+		for (const neighbor of current.neighbors().filter(t => t.accessible && !t.closed)) {
 			fringe.unshift(neighbor);
 		}
 	}
 
 	return component;
-}
-
-function neighbors(tile) {
-	let neighbors = [];
-	for (let aName in tile.actions)
-			neighbors.push(tile.actions[aName].getResult("front").node);
-	return neighbors;
 }

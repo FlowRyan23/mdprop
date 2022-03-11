@@ -21,3 +21,4 @@ yarn-error.log*
 *.sw?
 .VSCodeCounter/
 _test/
+src/logic/noise/ghupNoiseGen.js

@@ -23,5 +23,28 @@
 				{"accessible":true,"reward":0,"terminal":false,"initial":false}
 			]
 		]
+	},
+
+	"exam_a": {
+		"discount":0.9,
+		"stepCost":0,
+		"name":"exam_a",
+		"level": [
+			[
+				{"accessible":true,"reward":1,"terminal":true,"initial":false},
+				{"accessible":true,"reward":-1,"terminal":true,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false}
+			],
+			[
+				{"accessible":true,"reward":0,"terminal":false,"initial":true},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false}
+			],
+			[
+				{"accessible":false,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false},
+				{"accessible":true,"reward":0,"terminal":false,"initial":false}
+			]
+		]
 	}
 }

@@ -18,6 +18,7 @@
 					outlined
           v-model="name"
 					style="margin-right: 16px"
+					@keydown="keyHandler"
         ></v-text-field>
 
         <v-btn color="blue" @click="save()" style="margin-top: 8px">{{ $t("saver.confirm") }}</v-btn>
@@ -50,6 +51,12 @@ export default {
 			});
 			store.commit('displayMDP');
     },
+
+		keyHandler(event) {
+			if (event.key === "Enter") {
+				this.save();
+			}
+		}
   },
 };
 </script>

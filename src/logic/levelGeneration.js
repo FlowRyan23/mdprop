@@ -1,5 +1,5 @@
 import GridMDP from './mdp_prop';
-import {tileWall, tileGoal, tileTrap, fill, braid} from './level';
+import {tileWall, tileGoal, tileTrap, fill, braid, neighbors} from './level';
 import { inBounds } from './util';
 import { placeRandom } from './maze_generators/random';
 
@@ -11,11 +11,11 @@ export default async function create(requirements) {
 	if (requirements.braid) {
 		braid(level);
 	}
-	placeRandom(level, tileGoal, requirements.numberOfGoals, function(tile) {
-		return !tile.accessible;
+	placeRandom(level, tileGoal, requirements.numberOfGoals, function(pos) {
+		return !level[pos.x][pos.y].accessible && neighbors(level, pos).filter(p => level[p.x][p.y].accessible).length > 0;
 	});
-	placeRandom(level, tileTrap, requirements.numberOfTraps, function (tile) {
-		return !tile.accessible;
+	placeRandom(level, tileTrap, requirements.numberOfTraps, function (pos) {
+		return !level[pos.x][pos.y].accessible && neighbors(level, pos).filter(p => level[p.x][p.y].accessible).length > 0;
 	});
 	placeInitial(level);
 	// this.checkRes = requirements.check(this.mdp, true);

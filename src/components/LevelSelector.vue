@@ -11,7 +11,7 @@
 
 			<div v-if="worlds.length > 0" id="wrapper">
 				<div :key="x" v-for="(mdp, x) of worlds">
-					<Display class="display" :ID="'w-' + x" :mdp="mdp" :preview="true" :size="{width: 300, height: 250}"/>
+					<Display class="display" :ID="'w-' + x" :mdp="mdp" :preview="true" :size="{width: 300, height: 250}" @interaction="set(mdp)"/>
 				</div>
 			</div>
 
@@ -36,6 +36,11 @@ export default {
 	}},
 
 	methods: {
+		set(mdp) {
+			store.commit('displayMDP');
+			this.$emit('selected', mdp);
+		},
+
 		log() {
 			let worldsCompact = this.worlds.map(w => {
 				let comp = w.compact();

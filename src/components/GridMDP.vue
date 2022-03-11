@@ -10,7 +10,7 @@
 
 			<v-spacer></v-spacer>
 			
-			<!-- Display iteration -->
+			<!-- Previous Iteration -->
 			<v-tooltip bottom>
 				<template v-slot:activator="{on, attrs}">
 					<v-btn plain fab @click="prevIter()" v-on="on" v-bind="attrs">
@@ -20,6 +20,7 @@
 				<span>{{$t('toolbar.tip.prevIter')}}</span>
 			</v-tooltip>
 
+			<!-- Display iteration -->
 			<v-tooltip bottom>
 				<template v-slot:activator="{on, attrs}">
 					<v-text-field
@@ -39,6 +40,7 @@
 				<span>{{$t('toolbar.tip.iter')}}</span>
 			</v-tooltip>
 
+			<!-- Next Iteration -->
 			<v-tooltip bottom>
 				<template v-slot:activator="{on, attrs}">
 					<v-btn plain fab @click="nextIter()" v-on="on" v-bind="attrs">
@@ -161,7 +163,7 @@
 			</div>
 
 			<div v-else-if="store.state.focus==='selector'">
-				<LevelSelector/>
+				<LevelSelector @selected="setMDP"/>
 			</div>
 
 			<div v-else-if="store.state.focus==='saver'">
@@ -172,6 +174,7 @@
 				<v-btn @click="plot()">plot</v-btn>
 				<div id="plotDiv" ref="plt"></div>
 			</div>
+
 		</v-main>
 
 		<v-footer app>
@@ -190,7 +193,7 @@ import SaveDialogue from "./SaveDialogue.vue";
 
 import store from "../logic/sharedData";
 import GridMDP from '../logic/mdp_prop';
-import {plotAvrgDistance} from "../logic/analytics/effective_distance"
+import plotCurrent from "../logic/analytics/plotEntry";
 
 export default {
 	name: 'GridMDP',
@@ -208,7 +211,7 @@ export default {
 
 	methods: {
 		plot() {
-			plotAvrgDistance(this.$refs["plt"], this.mdp.compact());
+			plotCurrent(this.$refs["plt"], this.mdp.compact());
 		},
 
 		nextIter() {
@@ -275,16 +278,14 @@ export default {
 			store.commit('displayMDP');
 
 			// normalizing zoom to fit the new level and utilize available space
-			this.$refs.settings.zoom = 100;
-			this.$refs.settings.setTileSizes();
-			if(this.mdp.tiles[0].length * store.state.tileWidth > 0.7 * window.innerWidth) {
-				this.$refs.settings.zoom = (0.7 * window.innerWidth) / this.mdp.tiles[0].length;
-				this.$refs.settings.setTileSizes();
+			let zoom = 100;
+			if(this.mdp.tiles.length * 100 > 0.9 * window.innerHeight) {
+				zoom = (0.9 * window.innerHeight) / this.mdp.tiles.length;
 			}
-			if(this.mdp.tiles.length * store.state.tileHeight > 0.9 * window.innerHeight) {
-				this.$refs.settings.zoom = (0.9 * window.innerHeight) / this.mdp.tiles.length;
-				this.$refs.settings.setTileSizes();
+			if(this.mdp.tiles[0].length * 100 > 0.7 * window.innerWidth) {
+				zoom = (0.7 * window.innerWidth) / this.mdp.tiles[0].length;
 			}
+			store.commit('setTileSizes', {width: zoom, height: zoom});
 		},
 
 		closeEditor() {

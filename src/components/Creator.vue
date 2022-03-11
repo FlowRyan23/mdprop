@@ -73,24 +73,91 @@
 					<v-select
 						v-model="selectedAlgorithm"
 						:items="carvingAlgorithms"
-						item-text="name"
-						item-value="carver"
 						:label="$t('creator.alg')"
-						return-object
 						>
 					</v-select>
 
-					<v-slider v-if="selectedAlgorithm==='Random'" v-model="connectivity" :step="0.01" :max="1" :min="0" :label="$t('creator.connectivity')">
-						<template v-slot:append>
-							<v-text-field
-								v-model="connectivity"
-								class="mt-0 pt-0 no-spins"
-								hide-details
-								single-line
-								type="number"
-							></v-text-field>
-						</template>
-					</v-slider>
+					<div v-if="selectedAlgorithm==='Noise'">
+						<v-select
+							v-model="noiseGen"
+							:items="noiseGenerators"
+							:label="$t('creator.noiseGen')"
+							>
+						</v-select>
+
+						<v-slider v-if="noiseGen==='perlin' && !fractal" v-model="frequency" :step="1" :max="50" :min="1" :label="$t('creator.frequency')">
+							<template v-slot:append>
+								<v-text-field
+									v-model="frequency"
+									class="mt-0 pt-0 no-spins"
+									hide-details
+									single-line
+									type="number"
+								></v-text-field>
+							</template>
+						</v-slider>
+
+						<v-switch :label="$t('creator.fractal')" v-model="fractal"></v-switch>
+
+						<div v-if="fractal">
+							<v-slider v-model="octaves" :step="1" :max="10" :min="1" ticks :label="$t('creator.octaves')">
+								<template v-slot:append>
+									<v-text-field
+										v-model="octaves"
+										class="mt-0 pt-0 no-spins"
+										hide-details
+										single-line
+										type="number"
+									></v-text-field>
+								</template>
+							</v-slider>
+
+							<v-slider v-model="fractalFrequency" :step="1" :max="10" :min="1" ticks :label="$t('creator.fractalFrequency')">
+								<template v-slot:append>
+									<v-text-field
+										v-model="fractalFrequency"
+										class="mt-0 pt-0 no-spins"
+										hide-details
+										single-line
+										type="number"
+									></v-text-field>
+								</template>
+							</v-slider>
+
+							<v-slider v-model="persistence" :step="0.1" :max="1" :min="0" ticks :label="$t('creator.persistence')">
+								<template v-slot:append>
+									<v-text-field
+										v-model="persistence"
+										class="mt-0 pt-0 no-spins"
+										hide-details
+										single-line
+										type="number"
+									></v-text-field>
+								</template>
+							</v-slider>
+						</div>
+
+						<v-switch :label="$t('creator.blur')" v-model="blur"></v-switch>
+						<v-select
+							v-if="blur"
+							:items="blurKernels"
+							v-model="selectedKernel"
+							:label="$t('creator.kernel')"
+						></v-select>
+
+						<v-slider v-model="bias" :step="0.01" :max="1" :min="0" :label="$t('creator.bias')">
+							<template v-slot:append>
+								<v-text-field
+									v-model="bias"
+									class="mt-0 pt-0 no-spins"
+									hide-details
+									single-line
+									type="number"
+								></v-text-field>
+							</template>
+						</v-slider>
+
+					</div>
 
 					<v-switch :label="$t('creator.braid')" v-model="braid"></v-switch>
 
@@ -125,7 +192,7 @@ import Display from "./Display.vue";
 import {carveDFS} from '../logic/maze_generators/backtracker';
 import carveKruskal from '../logic/maze_generators/kruskal';
 import {hamiltonian} from '../logic/maze_generators/unicursal';
-import { carveRandom, carveSnake } from '../logic/maze_generators/random';
+import { carveNoise, carveSnake } from '../logic/maze_generators/random';
 import create from '../logic/levelGeneration';
 
 export default {
@@ -133,28 +200,49 @@ export default {
 
 	data() {return {
 		store: store,
+		preview: null,
+
+		// universal settings
 		width: 9,
 		height: 7,
 		goals: 1,
 		traps: 1,
-		connectivity: 0.6,
-		braid: false,
 		carvingAlgorithms: [
 			"Recursive Backtracking",
 			"Kruskal",
 			"Unicursal",
-			"Random",
+			"Noise",
 			"Snake"
 		],
 		algTable: {
 			"Recursive Backtracking": carveDFS,
 			"Kruskal": carveKruskal,
 			"Unicursal": hamiltonian,
-			"Random": carveRandom,
+			"Noise": carveNoise,
 			"Snake": carveSnake
 		},
-		selectedAlgorithm: "Kruskal",
-		preview: null
+		selectedAlgorithm: "Noise",
+
+		// noise args
+		noiseGenerators: ["white", "perlin"],
+		noiseGen: "white",
+		bias: 0.5,
+		blur: false,
+		blurKernels: ["gaus3"],
+		selectedKernel: "gaus3",
+
+		// perlin noise
+		frequency: 4,
+
+		// fractal noise
+		fractal: false,
+		octaves: 4,
+		fractalFrequency: 1,
+		persistence: 0.8,
+
+
+		// post processing
+		braid: false
 	}},
 
 	methods: {
@@ -190,7 +278,18 @@ export default {
 			reqs.size.height = this.height;
 			reqs.carver = this.algTable[this.selectedAlgorithm];
 			reqs.braid = this.braid;
-			reqs.carverArgs.chance = this.connectivity;
+			reqs.carverArgs.width = this.width;
+			reqs.carverArgs.height = this.height;
+			reqs.carverArgs.bias = this.bias;
+			reqs.carverArgs.generator = this.noiseGen;
+			reqs.carverArgs.blur = this.blur;
+			reqs.carverArgs.kernel = this.selectedKernel;
+			reqs.carverArgs.frequency = this.frequency;
+			reqs.carverArgs.fractal = this.fractal;
+			reqs.carverArgs.octaves = this.octaves;
+			reqs.carverArgs.fractalFrequency = this.fractalFrequency;
+			reqs.carverArgs.amplitude = 1;
+			reqs.carverArgs.persistence = this.persistence;
 
 			reqs.numberOfGoals = this.goals;
 			reqs.numberOfTraps = this.traps;

@@ -1,16 +1,89 @@
 import { neighbors } from "../level";
+import getNoise from "../noise/noise";
+import store from "../sharedData";
+import { randomSample } from "../util";
 
-export function carveRandom(level, args={}) {
-	let chance = args.chance?args.chance:0;
+const noKernel = [[1]];
+// from https://www.researchgate.net/figure/Discrete-approximation-of-the-Gaussian-kernels-3x3-5x5-7x7_fig2_325768087
+const gausKernel3 = [
+	[1, 2, 1],
+	[2, 4, 2],
+	[1, 2, 1]
+];
+
+export function carveNoise(level, args={}) {
+	let noise = getNoise(args);
+
+	if (args.blur) {
+		noise = sample(noise, level.length, level[0].length);
+		let kernel = getKernel(args.kernel);
+		convolve(noise, kernel);
+	}
+
+
 	for (let x = 0; x < level.length; x++) {
 		for (let y = 0; y < level[x].length; y++) {
-			if(Math.random() < chance) {
+			let X = x/level.length + 1e-6;
+			let Y = y/level[x].length + 1e-6;
+
+			let value = args.blur?
+				noise[x][y]
+				:noise.get(X, Y);
+			if (value > args.bias) {
 				level[x][y].accessible = true;
 			}
 		}
 	}
 
+	args.blur?
+		store.commit("setPlotData", noise)
+		:store.commit("setPlotData", sample(noise, level.length, level[0].length));
+
 	return level;
+}
+
+function getKernel(name) {
+	switch (name) {
+		case "gaus3":
+			return gausKernel3;
+		default:
+			return noKernel;
+	}
+}
+
+function sample(noise, width, height) {
+	let s = [];
+	for (let x = 0; x < width; x++) {
+		s[x] = [];
+		for (let y = 0; y < height; y++) {
+			s[x][y] = noise.get(x/width +1e-6, y/height +1e-6);
+		}
+	}
+	return s;
+}
+
+function convolve(values, kernel) {
+	let valuesCopie = JSON.parse(JSON.stringify(values));
+	for (let vx = 0; vx < values.length; vx++) {
+		for (let vy = 0; vy < values[vx].length; vy++) {
+			let sum = 0;
+			let scale = 0;
+			for (let kx = 0; kx < kernel.length; kx++) {
+				for (let ky = 0; ky < kernel[kx].length; ky++) {
+					let x = vx + kx - Math.floor(kernel.length / 2);
+					let y = vy + ky - Math.floor(kernel[kx].length / 2);
+
+					if(x >= 0 && x < values.length && y >= 0 && y < values[0].length) {
+						sum += valuesCopie[x][y] * kernel[kx][ky];
+						scale += kernel[kx][ky];
+					}
+				}
+			}
+
+			values[vx][vy] = sum / scale;
+		}
+	}
+	return values;
 }
 
 // export function carveSnake(level, args) {
@@ -68,20 +141,21 @@ function extend(level, pos, count=0) {
 	return ratio > 0.8;
 }
 
-export function placeRandom(level, tile, number, replace=()=>true) {
-	let tries = 0;
-	let x, y = -1;
-	while (number > 0 && tries < number + 10) {
-		x = Math.round(Math.random() * (level.length -1));
-		y = Math.round(Math.random() * (level[0].length -1));
+export function placeRandom(level, tile, number, condition=()=>true) {
+	if (number < 1) {
+		return;
+	}
 
-		if (replace(level[x][y])) {
-			level[x][y] = tile;
-			number--;
-			tries = 0;
-		} else {
-			tries++;
+	let selection = []
+	for (let x = 0; x < level.length; x++) {
+		for (let y = 0; y < level[x].length; y++) {
+			if (condition({x:x, y:y})) {
+				selection.push({x: x, y: y});
+			}
 		}
 	}
-	return [x, y];
+	selection = randomSample(selection, number);
+	for (const pos of selection) {
+		level[pos.x][pos.y] = tile;
+	}
 }

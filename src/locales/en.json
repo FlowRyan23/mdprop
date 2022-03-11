@@ -3,7 +3,8 @@
     "down": "down",
     "left": "left",
     "right": "right",
-    "up": "up"
+    "up": "up",
+		"noFormula": "This action has not been calculated yet"
   },
   "creator": {
     "alg": "Carving Algorithm",
@@ -35,7 +36,16 @@
     "title": "Create new level",
     "traps": "Traps",
     "unic": "Unicursal",
-    "width": "Width"
+    "width": "Width",
+		"noiseGen": "Noise Generator",
+		"frequency": "Frequency",
+		"fractal": "Fractal",
+		"blur": "Blur",
+		"bias": "Bias",
+		"kernel": "Kernel",
+		"octaves": "Octaves",
+		"fractalFrequency": "Frequency",
+		"persistence": "Persistence"
   },
   "lang": "English",
   "saver": {
@@ -71,7 +81,11 @@
   "solution": {
     "back": "Back",
     "download": "Download",
-    "iteration": "Iteration"
+    "iteration": "Iteration",
+		"tip": {
+			"download": "Download",
+			"copy": "Copy to clipboard"
+		}
   },
   "tileEditor": {
     "accessible": "accessible",
