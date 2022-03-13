@@ -2,7 +2,7 @@ import store from "./sharedData";
 
 export default class GridMDP {
 	constructor(level, discount=store.state.discount, stepCost=store.state.stepCost) {
-		// todo the level in memory is transposed to how it is displayed
+		// TODO the level in memory is transposed to how it is displayed
 		this.level = level;
 		this.iteration = 0;
 		this.discount = discount;
@@ -116,7 +116,7 @@ export default class GridMDP {
 		}
 		// console.log("i: " + this.iteration + ", change: " + policyChange);
 
-		//todo if no tile is set to initial an error message should be displayed
+		//TODO if no tile is set to initial an error message should be displayed
 		for (let x=0; x<this.tiles.length; x++) {
 			for (let y=0; y<this.tiles[x].length; y++) {
 				if (this.tiles[x][y].marked && !this.tiles[x][y].reached)
@@ -154,8 +154,8 @@ export default class GridMDP {
 		return {"witdth": this.tiles[0].length, "height": this.tiles.length};
 	}
 
-	getSolution(iteration=this.iteration) {
-		// todo this should probably recalculate the policy to avoid confusion if the world was edited mid-calculation
+	getSolution(iteration=this.iteration, includeActionNames=false) {
+		// TODO this should probably recalculate the policy to avoid confusion if the world was edited mid-calculation
 		
 		while(this.iteration < iteration) {
 			this.next();
@@ -167,7 +167,7 @@ export default class GridMDP {
 			for(let t of this.allTiles()) {
 				// console.log(t);
 				if(t.reachedAt(it-1)) {
-					solution += "\n\tField " + t.getFormula(it) + "\n";
+					solution += "\n\tField " + t.getFormula(it, includeActionNames) + "\n";
 				}
 			}
 		}
@@ -334,10 +334,10 @@ class MDPTile {
 		return '' + (this.y+1) + '-' + (this.x+1);
 	}
 
-	getFormula(iteration=this.qMemory.length -1) {
+	getFormula(iteration=this.qMemory.length -1, includeActionNames=false) {
 		let formula = this.getName();
 		for (let aName in this.actions) {
-				formula += "\n\t" + this.actions[aName].getFormula(iteration);
+				formula += "\n\t" + this.actions[aName].getFormula(iteration, includeActionNames);
 		}
 		return formula;
 	}
@@ -387,7 +387,6 @@ class Action {
 	}
 
 	addResult(result) {
-		// TODO should warn if total chance of results is greater than 1
 		Object.freeze(result);
 		this.results.push(result);
 	}
@@ -443,8 +442,10 @@ class Action {
 		return this.name;
 	}
 
-	getFormula(iteration=this.qMemory.length-1) {
-		let formula = this.nts(this.discount) + " * (";
+	getFormula(iteration=this.qMemory.length-1, includeName=false) {
+		// TODO change names depending on locale
+		let formula = includeName?this.name + ": ":"";
+		formula += this.nts(this.discount) + " * (";
 		let sumChance = 0;
 		for (let res of this.results) {
 			if (res.getChance(this.stepChances) === 0)
@@ -466,10 +467,16 @@ class Action {
 	}
 
 	nts(n) {
+		let s = "error";
 		try {
-			return n.toFixed(2);
+			s = n.toFixed(2);
 		} catch {
-			return n.toString();
+			s = n.toString();
+		}
+		if (s === "-0.00") {
+			return "0.00";
+		} else {
+			return s;
 		}
 	}
 }

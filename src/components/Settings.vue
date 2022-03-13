@@ -4,7 +4,7 @@
 		<!-- Discount Input -->
 		<div class="d-flex justify-space-between">
 			<div v-if="displayFavDiscount" class="d-flex justify-space-around">
-				<v-btn-toggle v-model="discount" background-color="transparent" @change="setDiscount">
+				<v-btn-toggle v-model="discount" background-color="transparent" @change="setDiscount" class="mt-1">
 					<v-btn :value="0.2" @click="displayFavDiscount=false" id="fav-selection">0,20</v-btn>
 					<v-btn :value="0.5" @click="displayFavDiscount=false" id="fav-selection">0,50</v-btn>
 					<v-btn :value="0.8" @click="displayFavDiscount=false" id="fav-selection">0,80</v-btn>
@@ -80,11 +80,11 @@
 			<div class="d-flex justify-space-between">
 				<div v-if="displayFavSCFront" class="d-flex justify-space-around">
 					<v-btn-toggle v-model="stepChances.front" background-color="transparent" @change="setStepChances">
-						<v-btn :value="0.1" @click="displayFavSCFront=false" id="fav-selection">0,10</v-btn>
-						<v-btn :value="0.2" @click="displayFavSCFront=false" id="fav-selection">0,20</v-btn>
-						<v-btn :value="0.3" @click="displayFavSCFront=false" id="fav-selection">0,30</v-btn>
+						<v-btn :value="0.25" @click="displayFavSCFront=false" id="fav-selection">0,25</v-btn>
 						<v-btn :value="0.4" @click="displayFavSCFront=false" id="fav-selection">0,40</v-btn>
 						<v-btn :value="0.5" @click="displayFavSCFront=false" id="fav-selection">0,50</v-btn>
+						<v-btn :value="0.6" @click="displayFavSCFront=false" id="fav-selection">0,60</v-btn>
+						<v-btn :value="0.7" @click="displayFavSCFront=false" id="fav-selection">0,70</v-btn>
 						<v-btn :value="0.8" @click="displayFavSCFront=false" id="fav-selection">0,80</v-btn>
 					</v-btn-toggle>
 				</div>
@@ -112,11 +112,11 @@
 				<div v-if="displayFavSCLeft" class="d-flex justify-space-around">
 					<v-btn-toggle v-model="stepChances.left" background-color="transparent" @change="setStepChances">
 						<v-btn :value="0.1" @click="displayFavSCLeft=false" id="fav-selection">0,10</v-btn>
+						<v-btn :value="0.15" @click="displayFavSCLeft=false" id="fav-selection">0,15</v-btn>
 						<v-btn :value="0.2" @click="displayFavSCLeft=false" id="fav-selection">0,20</v-btn>
+						<v-btn :value="0.25" @click="displayFavSCLeft=false" id="fav-selection">0,25</v-btn>
 						<v-btn :value="0.3" @click="displayFavSCLeft=false" id="fav-selection">0,30</v-btn>
 						<v-btn :value="0.4" @click="displayFavSCLeft=false" id="fav-selection">0,40</v-btn>
-						<v-btn :value="0.5" @click="displayFavSCLeft=false" id="fav-selection">0,50</v-btn>
-						<v-btn :value="0.8" @click="displayFavSCLeft=false" id="fav-selection">0,80</v-btn>
 					</v-btn-toggle>
 				</div>
 				
@@ -143,11 +143,11 @@
 				<div v-if="displayFavSCRight" class="d-flex justify-space-around">
 					<v-btn-toggle v-model="stepChances.right" background-color="transparent" @change="setStepChances">
 						<v-btn :value="0.1" @click="displayFavSCRight=false" id="fav-selection">0,10</v-btn>
+						<v-btn :value="0.15" @click="displayFavSCRight=false" id="fav-selection">0,15</v-btn>
 						<v-btn :value="0.2" @click="displayFavSCRight=false" id="fav-selection">0,20</v-btn>
+						<v-btn :value="0.25" @click="displayFavSCRight=false" id="fav-selection">0,25</v-btn>
 						<v-btn :value="0.3" @click="displayFavSCRight=false" id="fav-selection">0,30</v-btn>
 						<v-btn :value="0.4" @click="displayFavSCRight=false" id="fav-selection">0,40</v-btn>
-						<v-btn :value="0.5" @click="displayFavSCRight=false" id="fav-selection">0,50</v-btn>
-						<v-btn :value="0.8" @click="displayFavSCRight=false" id="fav-selection">0,80</v-btn>
 					</v-btn-toggle>
 				</div>
 				
@@ -173,12 +173,12 @@
 			<div class="d-flex justify-space-between">
 				<div v-if="displayFavSCBack" class="d-flex justify-space-around">
 					<v-btn-toggle v-model="stepChances.back" background-color="transparent" @change="setStepChances">
+						<v-btn :value="0.05" @click="displayFavSCBack=false" id="fav-selection">0,05</v-btn>
 						<v-btn :value="0.1" @click="displayFavSCBack=false" id="fav-selection">0,10</v-btn>
+						<v-btn :value="0.15" @click="displayFavSCBack=false" id="fav-selection">0,15</v-btn>
 						<v-btn :value="0.2" @click="displayFavSCBack=false" id="fav-selection">0,20</v-btn>
+						<v-btn :value="0.25" @click="displayFavSCBack=false" id="fav-selection">0,25</v-btn>
 						<v-btn :value="0.3" @click="displayFavSCBack=false" id="fav-selection">0,30</v-btn>
-						<v-btn :value="0.4" @click="displayFavSCBack=false" id="fav-selection">0,40</v-btn>
-						<v-btn :value="0.5" @click="displayFavSCBack=false" id="fav-selection">0,50</v-btn>
-						<v-btn :value="0.8" @click="displayFavSCBack=false" id="fav-selection">0,80</v-btn>
 					</v-btn-toggle>
 				</div>
 				
@@ -341,7 +341,7 @@
 			</div>
 		</div>
 
-		<v-switch :label="$t('settings.darkMode')" v-model="$vuetify.theme.dark" color="blue"></v-switch>
+		<v-switch :label="$t('settings.darkMode')" v-model="darkMode" @change="toggleDarkMode()" color="blue"></v-switch>
 		<v-switch :label="$t('settings.colorTiles')" v-model="tileColors" @change="toggleTileColors()" color="blue" style="margin-top: -8px"></v-switch>
 
 		<v-btn @click="reset()" class="mr-3">{{$t('settings.reset')}}</v-btn>
@@ -383,6 +383,7 @@ export default {
 		tileHeight: store.state.tileHeight,
 		useRounded: store.state.useRounded,
 		tileColors: store.state.tileColors,
+		darkMode: store.state.darkMode,
 		noise: 0.2,
 		zoom: Math.max(store.state.tileWidth, store.state.tileHeight),
 
@@ -442,6 +443,12 @@ export default {
 			this.$emit('redraw');
 		},
 
+		toggleDarkMode() {
+			store.commit('toggleDarkMode');
+			this.$vuetify.theme.dark = store.state.darkMode;
+			this.$emit('redraw');
+		},
+
 		scrollHandler(event, attribute, min=0, max=1, step=0.01) {
 			if(event.deltaY > 0) {
 				this[attribute] = Math.min(max, Math.max(min, this[attribute] - step));
@@ -487,7 +494,7 @@ export default {
 	},
 
 	created () {
-		this.$vuetify.theme.dark = true;
+		this.$vuetify.theme.dark = this.darkMode;
 	}
 }
 </script>

@@ -36,9 +36,11 @@
 		"accessible": "betretbar"
 	},
 	"solution": {
+		"title": "Musterlösung",
 		"iteration": "Iteration",
 		"download": "Download",
 		"back": "Zurück",
+		"previewLimit": "Aus Performanzgründen werden nur 25 Iterationen als Vorschau angezeigt",
 		"tip": {
 			"download": "Herunterladen",
 			"copy": "In Zwischenablage kopieren"
@@ -66,7 +68,16 @@
 		"back": "Hinten"
 	},
 	"selector": {
-		"title": "Wählen Sie ein Level aus"
+		"title": "Wählen Sie ein Level aus",
+		"search": "Suchen",
+		"name": "Name",
+		"discount": "Discount",
+		"stepCost": "Kosten",
+		"width": "Breite",
+		"height": "Höhe",
+		"actions": "Aktionen",
+		"preview": "Vorschau",
+		"confirm": "Öffnen"
 	},
 	"saver": {
 		"title": "Geben Sie einen Namen ein",

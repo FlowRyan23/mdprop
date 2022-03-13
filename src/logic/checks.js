@@ -197,7 +197,7 @@ export default class Requirements {
 			return;
 		}
 
-		// todo strict exits
+		// TODO strict exits
 		let survivable = 0;
 		let dangerous = 0;
 		for (const component of components) {
@@ -213,7 +213,7 @@ export default class Requirements {
 
 
 		this.satisfaction.survivable = matches(this.survivable, components.length === survivable);
-		// todo are survivable worlds also parially survivable?
+		// TODO are survivable worlds also parially survivable?
 		this.satisfaction.partiallySurvivable = matches(this.partiallySurvivable, survivable > 0 && survivable < components.length);
 		this.satisfaction.dangerous = matches(this.dangerous, components.length === dangerous);
 
@@ -221,11 +221,11 @@ export default class Requirements {
 	}
 
 	phase4(mdp) {
-		// todo strict breaks
+		// TODO strict breaks
 		let policyStagnation = 0;
 		let startTime = Date.now();
 		while (policyStagnation < 5 && Date.now() - startTime < 1e+3) {
-			// todo use mdp.calculate(n) to reduce checks if neccessary
+			// TODO use mdp.calculate(n) to reduce checks if neccessary
 			if(mdp.next()) {
 				policyStagnation = 0;
 			} else {

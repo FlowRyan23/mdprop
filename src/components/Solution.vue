@@ -1,55 +1,56 @@
 <template>
-	<v-overlay :value="true">
+	<v-overlay :value="true" :dark="$vuetify.theme.dark">
 		<v-card id="card">
-			<v-container grid-list-lg>
-				<v-row>
-					<v-col cols="6">
-						<!-- Number of included iterations -->
-						<v-text-field
-							:label="$t('solution.iteration')"
-							v-model="iteration"
-							min="1"
-							class="mt-0 pt-0"
-							type="number"
-							outlined
-							@wheel.prevent="scrollHandler"
-						></v-text-field>
-					</v-col>
+			<v-card-title primary-title>
+				{{$t('solution.title')}}
 
-					<v-spacer></v-spacer>
+				<v-spacer></v-spacer>
 
-					<!-- Download as .txt-file -->
-					<v-tooltip bottom>
-						<template v-slot:activator="{on, attrs}">
-							<v-btn plain fab @click="save" v-on="on" v-bind="attrs" style="margin-top: 10px">
-								<v-icon size="32">mdi-download</v-icon>
-							</v-btn>
-						</template>
-						<span>{{$t('solution.tip.download')}}</span>
-					</v-tooltip>
+				<!-- Number of included iterations -->
+				<v-text-field
+					:label="$t('solution.iteration')"
+					v-model="iteration"
+					min="1"
+					type="number"
+					outlined
+					hide-details
+					dense
+					autofocus
+					style="width: 80px"
+					@wheel.prevent="scrollHandler"
+				></v-text-field>
 
-					<!-- Save to clipboard -->
-					<v-tooltip bottom>
-						<template v-slot:activator="{on, attrs}">
-							<v-btn plain fab @click="copy" v-on="on" v-bind="attrs" style="margin-top: 8px">
-								<v-icon size="30">mdi-clipboard-multiple-outline</v-icon>
-							</v-btn>
-						</template>
-						<span>{{$t('solution.tip.copy')}}</span>
-					</v-tooltip>
+				<v-spacer></v-spacer>
 
-					<v-spacer></v-spacer>
+				<!-- Download as .txt-file -->
+				<v-tooltip bottom>
+					<template v-slot:activator="{on, attrs}">
+						<v-btn plain fab @click="save" v-on="on" v-bind="attrs">
+							<v-icon medium>mdi-download</v-icon>
+						</v-btn>
+					</template>
+					<span>{{$t('solution.tip.download')}}</span>
+				</v-tooltip>
 
-					<!-- Close -->
-					<v-btn @click="store.commit('displayMDP')" rounded icon>
-						<v-icon size="30">mdi-close-thick</v-icon>
-					</v-btn>
+				<!-- Save to clipboard -->
+				<v-tooltip bottom>
+					<template v-slot:activator="{on, attrs}">
+						<v-btn plain fab @click="copy" v-on="on" v-bind="attrs">
+							<v-icon medium>mdi-clipboard-multiple-outline</v-icon>
+						</v-btn>
+					</template>
+					<span>{{$t('solution.tip.copy')}}</span>
+				</v-tooltip>
 
-				</v-row>
-			</v-container>
+				<v-spacer></v-spacer>
+
+				<v-btn @click="store.commit('displayMDP')" rounded icon>
+					<v-icon size="32">mdi-close-thick</v-icon>
+				</v-btn>
+			</v-card-title>
 			
 			<div>
-				<p id="text">{{this.getSolutionTxt()}}</p>
+				<p id="text">{{this.getSolutionTxt(25)}}</p>
 			</div>
 		</v-card>
 	</v-overlay>
@@ -77,8 +78,12 @@ export default {
 			copyTextToClipboard(this.getSolutionTxt());
 		},
 
-		getSolutionTxt() {
-			return this.mdp.getSolution(this.iteration);
+		getSolutionTxt(max=this.iteration) {
+			let solText = this.mdp.getSolution(Math.min(max, this.iteration), true);
+			if (max < this.iteration) {
+				solText += "\n" + this.$t('solution.previewLimit');
+			}
+			return solText;
 		},
 
 		scrollHandler(event, attribute="iteration", min=1, max=10000, step=1) {
@@ -104,7 +109,7 @@ export default {
 
 	#text {
 		max-height: 650px;
-		width: 500px;
+		width: 550px;
 		overflow-y: scroll;
 	}
 

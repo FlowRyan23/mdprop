@@ -3,7 +3,6 @@
 		:ref="ID"
 		@click="clickHandler"
 		></canvas>
-		<!-- :style="'margin: ' + this.margins" -->
 </template>
 
 <script>
@@ -45,7 +44,6 @@ export default {
 			// drawContext.fillRect(0, 0, this.width, this.height);
 			drawContext.clearRect(0, 0, this.width, this.height);
 
-			// todo aparently mdp.tiles is undefined but mdp is not
 			for(let x=0; x<this.mdp.tiles.length; x++) {
 				for(let y=0; y<this.mdp.tiles[x].length; y++) {
 					let tile = this.mdp.tiles[x][y];
@@ -89,22 +87,23 @@ export default {
 		},
 
 		renderTilePolicy(ctx, offset, tile) {
+			// TODO with colored tiles off there is no distinction between traps and goals
 			if (tile.terminal) {
-				ctx.fillStyle = "white";
+				ctx.fillStyle = this.textColor;
 				ctx.fillRect(offset.x + this.tileWidth/3, offset.y + this.tileHeight/3, this.tileWidth/3, this.tileHeight/3);
 			} else {
 				let arrows = this.arrowsOf(tile.getPolicy(store.state.displayIteration));
-				this.drawTileArrows(ctx, offset, arrows, "white");
+				this.drawTileArrows(ctx, offset, arrows, this.textColor);
 			}
 		},
 
 		renderTileValues(ctx, offset, tile) {
+			let textSize = Math.min(this.tileWidth*0.33, this.tileHeight/2) * (tile.getQValue(store.state.displayIteration)<0?0.9:1);
 			if (tile.terminal) {
-				let textSize = Math.min(this.tileWidth*0.33, this.tileHeight/2);
-				ctx.drawText(tile.getLabel(store.state.displayIteration), offset.x + this.tileWidth/2, offset.y + this.tileHeight/2, "white", textSize);
+				ctx.drawText(tile.getLabel(store.state.displayIteration), offset.x + this.tileWidth/2, offset.y + this.tileHeight/2, this.textColor, textSize);
 			
 				ctx.beginPath();
-				ctx.strokeStyle = "white";
+				ctx.strokeStyle = this.textColor;
 				ctx.lineWidth = Math.max(1, this.tileWidth * 0.02, this.tileHeight * 0.02);
 				ctx.strokeRect(
 					offset.x + this.tileWidth * 0.05,
@@ -115,12 +114,10 @@ export default {
 				ctx.lineWidth = 1;
 				
 			} else {
-				let textSize = Math.min(this.tileWidth*0.33, this.tileHeight/2);
-				ctx.drawText(tile.getLabel(store.state.displayIteration), offset.x + this.tileWidth/2, offset.y + this.tileHeight/2, "white", textSize);
+				ctx.drawText(tile.getLabel(store.state.displayIteration), offset.x + this.tileWidth/2, offset.y + this.tileHeight/2, this.textColor, textSize);
 			
-				// TODO does not draw anything
 				if (tile.bestAction()) {
-					ctx.fillStyle = "white";
+					ctx.fillStyle = this.textColor;
 					let diSize = Math.max(1, Math.min(this.tileWidth/10, this.tileHeight/10));
 					let inset = Math.max(0, diSize/2);
 					if (tile.getPolicy(store.state.displayIteration)["up"]) {
@@ -129,7 +126,7 @@ export default {
 							[offset.x + this.tileWidth / 2 - diSize/2, offset.y + inset + diSize],
 							[offset.x + this.tileWidth / 2 + diSize/2, offset.y + inset + diSize],
 							[offset.x + this.tileWidth / 2, offset.y + inset]],
-							"white", "white"
+							this.textColor, this.textColor
 						);
 					}
 					if (tile.getPolicy(store.state.displayIteration)["right"]) {
@@ -138,7 +135,7 @@ export default {
 							[offset.x + this.tileWidth - diSize - inset, offset.y + this.tileHeight/2 - diSize/2],
 							[offset.x + this.tileWidth - diSize - inset, offset.y + this.tileHeight/2 + diSize/2],
 							[offset.x + this.tileWidth - inset, offset.y + this.tileHeight/2]],
-							"white", "white"
+							this.textColor, this.textColor
 						);
 					}
 					if (tile.getPolicy(store.state.displayIteration)["left"]) {
@@ -147,7 +144,7 @@ export default {
 							[offset.x + diSize + inset, offset.y + this.tileHeight/2 - diSize/2],
 							[offset.x + diSize + inset, offset.y + this.tileHeight/2 + diSize/2],
 							[offset.x + inset, offset.y + this.tileHeight/2]],
-							"white", "white"
+							this.textColor, this.textColor
 						);
 					}
 					if (tile.getPolicy(store.state.displayIteration)["down"]) {
@@ -156,7 +153,7 @@ export default {
 							[offset.x + this.tileWidth / 2 - diSize/2, offset.y + this.tileHeight - inset - diSize],
 							[offset.x + this.tileWidth / 2 + diSize/2, offset.y + this.tileHeight - inset - diSize],
 							[offset.x + this.tileWidth / 2, offset.y + this.tileHeight - inset]],
-							"white", "white"
+							this.textColor, this.textColor
 						);
 					}
 				}
@@ -174,31 +171,31 @@ export default {
 				[offset.x + 0, offset.y + 0],
 				[offset.x + 0, offset.y + this.tileHeight],
 				center],
-				store.state.tileColors?this.colorOf(tile.actions["left"].getQValue(store.state.displayIteration)):this.backGroundColor, "white");
+				store.state.tileColors?this.colorOf(tile.actions["left"].getQValue(store.state.displayIteration)):this.backGroundColor, this.textColor);
 
 			ctx.fillPoly([
 				[offset.x + 0, offset.y + 0],
 				[offset.x + this.tileWidth, offset.y + 0],
 				center],
-				store.state.tileColors?this.colorOf(tile.actions["up"].getQValue(store.state.displayIteration)):this.backGroundColor, "white");
+				store.state.tileColors?this.colorOf(tile.actions["up"].getQValue(store.state.displayIteration)):this.backGroundColor, this.textColor);
 
 			ctx.fillPoly([
 				[offset.x + this.tileWidth, offset.y + this.tileHeight],
 				[offset.x + 0, offset.y + this.tileHeight],
 				center],
-				store.state.tileColors?this.colorOf(tile.actions["down"].getQValue(store.state.displayIteration)):this.backGroundColor, "white");
+				store.state.tileColors?this.colorOf(tile.actions["down"].getQValue(store.state.displayIteration)):this.backGroundColor, this.textColor);
 
 			ctx.fillPoly([
 				[offset.x + this.tileWidth, offset.y + this.tileHeight],
 				[offset.x + this.tileWidth, offset.y + 0],
 				center],
-				store.state.tileColors?this.colorOf(tile.actions["right"].getQValue(store.state.displayIteration)):this.backGroundColor, "white");
+				store.state.tileColors?this.colorOf(tile.actions["right"].getQValue(store.state.displayIteration)):this.backGroundColor, this.textColor);
 		
 			let textSize = Math.min(this.tileWidth/8, this.tileHeight/6);
-			ctx.drawText(tile.actions.up.getQValue(store.state.displayIteration).toFixed(2), offset.x + this.tileWidth/2, offset.y + this.tileHeight/5, "white", textSize);
-			ctx.drawText(tile.actions.down.getQValue(store.state.displayIteration).toFixed(2), offset.x + this.tileWidth/2, offset.y + 4 * this.tileHeight/5, "white", textSize);
-			ctx.drawText(tile.actions.left.getQValue(store.state.displayIteration).toFixed(2), offset.x + this.tileWidth/5, offset.y + this.tileHeight/2, "white", textSize);
-			ctx.drawText(tile.actions.right.getQValue(store.state.displayIteration).toFixed(2), offset.x + 4 * this.tileWidth/5, offset.y + this.tileHeight/2, "white", textSize);
+			ctx.drawText(tile.actions.up.getQValue(store.state.displayIteration).toFixed(2), offset.x + this.tileWidth/2, offset.y + this.tileHeight/5, this.textColor, textSize);
+			ctx.drawText(tile.actions.down.getQValue(store.state.displayIteration).toFixed(2), offset.x + this.tileWidth/2, offset.y + 4 * this.tileHeight/5, this.textColor, textSize);
+			ctx.drawText(tile.actions.left.getQValue(store.state.displayIteration).toFixed(2), offset.x + this.tileWidth/5, offset.y + this.tileHeight/2, this.textColor, textSize);
+			ctx.drawText(tile.actions.right.getQValue(store.state.displayIteration).toFixed(2), offset.x + 4 * this.tileWidth/5, offset.y + this.tileHeight/2, this.textColor, textSize);
 		},
 
 		renderTilePreview(ctx, offset, tile) {
@@ -224,7 +221,7 @@ export default {
 			return arrows;
 		},
 
-		drawTileArrows(ctx, offset, arrows, fillColor, borderColor=this.isSmall?fillColor:"white") {
+		drawTileArrows(ctx, offset, arrows, fillColor, borderColor=this.isSmall?fillColor:this.textColor) {
 			ctx.lineWidth = 3;
 			let w = Math.max(0, this.tileWidth/3);
 			let h = Math.max(0, this.tileHeight/3);
@@ -295,21 +292,24 @@ export default {
 		tileColor(tile) {
 			if(!tile.accessible) return "hsl(160, 0%, 5%)";
 			if(!store.state.tileColors) return this.backGroundColor;
-
-			let qValue = tile.getQValue(store.state.displayIteration);
-			let hue = Math.max(0, Math.min(120, (120 * (1 + qValue) / 2)));
-			let sat = Math.max(0, Math.min(75, 75 * Math.abs(qValue)));
-			let bri = Math.max(0, Math.min(55, 15 + 40 * Math.abs(qValue)));
-
-			return "hsl(" + hue +", " + sat + "%, " + bri + "%)";	
+			return this.colorOf(tile.getQValue(store.state.displayIteration));
 		},
 
 		colorOf(qValue) {
-			let hue = Math.max(0, Math.min(120, (120 * (1 + qValue) / 2)));
-			let sat = Math.max(0, Math.min(75, 75 * Math.abs(qValue)));
-			let bri = Math.max(0, Math.min(55, 15 + 40 * Math.abs(qValue)));
+			if (qValue===0) return this.backGroundColor;
 
-			return "hsl(" + hue +", " + sat + "%, " + bri + "%)";	
+			if (this.$vuetify.theme.dark) {
+				let hue = Math.max(0, Math.min(120, (120 * (1 + qValue) / 2)));
+				let sat = Math.max(0, Math.min(75, 75 * Math.abs(qValue)));
+				let bri = Math.max(0, Math.min(55, 15 + 40 * Math.abs(qValue)));
+				return "hsl(" + hue +", " + sat + "%, " + bri + "%)";	
+			} else {
+				let hue = Math.max(0, Math.min(120, (120 * (1 + qValue) / 2)));
+				let sat = Math.max(0, Math.min(75, 35 + 40 * Math.abs(qValue)));
+				let bri = Math.max(50, Math.min(100, 100 - 45 * Math.abs(qValue)));
+				return "hsl(" + hue +", " + sat + "%, " + bri + "%)";	
+			}
+
 		},
 
 		isSelected(tile) {
@@ -324,7 +324,6 @@ export default {
 
 	computed: {
 		displayMode() {
-			// todo preview mode is inferred from size prop (size is only set when used as preview)
 			if (this.preview) {
 				return "preview";
 			} else if(this.isSmall) {
@@ -361,7 +360,8 @@ export default {
 		},
 		isSmall() {return this.tileWidth <= 30 || this.tileHeight <= 25},
 		// backGroundColor()  {return "hsl(" + 160 +", " + 0 + "%, " + 36 + "%)";}
-		backGroundColor()  {return "rgb(" + 38 +", " + 38 + ", " + 38 + ")"},
+		backGroundColor() {return this.$vuetify.theme.dark?"rgb(" + 38 +", " + 38 + ", " + 38 + ")":"white"},
+		textColor() {return this.$vuetify.theme.dark?"white":"rgb(" + 20 +", " + 20 + ", " + 20 + ")"},
 		margins() {
 			return Math.round((this.height % this.mdp.tiles.length)/2) + "px " + Math.round((this.width % this.mdp.tiles[0].length)/2) + "px";
 		}
