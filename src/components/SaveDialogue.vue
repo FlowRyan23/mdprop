@@ -1,12 +1,15 @@
 <template>
-  <v-overlay>
+  <v-overlay :dark="$vuetify.theme.dark">
     <v-card id="card" class="d-flex flex-column">
-      <div class="d-flex justify-space-between">
-        <h2 id="headline">{{ $t("saver.title") }}</h2>
-        <v-btn @click="store.commit('displayMDP')" rounded icon>
-          <v-icon>mdi-close-thick</v-icon>
-        </v-btn>
-      </div>
+			<v-card-title primary-title>
+				{{$t('saver.title')}}
+
+				<v-spacer></v-spacer>
+
+				<v-btn @click="store.commit('displayMDP')" rounded icon>
+					<v-icon size="32">mdi-close-thick</v-icon>
+				</v-btn>
+			</v-card-title>
 
       <div class="d-flex">
         <v-text-field

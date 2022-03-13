@@ -23,7 +23,7 @@
 			</div>
 			
 			<h3>{{$t('tileEditor.reward')}}</h3>
-			<div class="myRow">
+			<div class="d-flex justify-space-around">
 				<v-btn class="incBtn" rounded @click="incReward(-10)">-10</v-btn>
 				<v-btn class="incBtn" rounded @click="incReward(-1)">-1</v-btn>
 
@@ -55,7 +55,7 @@
 				<v-expansion-panel v-for="action in tile.actions" :key="action.name">
 					<v-expansion-panel-header>{{action.name}}</v-expansion-panel-header>
 					<v-expansion-panel-content>
-							<ActionEditor :action="action"/>
+						<ActionEditor :action="action"/>
 					</v-expansion-panel-content>
 				</v-expansion-panel>
 			</v-expansion-panels>
@@ -111,7 +111,7 @@ export default {
 		},
 
 		setInit() {
-			// todo modifying initial after the tile has been reached causes bad behaviour
+			// TODO modifying initial after the tile has been reached causes bad behaviour - this will probably need to be fixed elsewhere (mdp_prop.js)
 			this.tile.reached = this.tile.initial;
 		},
 

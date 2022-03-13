@@ -22,9 +22,10 @@ const store = new Vuex.Store({
 		tileHeight: 100,
 		
 		focus: "mdp",		// "mdp": Standard GridMDP view; "creator": Level Creator Dialog; "solution": Solution Downloader; "selector": Open Level; "saver": Save Level Dialogue
-		reachedPreview: false,
+		reachedPreview: true,
 		renderMode: "values",
 		tileColors: true,
+		darkMode: true,
 		
 		// advanced settings
 		enableActionEditing: false,
@@ -88,7 +89,17 @@ const store = new Vuex.Store({
 			state.tileColors = !state.tileColors;
 		},
 
+		toggleDarkMode(state) {
+			state.darkMode = !state.darkMode;
+		},
+
 		saveLevel(state, world) {
+			let baseName = world.name;
+			let k = 0;
+			while (state.worlds[world.name]) {
+				k++;
+				world.name = baseName + "(" + k + ")";
+			}
 			state.worlds[world.name] = world.mdp;
 			state.worlds[world.name].name = world.name;
 		},

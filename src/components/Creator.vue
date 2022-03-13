@@ -1,7 +1,15 @@
 <template>
-	<v-overlay :value="true">
+	<v-overlay :value="true" :dark="$vuetify.theme.dark">
 		<v-card id="card">
-			<h2 id="headline">{{$t('creator.title')}}</h2>
+			<v-card-title primary-title>
+				{{$t('creator.title')}}
+
+				<v-spacer></v-spacer>
+
+				<v-btn @click="store.commit('displayMDP')" rounded icon>
+					<v-icon size="32">mdi-close-thick</v-icon>
+				</v-btn>
+			</v-card-title>
 
 			<div class="d-flex">
 				<div class="d-flex flex-column justify-space-between" id="general">

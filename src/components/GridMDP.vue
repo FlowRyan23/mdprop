@@ -63,8 +63,8 @@
 			<!-- Display reached Tiles -->
 			<v-tooltip bottom>
 				<template v-slot:activator="{on}">
-					<v-btn-toggle :ref="'reachedToggle'" rounded color="blue">
-						<v-btn @click="toggleReached()" v-on="on">
+					<v-btn-toggle value="true" :ref="'reachedToggle'" rounded color="blue">
+						<v-btn value="true" @click="toggleReached()" v-on="on">
 							<!-- <v-icon>mdi-alpha-r</v-icon> -->
 							{{$t('toolbar.reached')}}
 						</v-btn>
@@ -206,6 +206,7 @@ export default {
 		mdp: null,
 		editTile: null,
 		displayMode: "values",
+		reached: store.state.reachedPreview,
 		plotting: false
 	}},
 
@@ -310,6 +311,10 @@ export default {
 		},
 
 		selectionListener(event) {
+			if (store.state.focus !== "mdp") {
+				return;
+			}
+
 			let display = this.$refs.display;
 			this.test = display;
 			switch (event.key) {
@@ -333,9 +338,11 @@ export default {
 						display.selectedY++;
 					}
 					break;
-			
+				case "Escape":
+					this.closeEditor();
+					return;
 				default:
-					break;
+					return;
 			}
 
 			this.setEdit({x:display.selectedX, y:display.selectedY});
