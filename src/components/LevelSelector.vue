@@ -43,17 +43,15 @@
 					item-key="name"
 					:search="search"
 					single-select
+					multi-sort
 					:dense="worlds.length > 5"
 					class="ml-4"
 					@click:row="clickHandler"
 				>
 
 					<template v-slot:[`item.mdp`]="{ item }"> <!-- braces and backtics only needed to silence eslint -->
-						<v-icon small color="green" class="mr-8" @click="set(item)">
+						<v-icon small color="green" @click="set(item)">
 							mdi-check
-						</v-icon>
-						<v-icon small	color="red" @click="remove(item)">
-							mdi-delete-outline
 						</v-icon>
 					</template>
 				</v-data-table>
@@ -69,7 +67,7 @@
 							:preview="true"
 							:size="previewSize"
 							:style="'margin:' + previewMargin"
-							@interaction="set(preview)"
+							@interaction="()=>null"
 						/>
 
 						<p v-else style="text-align: center; margin-top: 85px">{{$t('selector.preview')}}</p>
@@ -79,6 +77,19 @@
 			
 			<v-btn color="blue" class="ml-4 mb-4" @click="set(selected[0])">{{$t('selector.confirm')}}</v-btn>
 		</v-card>
+
+		<v-snackbar
+			v-model="message"
+			:timeout="msgTimeout"
+			:color="msgColor">
+			{{msgText}}
+			<template v-slot:action="{attrs}">
+				<v-btn v-bind="attrs" text @click.native="message = false">
+					{{$t('toolbar.message.close')}}
+				</v-btn>
+			</template>
+		</v-snackbar>
+
 	</v-overlay>
 </template>
 
@@ -106,14 +117,19 @@ export default {
 			{text: this.$t('selector.stepCost'), value: 'stepCost', filterable: false, align: 'center'},
 			{text: this.$t('selector.width'), value: 'width', filterable: false, align: 'center'},
 			{text: this.$t('selector.height'), value: 'height', filterable: false, align: 'center'},
-			{text: this.$t('selector.actions'), value: 'mdp', filterable: false, align: 'center'},
-		]
+			{text: this.$t('selector.actions'), value: 'mdp', filterable: false, sortable: false, align: 'center'},
+		],
+
+		message: false,
+		msgText: "",
+		msgColor: "",
+		msgTimeout: 4000
 	}},
 
 	methods: {
 		set(mdp) {
 			if (!mdp) {
-				// TODO display error message
+				this.showMessage(this.$t('selector.message.noneSelected'), "warning")
 				return;
 			}
 			store.commit('setDiscount', mdp.discount);
@@ -135,6 +151,13 @@ export default {
 			this.selected = [value];
 			this.preview = value.mdp;
 			sleep(0).then(()=>this.$refs.previewDisplay.render());
+		},
+
+		showMessage(text, color, timeout=4000) {
+			this.msgText = text;
+			this.msgColor = color;
+			this.msgTimeout = timeout;
+			this.message = true;
 		},
 
 		log() {

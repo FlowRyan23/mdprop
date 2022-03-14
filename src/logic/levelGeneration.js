@@ -4,21 +4,26 @@ import { inBounds } from './util';
 import { placeRandom } from './maze_generators/random';
 
 export default async function create(requirements) {
-	// TODO create a level fulfilling the constraints set by requirements
-	//let level = random(requirements.size.height, requirements.size.width, requirements.connectivity);
+	// build initial level (filled with walls)
 	let level = fill(requirements.size.width, requirements.size.height, tileWall);
+
+	// carver places empty tiles according to its algorithm 
 	requirements.carver(level, requirements.carverArgs);
 	if (requirements.braid) {
 		braid(level);
 	}
-	placeRandom(level, tileGoal, requirements.numberOfGoals, function(pos) {
-		return !level[pos.x][pos.y].accessible && neighbors(level, pos).filter(p => level[p.x][p.y].accessible).length > 0;
-	});
-	placeRandom(level, tileTrap, requirements.numberOfTraps, function (pos) {
-		return !level[pos.x][pos.y].accessible && neighbors(level, pos).filter(p => level[p.x][p.y].accessible).length > 0;
-	});
+
+	// place goals and traps in usefull (accessible) places
+	let elegibility = pos => {
+		return !level[pos.x][pos.y].accessible
+			&& neighbors(level, pos).filter(p =>
+					level[p.x][p.y].accessible
+				&& !level[p.x][p.y].terminal).length > 0;
+	}
+	placeRandom(level, tileGoal, requirements.numberOfGoals, elegibility);
+	placeRandom(level, tileTrap, requirements.numberOfTraps, elegibility);
+
 	placeInitial(level);
-	// this.checkRes = requirements.check(this.mdp, true);
 	return new GridMDP(level);
 }
 

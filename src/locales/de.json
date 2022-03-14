@@ -18,7 +18,11 @@
 		"modeValues": "Werte",
 		"modePolicy": "Policy",
 		"modeDetail": "Detail",
-		"displayMode": "Darstellungsmodus"
+		"displayMode": "Darstellungsmodus",
+		"message": {
+			"close": "OK",
+			"modeDisabled": "Dieser Modus ist bei der aktuellen Feldgröße nicht möglich"
+		}
 	},
 	"tileEditor": {
 		"wall": "Wand",
@@ -75,9 +79,12 @@
 		"stepCost": "Kosten",
 		"width": "Breite",
 		"height": "Höhe",
-		"actions": "Aktionen",
+		"actions": "Öffnen",
 		"preview": "Vorschau",
-		"confirm": "Öffnen"
+		"confirm": "Öffnen",
+		"message": {
+			"noneSelected": "Kein Level ausgewählt"
+		}
 	},
 	"saver": {
 		"title": "Geben Sie einen Namen ein",
@@ -116,7 +123,7 @@
 		"confirm": "Bestätigen",
 		"cancel": "Abbrechen",
 		"braid": "Flechten",
-		"alg": "Pfadgenerierer",
+		"alg": "Generator",
 		"noiseGen": "Rausch-Generator",
 		"frequency": "Frequenz",
 		"fractal": "Fractal",

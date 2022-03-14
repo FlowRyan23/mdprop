@@ -7,7 +7,7 @@
 		"noFormula": "This action has not been calculated yet"
   },
   "creator": {
-    "alg": "Carving Algorithm",
+    "alg": "Generator",
     "braid": "Braid",
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -62,9 +62,12 @@
 		"stepCost":" Step Cost",
 		"width": "Width",
 		"height": "Height",
-		"actions": "Actions",
+		"actions": "Open",
 		"preview": "Preview",
-		"confirm": "Open"
+		"confirm": "Open",
+		"message": {
+			"noneSelected": "No level selected"
+		}
   },
   "settings": {
     "back": "Back",
@@ -132,6 +135,10 @@
       "save": "save level",
       "solution": "show solution"
     },
-    "title": "MDP Q-Value-Propagation"
+    "title": "MDP Q-Value-Propagation",
+		"message": {
+			"close": "OK",
+			"modeDisabled": "This mode is not available at the current tile size"
+		}
   }
 }
