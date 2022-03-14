@@ -17,6 +17,7 @@
 					dense
 					autofocus
 					style="width: 80px"
+					class="no-spins"
 					@wheel.prevent="scrollHandler"
 				></v-text-field>
 
@@ -98,22 +99,26 @@ export default {
 </script>
 
 <style scoped>
-	#text {
-		white-space: pre-wrap;
-	}
-
 	#card  {
 		padding: 16px;
-		max-height: 800px;
+		height: 80vh;
 	}
 
 	#text {
-		max-height: 650px;
+		white-space: pre-wrap;
+		height: 650px;
 		width: 550px;
 		overflow-y: scroll;
 	}
 
-	.spaced {
-		margin-left: 16px;
+	.no-spins input[type='number'] {
+    -moz-appearance:textfield;
+	}
+
+	::v-deep input::-webkit-outer-spin-button,
+	::v-deep input::-webkit-inner-spin-button {
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
 	}
 </style>

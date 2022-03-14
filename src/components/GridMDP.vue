@@ -77,13 +77,13 @@
 			<v-tooltip bottom>
 				<template v-slot:activator="{on, attrs}">
 					<v-btn-toggle mandatory v-model="displayMode" @change="changeRender" style="margin-left: 16px">
-						<v-btn text value="values" v-on="on" v-bind="attrs">
+						<v-btn text value="values" v-on="on" v-bind="attrs" @click="if(isSmall) showMessage($t('toolbar.message.modeDisabled'), 'error')">
 							{{$t('toolbar.modeValues')}}
 						</v-btn>
 						<v-btn text value="policy" v-on="on" v-bind="attrs">
 							{{$t('toolbar.modePolicy')}}
 						</v-btn>
-						<v-btn text value="detail" v-on="on" v-bind="attrs">
+						<v-btn text value="detail" v-on="on" v-bind="attrs" @click="if(isSmall) showMessage($t('toolbar.message.modeDisabled'), 'error')">
 							{{$t('toolbar.modeDetail')}}
 						</v-btn>
 					</v-btn-toggle>
@@ -170,12 +170,19 @@
 				<SaveDialogue :mdp="mdp" />
 			</div>
 
-			<div v-if="plotting">
-				<v-btn @click="plot()">plot</v-btn>
-				<div id="plotDiv" ref="plt"></div>
-			</div>
-
 		</v-main>
+
+		<v-snackbar
+			v-model="message"
+			:timeout="msgTimeout"
+			:color="msgColor">
+			{{msgText}}
+			<template v-slot:action="{attrs}">
+				<v-btn v-bind="attrs" text @click.native="message = false">
+					{{$t('toolbar.message.close')}}
+				</v-btn>
+			</template>
+		</v-snackbar>
 
 		<v-footer app>
 		</v-footer>
@@ -193,7 +200,6 @@ import SaveDialogue from "./SaveDialogue.vue";
 
 import store from "../logic/sharedData";
 import GridMDP from '../logic/mdp_prop';
-import plotCurrent from "../logic/analytics/plotEntry";
 
 export default {
 	name: 'GridMDP',
@@ -207,14 +213,15 @@ export default {
 		editTile: null,
 		displayMode: "values",
 		reached: store.state.reachedPreview,
-		plotting: false
+
+		// message dialogues
+		message: false,
+		msgText: "",
+		msgColor: "",
+		msgTimeout: 2000
 	}},
 
 	methods: {
-		plot() {
-			plotCurrent(this.$refs["plt"], this.mdp.compact());
-		},
-
 		nextIter() {
 			store.commit('nextIteration');
 
@@ -280,10 +287,10 @@ export default {
 
 			// normalizing zoom to fit the new level and utilize available space
 			let zoom = 100;
-			if(this.mdp.tiles.length * 100 > 0.9 * window.innerHeight) {
+			if(this.mdp.tiles.length * 100 > 0.80 * window.innerHeight) {
 				zoom = (0.9 * window.innerHeight) / this.mdp.tiles.length;
 			}
-			if(this.mdp.tiles[0].length * 100 > 0.7 * window.innerWidth) {
+			if(this.mdp.tiles[0].length * zoom > 0.7 * window.innerWidth) {
 				zoom = (0.7 * window.innerWidth) / this.mdp.tiles[0].length;
 			}
 			store.commit('setTileSizes', {width: zoom, height: zoom});
@@ -294,6 +301,13 @@ export default {
 			this.editTile = null;
 			this.$refs['display'].clearSelected();
 			this.redraw();
+		},
+
+		showMessage(text, color, timeout=4000) {
+			this.msgText = text;
+			this.msgColor = color;
+			this.msgTimeout = timeout;
+			this.message = true;
 		},
 		
 		redraw() {
@@ -362,7 +376,11 @@ export default {
 			scBack: store.state.scBack,
 			scLeft: store.state.scLeft,
 			scRight: store.state.scRight
-		}}
+		}},
+
+		isSmall() {
+			return store.state.tileHeight <= 25 || store.state.tileWidth <= 30;
+		}
 	},
 
 	mounted() {
