@@ -11,28 +11,32 @@
 				</v-btn>
 			</v-card-title>
 
-			<div class="d-flex">
-				<div class="d-flex flex-column justify-space-between" id="general">
+				<div class="d-flex flex-column justify-space-between">
 					<!-- Size -->
 					<div class="d-flex" style="margin-top: 18px">
 						<v-text-field
+							id="num-input"
 							:label="$t('creator.width')"
 							:placeholder="$t('creator.width')"
 							v-model="width"
 							min="1"
-							class="mt-0 pt-0"
+							max="100"
+							dense
 							type="number"
-							style="margin-right: 8px"
+							class="mt-0 mr-8 pt-0"
 							@wheel.prevent="scrollHandler($event, 'width', min=1)"
 						></v-text-field>
 
 						<v-text-field
+							id="num-input"
 							:label="$t('creator.height')"
 							:placeholder="$t('creator.height')"
 							v-model="height"
 							min="1"
-							class="mt-0 pt-0"
+							max="100"
+							dense
 							type="number"
+							class="mt-0 pt-0"
 							@wheel.prevent="scrollHandler($event, 'height', min=1)"
 						></v-text-field>
 					</div>
@@ -40,44 +44,33 @@
 					<!-- Goals and Traps -->
 					<div class="d-flex">
 						<v-text-field
+							id="num-input"
 							:label="$t('creator.goals')"
 							:placeholder="$t('creator.goals')"
 							v-model="goals"
 							min="0"
-							class="mt-0 pt-0"
+							dense
 							type="number"
-							style="margin-right: 8px"
+							class="mt-0 mr-8 pt-0"
 							@wheel.prevent="scrollHandler($event, 'goals')"
 						></v-text-field>
 
 						<v-text-field
+							id="num-input"
 							:label="$t('creator.traps')"
 							:placeholder="$t('creator.traps')"
 							v-model="traps"
 							min="0"
-							class="mt-0 pt-0"
+							dense
 							type="number"
+							class="mt-0 pt-0"
 							@wheel.prevent="scrollHandler($event, 'traps')"
 						></v-text-field>
 					</div>
-
-					<div>
-						<BoolConstraintInput ref="connected" class="no-pad" :name="$t('creator.constraints.connected')" />
-						<BoolConstraintInput ref="deadEnds" class="no-pad" :name="$t('creator.constraints.deadEnds')" />
-						<BoolConstraintInput ref="winnable" class="no-pad" :name="$t('creator.constraints.winnable')" />
-						<BoolConstraintInput ref="partiallyWinnable" class="no-pad" :name="$t('creator.constraints.partiallyWinnable')" />
-						<BoolConstraintInput ref="survivable" class="no-pad" :name="$t('creator.constraints.survivable')" />
-						<BoolConstraintInput ref="partiallySurvivable" class="no-pad" :name="$t('creator.constraints.partiallySurvivable')" />
-						<BoolConstraintInput ref="dangerous" class="no-pad" :name="$t('creator.constraints.dangerous')" />
-						<BoolConstraintInput ref="partiallyLost" class="no-pad" :name="$t('creator.constraints.partiallyLost')" />
-						<BoolConstraintInput ref="lost" class="no-pad" :name="$t('creator.constraints.lost')" />
-						<BoolConstraintInput ref="ambiguousPolicy" class="no-pad" :name="$t('creator.constraints.ambiguous')" />
-						<BoolConstraintInput ref="trivialPolicy" class="no-pad" :name="$t('creator.constraints.trivial')"/>
-					</div>
 				</div>
 				
-				<div id="generator" class="d-flex flex-column">
-
+				<div class="d-flex flex-column">
+					<!-- Generator -->
 					<v-select
 						v-model="selectedAlgorithm"
 						:items="carvingAlgorithms"
@@ -86,73 +79,7 @@
 					</v-select>
 
 					<div v-if="selectedAlgorithm==='Noise'">
-						<v-select
-							v-model="noiseGen"
-							:items="noiseGenerators"
-							:label="$t('creator.noiseGen')"
-							>
-						</v-select>
-
-						<v-slider v-if="noiseGen==='perlin' && !fractal" v-model="frequency" :step="1" :max="50" :min="1" :label="$t('creator.frequency')">
-							<template v-slot:append>
-								<v-text-field
-									v-model="frequency"
-									class="mt-0 pt-0 no-spins"
-									hide-details
-									single-line
-									type="number"
-								></v-text-field>
-							</template>
-						</v-slider>
-
-						<v-switch :label="$t('creator.fractal')" v-model="fractal"></v-switch>
-
-						<div v-if="fractal">
-							<v-slider v-model="octaves" :step="1" :max="10" :min="1" ticks :label="$t('creator.octaves')">
-								<template v-slot:append>
-									<v-text-field
-										v-model="octaves"
-										class="mt-0 pt-0 no-spins"
-										hide-details
-										single-line
-										type="number"
-									></v-text-field>
-								</template>
-							</v-slider>
-
-							<v-slider v-model="fractalFrequency" :step="1" :max="10" :min="1" ticks :label="$t('creator.fractalFrequency')">
-								<template v-slot:append>
-									<v-text-field
-										v-model="fractalFrequency"
-										class="mt-0 pt-0 no-spins"
-										hide-details
-										single-line
-										type="number"
-									></v-text-field>
-								</template>
-							</v-slider>
-
-							<v-slider v-model="persistence" :step="0.1" :max="1" :min="0" ticks :label="$t('creator.persistence')">
-								<template v-slot:append>
-									<v-text-field
-										v-model="persistence"
-										class="mt-0 pt-0 no-spins"
-										hide-details
-										single-line
-										type="number"
-									></v-text-field>
-								</template>
-							</v-slider>
-						</div>
-
-						<v-switch :label="$t('creator.blur')" v-model="blur"></v-switch>
-						<v-select
-							v-if="blur"
-							:items="blurKernels"
-							v-model="selectedKernel"
-							:label="$t('creator.kernel')"
-						></v-select>
-
+						<!-- Bias -->
 						<v-slider v-model="bias" :step="0.01" :max="1" :min="0" :label="$t('creator.bias')">
 							<template v-slot:append>
 								<v-text-field
@@ -161,33 +88,49 @@
 									hide-details
 									single-line
 									type="number"
+									style="width: 50px"
 								></v-text-field>
 							</template>
 						</v-slider>
-
 					</div>
 
-					<v-switch :label="$t('creator.braid')" v-model="braid"></v-switch>
+					<v-switch v-else :label="$t('creator.braid')" v-model="braid" class="mt-0"></v-switch>
 
-					<Display
-						v-if="preview"
-						ref="previewDisplay"
-						:ID="'preview'"
-						:preview="true"
-						:size="{width: 300, height: 250}"
-						:mdp="preview"
-						@interaction="noHandler"
-					/>
-					
+					<div class="d-flex justify-space-around mt-3">
+						<Display
+							v-if="preview"
+							ref="previewDisplay"
+							:ID="'preview'"
+							:preview="true"
+							:size="{width: 300, height: 250}"
+							:mdp="preview"
+							@interaction="()=>null"
+						/>
+
+						<div class="d-flex flex-column justify-space-between">
+							<div></div>
+							<!-- Refresh -->
+							<v-tooltip right>
+								<template v-slot:activator="{on, attrs}">
+									<v-btn plain fab @click="refreshPreview()" v-on="on" v-bind="attrs">
+										<v-icon large>mdi-refresh</v-icon>
+									</v-btn>
+								</template>
+								<span>{{$t('creator.refresh')}}</span>
+							</v-tooltip>
+
+							<!-- Confirm -->
+							<v-tooltip right>
+								<template v-slot:activator="{on, attrs}">
+									<v-btn plain fab @click="confirm()" color="hsl(100, 100%, 40%)" v-on="on" v-bind="attrs">
+										<v-icon large>mdi-check</v-icon>
+									</v-btn>
+								</template>
+								<span>{{$t('creator.confirm')}}</span>
+							</v-tooltip>
+						</div>
+					</div>
 				</div>
-			</div>
-			
-			<div class="d-flex justify-space-between">
-				<v-btn @click="confirm()" color="blue">{{$t('creator.confirm')}}</v-btn>
-				<div></div>
-				<v-btn @click="refreshPreview()">{{$t('creator.refresh')}}</v-btn>
-				<v-btn @click="store.commit('displayMDP')">{{$t('creator.cancel')}}</v-btn>
-			</div>
 		</v-card>
 	</v-overlay>
 </template>
@@ -195,59 +138,47 @@
 <script>
 import store from '../logic/sharedData';
 import Requirements from '../logic/checks';
-import BoolConstraintInput from './BoolConstraintInput';
 import Display from "./Display.vue";
-import {carveDFS} from '../logic/maze_generators/backtracker';
 import carveKruskal from '../logic/maze_generators/kruskal';
-import {hamiltonian} from '../logic/maze_generators/unicursal';
-import { carveNoise, carveSnake } from '../logic/maze_generators/random';
+import { carveNoise } from '../logic/maze_generators/random';
 import create from '../logic/levelGeneration';
 
 export default {
-	components: {BoolConstraintInput, Display},
+	components: {Display},
 
 	data() {return {
 		store: store,
 		preview: null,
 
 		// universal settings
-		width: 9,
-		height: 7,
+		width: 7,
+		height: 5,
 		goals: 1,
 		traps: 1,
 		carvingAlgorithms: [
-			"Recursive Backtracking",
-			"Kruskal",
-			"Unicursal",
+			"Labyrinth",
 			"Noise",
-			"Snake"
 		],
 		algTable: {
-			"Recursive Backtracking": carveDFS,
-			"Kruskal": carveKruskal,
-			"Unicursal": hamiltonian,
-			"Noise": carveNoise,
-			"Snake": carveSnake
+			"Labyrinth": carveKruskal,
+			"Noise": carveNoise
 		},
-		selectedAlgorithm: "Noise",
+		selectedAlgorithm: "Labyrinth",
 
 		// noise args
-		noiseGenerators: ["white", "perlin"],
-		noiseGen: "white",
-		bias: 0.5,
+		noiseGen: "perlin",
+		bias: 0.47,
 		blur: false,
-		blurKernels: ["gaus3"],
 		selectedKernel: "gaus3",
 
 		// perlin noise
 		frequency: 4,
 
 		// fractal noise
-		fractal: false,
+		fractal: true,
 		octaves: 4,
 		fractalFrequency: 1,
 		persistence: 0.8,
-
 
 		// post processing
 		braid: false
@@ -268,15 +199,13 @@ export default {
 			});
 		},
 
-		scrollHandler(event, attribute, min=0, max=200) {
+		scrollHandler(event, attribute, min=0, max=50) {
 			if(event.deltaY > 0) {
 				this[attribute] = Math.min(max, Math.max(min, this[attribute] - 1));
 			} else {
 				this[attribute] = Math.min(max, Math.max(min, this[attribute] + 1));
 			}
-		},
-		
-		noHandler() {}
+		}
 	},
 
 	computed: {
@@ -302,18 +231,6 @@ export default {
 			reqs.numberOfGoals = this.goals;
 			reqs.numberOfTraps = this.traps;
 
-			reqs.connected = this.$refs["connected"].value;
-			reqs.deadEnds = this.$refs["deadEnds"].value;
-			reqs.winnable = this.$refs["winnable"].value;
-			reqs.partiallyWinnable = this.$refs["partiallyWinnable"].value;
-			reqs.survivable = this.$refs["survivable"].value;
-			reqs.partiallySurvivable = this.$refs["partiallySurvivable"].value;
-			reqs.dangerous = this.$refs["dangerous"].value;
-			reqs.partiallyLost = this.$refs["partiallyLost"].value;
-			reqs.lost = this.$refs["lost"].value;
-			reqs.ambiguousPolicy = this.$refs["ambiguousPolicy"].value;
-			reqs.trivialPolicy = this.$refs["trivialPolicy"].value;
-
 			reqs.reset();
 			return reqs;
 		}
@@ -326,10 +243,6 @@ export default {
 </script>
 
 <style scoped>
-	* {
-		margin-bottom: 0px
-	}
-
 	.no-spins input[type='number'] {
     -moz-appearance:textfield;
 	}
@@ -343,30 +256,8 @@ export default {
 	
 	#card {
 		padding: 16px;
-		min-width: 700px;
+		width: 400px;
+		height: 600px
 	}
 
-	#headline {
-		margin-bottom: 16px;
-	}
-
-	#sizeSeperator {
-		margin-left: 16px;
-		margin-right: 16px
-	}
-
-	#generator {
-		/* display: flex;
-		flex-flow: column nowrap; */
-		/* align-content: flex-start;
-		justify-content: flex-start; */
-		width: 50%;
-		padding: 8px;
-	}
-
-	#general {
-		width: 50%;
-		padding: 8px;
-		margin-right: 25px;
-	}
 </style>
