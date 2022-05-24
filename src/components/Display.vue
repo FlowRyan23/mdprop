@@ -53,18 +53,15 @@ export default {
 					drawContext.fillStyle = this.tileColor(tile);
 					drawContext.fillRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
 
-					// non-accessible tiles are always just black
+					// individual tile styling depending on the display mode
 					if (tile.accessible) {
-
-						// individual tile styling depending on the display mode
 						this.displayModes[this.displayMode](drawContext, offset, tile);
-				
-						// all tiles have a black border if the display is large enough
-						if (!this.isSmall) {
-							drawContext.strokeStyle = "black";
-							drawContext.strokeRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
-						}
-	
+					}
+					
+					// all tiles have a black border if the display is large enough
+					if (!this.isSmall) {
+						drawContext.strokeStyle = "black";
+						drawContext.strokeRect(offset.x, offset.y, this.tileWidth, this.tileHeight);
 					}
 					
 					// the selected tile has a gold border to easily identify it
@@ -92,8 +89,9 @@ export default {
 				ctx.fillStyle = this.textColor;
 				ctx.fillRect(offset.x + this.tileWidth/3, offset.y + this.tileHeight/3, this.tileWidth/3, this.tileHeight/3);
 			} else {
-				let arrows = this.arrowsOf(tile.getPolicy(store.state.displayIteration));
-				this.drawTileArrows(ctx, offset, arrows, this.textColor);
+				// TODO reenable (disabled for use as print)
+				// let arrows = this.arrowsOf(tile.getPolicy(store.state.displayIteration));
+				// this.drawTileArrows(ctx, offset, arrows, this.textColor);
 			}
 		},
 
@@ -290,7 +288,7 @@ export default {
 		},
 
 		tileColor(tile) {
-			if(!tile.accessible) return "hsl(160, 0%, 5%)";
+			if(!tile.accessible) return this.$vuetify.theme.dark?"hsl(160, 0%, 5%)":"rgb(112, 112, 122)";
 			if(!store.state.tileColors) return this.backGroundColor;
 			return this.colorOf(tile.getQValue(store.state.displayIteration));
 		},

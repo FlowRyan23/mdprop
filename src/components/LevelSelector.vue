@@ -50,8 +50,14 @@
 				>
 
 					<template v-slot:[`item.mdp`]="{ item }"> <!-- braces and backtics only needed to silence eslint -->
-						<v-icon small color="green" @click="set(item)">
+						<v-icon small color="green" @click="set(item)" class="mr-4">
 							mdi-check
+						</v-icon>
+						<v-icon small color="blue" @click="downloadSingle(item)" class="mr-4">
+							mdi-download
+						</v-icon>
+						<v-icon small	color="red" @click="remove(item)">
+							mdi-delete-outline
 						</v-icon>
 					</template>
 				</v-data-table>
@@ -98,7 +104,7 @@ import Display from './Display.vue'
 import data from "../assets/worlds.json"
 import GridMDP from '../logic/mdp_prop'
 import store from "../logic/sharedData"
-import { log, sleep } from '../logic/util'
+import { downloadText, log, sleep } from '../logic/util'
 
 export default {
   components: { Display },
@@ -136,6 +142,11 @@ export default {
 			store.commit('setStepCost', mdp.stepCost);
 			store.commit('displayMDP');
 			this.$emit('selected', this.worlds.find(w => w.name === mdp.name));
+		},
+
+		downloadSingle(item) {
+			// TODO prettify the content
+			downloadText(item.name + ".txt", JSON.stringify(this.worlds.find(w => w.name === item.name).compact()));
 		},
 
 		remove(item) {

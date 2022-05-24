@@ -219,6 +219,7 @@ export default {
 
 	#card {
 		margin: 16px;
+		min-width: 350px;
 	}
 
 	#rewardField  {

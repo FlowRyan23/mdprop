@@ -344,8 +344,12 @@ class MDPTile {
 
 	neighbors() {
 		let neighbors = [];
-		for (let aName in this.actions)
-				neighbors.push(this.actions[aName].getResult("front").node);
+		for (let aName in this.actions) {
+			let neighbor = this.actions[aName].getResult("front").node;
+			if (neighbor !== this) {
+				neighbors.push(neighbor);
+			}
+		}
 		return neighbors;
 	}
 }

@@ -11,7 +11,7 @@
 			"open": "Level öffnen",
 			"nextIter": "Nächste Iteration",
 			"new": "Neues Level",
-			"iter": "Policy Iteration (scrollen zum Fortfahren)"
+			"iter": "Iteration (scrollen zum Fortfahren)"
 		},
 		"reached": "Erreicht",
 		"new": "neu",
@@ -79,7 +79,7 @@
 		"stepCost": "Kosten",
 		"width": "Breite",
 		"height": "Höhe",
-		"actions": "Öffnen",
+		"actions": "Aktionen",
 		"preview": "Vorschau",
 		"confirm": "Öffnen",
 		"message": {
@@ -132,6 +132,11 @@
 		"kernel": "Kernel",
 		"octaves": "Oktaven",
 		"fractalFrequency": "Frequenz",
+		"tab": {
+			"basic": "Grundlagen",
+			"generator": "Generator",
+			"constraints": "Eigenschaften"
+		},
 		"persistence": "Beständigkeit"
 	},
 	"action": {

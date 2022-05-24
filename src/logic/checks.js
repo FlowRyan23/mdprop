@@ -7,11 +7,12 @@ export default class Requirements {
 
 		// integer constraints - can be > 0 or optional(null)
 		// this.timeToConverge = null;			// number of iterations after wich the policy does not change
-		this.size = { "width": 7, "height": 5 };
-		this.numberOfGoals = null;
-		this.numberOfTraps = null;
+		this.width = null;
+		this.height = null;
+		this.goals = null;
+		this.traps = null;
 
-		// boolean constraints - can be required(true), optional(null) or disallowed(false)
+		// boolean constraints - can be required(true), optional(null) or forbidden(false)
 		this.connected = null;					// every tile an agent can be on must be reachable from all other tiles
 		this.deadEnds = null;						// dead ends exist in the world
 		this.winnable = null;						// from all tiles a goal can be reached with a positve score
@@ -67,16 +68,7 @@ export default class Requirements {
 			return false;
 		}
 
-		let components = [];
-		let tag = 1;
-		for (const candidate of compCands) {
-			if (!candidate.tag) {
-				components.push(makeComponent(candidate, tag));
-				tag++;
-			}
-		}
-
-		let goals = this.phase3(components, strict);
+		let goals = this.phase3(getComponents(compCands), strict);
 		if (strict && (
 			this.satisfaction.connected === false
 			|| this.satisfaction.survivable === false
@@ -98,13 +90,11 @@ export default class Requirements {
 		this.phase5(mdp, goals);
 		mdp.reset();
 
-		// console.log(JSON.stringify(this.satisfaction));
+		// console.log(this.toString());
 		for (const constraint in this.satisfaction) {
-			if (Object.hasOwnProperty.call(this.satisfaction, constraint)) {
 				if (!this.satisfaction[constraint]) {
 					return false;
 				}
-			}
 		}
 		return true;
 	}
@@ -114,14 +104,15 @@ export default class Requirements {
 			throw new Error("level generation did not produce a mdp");
 		}
 
-		this.satisfaction.width = mdp.tiles.length !== this.size.width;
+		this.satisfaction.width = mdp.tiles[0].length === this.width;
 		if(strict && !this.satisfaction.width) return;
 		
-		this.satisfaction.height = mdp.tiles[0].length !== this.size.height;
+		this.satisfaction.height = mdp.tiles.length === this.height;
 		if(strict && !this.satisfaction.height) return;
 	}
 
-	phase2(mdp, strict = false) {
+	// TODO strict exits
+	phase2(mdp) {
 		let componentCandidates = [];	// will be used in phase3 to calculate subcomponents
 		let tileCounts = {
 			wall: 0,
@@ -130,7 +121,8 @@ export default class Requirements {
 			penalising: 0,
 			goal: 0,
 			trap: 0,
-			exit: 0
+			exit: 0,
+			dead: 0
 		}
 
 		// for (let x = 0; x < mdp.tiles.length; x++) {
@@ -146,15 +138,10 @@ export default class Requirements {
 				continue;
 			}
 
-			// dead end check; only performed if relevant and not yet determined
+			// dead end check
 			// TODO should dead ends that are terminal be considered dead?
-			if (this.deadEnds !== null
-				&& this.satisfaction.deadEnds === null
-				&& tile.neighbors().filter(t => t.accessible).length < 2) {
-				this.satisfaction.deadEnds = this.deadEnds;
-				if (strict) {
-					return;
-				}
+			if (tile.neighbors().filter(t => t.accessible).length < 2) {
+				tileCounts.dead++;
 			}
 
 			if (tile.terminal) {
@@ -181,9 +168,10 @@ export default class Requirements {
 			}
 		}
 
-		if(this.satisfaction.deadEnds === null) this.satisfaction.deadEnds = !this.deadEnds;
-		this.satisfaction.goals = tileCounts.goal === this.numberOfGoals;
-		this.satisfaction.traps = tileCounts.trap === this.numberOfTraps;
+		// console.log("dead " + tileCounts.dead);
+		this.satisfaction.deadEnds = matches(this.deadEnds, tileCounts.dead !== 0);
+		this.satisfaction.goals = tileCounts.goal === this.goals;
+		this.satisfaction.traps = tileCounts.trap === this.traps;
 
 		return componentCandidates;
 	}
@@ -262,9 +250,15 @@ export default class Requirements {
 	}
 
 	phase5(mdp, goals) {
-		walkLevel(mdp.tiles, goals, t => t.accessible);
+		// calculate distances of all tiles with policies (accessible and not terminal) from goals
+		// tile.pathCost will contain the distance in steps from the nearest goals
+		walkLevel(mdp.tiles, goals, p => mdp.tiles[p.x][p.y].accessible && !mdp.tiles[p.x][p.y].terminal);
+
+		// converged policy from phase 4 is compared with distances
 		for (const tile of mdp.allMatching(t => t.accessible && !t.terminal)) {
 			let target = tile.actions[tile.bestAction()].getResult("front").node;
+
+			// one step in the direction of the policy should reduce distance by 1 if the policy is trivial
 			if (target.pathCost !== tile.pathCost - 1) {
 				this.satisfaction.trivialPolicy = matches(this.trivialPolicy, false);
 				return;
@@ -273,10 +267,30 @@ export default class Requirements {
 		this.satisfaction.trivialPolicy = matches(this.trivialPolicy, true);
 	}
 
+	toString() {
+		let s = "Check results:\n";
+		for (const criteria in this.satisfaction) {
+			s += "\t" + criteria + ": " + this.satisfaction[criteria] + " (" + this[criteria] + ")\n";
+		}
+		return s;
+	}
+
 }
 
 function matches(constraint, value) {
-	return constraint===null || constraint===value;
+	return constraint==="optional" || constraint===(value?"required":"forbidden");
+}
+
+function getComponents(candidates) {
+	let components = [];
+		let tag = 1;
+		for (const candidate of candidates) {
+			if (!candidate.tag) {
+				components.push(makeComponent(candidate, tag));
+				tag++;
+			}
+		}
+	return components;
 }
 
 /**

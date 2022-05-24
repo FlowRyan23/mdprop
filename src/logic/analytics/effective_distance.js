@@ -2,6 +2,16 @@ import * as Plotly from "plotly.js";
 import { walkLevel } from "../level";
 import GridMDP from "../mdp_prop";
 
+export function amigousPrediction(level) {
+	let dEff = {};
+
+	for (let x = 0; x < level.length; x++) {
+		for (let y = 0; y < level[0].length; y++) {
+			// walkLevel(level, {x: x, y:y}, pos => level[pos.x][pos.y].accessible, )
+		}
+	}
+}
+
 export function plotAvrgDistance(element, level) {
 	let mdp = new GridMDP(level, 1, 1);
 	let start = mdp.getAny(t=>t.terminal);

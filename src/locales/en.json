@@ -33,6 +33,11 @@
     "kruskal": "Kruskal",
     "random": "Random",
     "refresh": "Refresh",
+		"tab": {
+			"basic": "Basic",
+			"generator": "Generator",
+			"constraints": "Constraints"
+		},
     "title": "Create new level",
     "traps": "Traps",
     "unic": "Unicursal",
@@ -62,7 +67,7 @@
 		"stepCost":" Step Cost",
 		"width": "Width",
 		"height": "Height",
-		"actions": "Open",
+		"actions": "Actions",
 		"preview": "Preview",
 		"confirm": "Open",
 		"message": {
@@ -124,7 +129,7 @@
     "new": "new",
     "reached": "Reached",
     "tip": {
-      "iter": "Policy Iteration (scroll to advance)",
+      "iter": "Iteration (scroll to advance)",
       "new": "create new level",
       "nextIter": "next Iteration",
       "open": "open level",

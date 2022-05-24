@@ -338,6 +338,10 @@
 				<v-btn plain fab @click="displayFavZoom = !displayFavZoom">
 					<v-icon>mdi-star-outline</v-icon>
 				</v-btn>
+				
+				<v-btn plain fab @click="fullscreen()">
+					<v-icon>mdi-fullscreen</v-icon>
+				</v-btn>
 			</div>
 		</div>
 
@@ -366,6 +370,7 @@
 import store from '../logic/sharedData';
 
 export default {
+	// TODO try re-calculating the entire propagation on changes
 	name: "Settings",
 	data() {return {
 		store: store,
@@ -435,6 +440,14 @@ export default {
 				}	
 			}
 			store.commit('setTileSizes', {width: this.tileWidth, height: this.tileHeight});
+			this.$emit('redraw');
+		},
+
+		fullscreen() {
+			this.$parent.$parent.fitCanvas();
+			this.tileWidth = this.store.state.tileWidth;
+			this.tileHeigt = this.store.state.tileHeigt;
+			this.zoom = Math.max(this.tileWidth, this.tileHeight);
 			this.$emit('redraw');
 		},
 

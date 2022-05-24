@@ -65,7 +65,6 @@
 				<template v-slot:activator="{on}">
 					<v-btn-toggle value="true" :ref="'reachedToggle'" rounded color="blue">
 						<v-btn value="true" @click="toggleReached()" v-on="on">
-							<!-- <v-icon>mdi-alpha-r</v-icon> -->
 							{{$t('toolbar.reached')}}
 						</v-btn>
 					</v-btn-toggle>
@@ -139,7 +138,7 @@
 			<v-spacer></v-spacer>
 		</v-app-bar>
 
-		<v-main>
+		<v-main id="main">
 			<div v-if="store.state.focus==='mdp'" class="d-flex" style="justify-content: space-between">
 				<div></div>
 
@@ -149,8 +148,11 @@
 					</div>
 				</div>
 
+				<div>
 				<TileEditor id="editor" v-if="editTile" :tile="editTile" ref="editor" @redraw="redraw" @close="closeEditor"/>
 				<div v-else></div>
+
+				</div>
 
 			</div>
 
@@ -168,6 +170,11 @@
 
 			<div v-else-if="store.state.focus==='saver'">
 				<SaveDialogue :mdp="mdp" />
+			</div>
+
+			<div v-if="plotting">
+				<v-btn @click="plot()">plot</v-btn>
+				<div id="plotDiv" ref="plt"></div>
 			</div>
 
 		</v-main>
@@ -200,6 +207,7 @@ import SaveDialogue from "./SaveDialogue.vue";
 
 import store from "../logic/sharedData";
 import GridMDP from '../logic/mdp_prop';
+import plotCurrent from "../logic/analytics/plotEntry";
 
 export default {
 	name: 'GridMDP',
@@ -213,6 +221,7 @@ export default {
 		editTile: null,
 		displayMode: "values",
 		reached: store.state.reachedPreview,
+		plotting: false,
 
 		// message dialogues
 		message: false,
@@ -222,6 +231,10 @@ export default {
 	}},
 
 	methods: {
+		plot() {
+			plotCurrent(this.$refs["plt"], this.mdp.compact());
+		},
+
 		nextIter() {
 			store.commit('nextIteration');
 
@@ -284,7 +297,10 @@ export default {
 			this.mdp.apply(this.mdpSettings);
 			mdp.reset();
 			store.commit('displayMDP');
+			this.fitCanvas();
+		},
 
+		fitCanvas() {
 			// normalizing zoom to fit the new level and utilize available space
 			let zoom = 100;
 			if(this.mdp.tiles.length * 100 > 0.80 * window.innerHeight) {
@@ -390,6 +406,13 @@ export default {
 </script>
 
 <style scoped>
+	#main {
+		/* overflow-x: scroll;
+		overflow-y: visible; */
+		height: 100vh - 100px;
+		/* background-color: #121212; */
+	}
+
 	#nav-drawer {
 		min-width: 400px;
 	}

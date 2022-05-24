@@ -79,8 +79,7 @@ export function walkLevel(level, start, accessCondidion, operation=()=>null, cle
 		fringe.push(start);
 		level[start.x][start.y].pathCost = 0;
 	}
-	
-	
+		
 	while(fringe.length > 0) {
 		let current = fringe.pop();
 		// console.log("visiting " + current.x + ", " + current.y);
@@ -95,7 +94,7 @@ export function walkLevel(level, start, accessCondidion, operation=()=>null, cle
 			if (accessCondidion(neighbor) && !level[neighbor.x][neighbor.y].closed) {
 				level[neighbor.x][neighbor.y].pathCost = level[current.x][current.y].pathCost+1;
 				level[neighbor.x][neighbor.y].predecessor = current;
-				fringe[fringe.length] = neighbor;
+				fringe.unshift(neighbor);
 			}
 		}
 	}

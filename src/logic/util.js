@@ -23,7 +23,7 @@ export function downloadText(filename, text) {
 
 /**
  * Shuffles array in place.
- * @param {Array} a items An array containing the items.
+ * @param {Array} a An array containing the items.
  * from https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
  */
 export function shuffle(a) {
@@ -62,6 +62,18 @@ export function randomSample(array, size) {
 /**
  * https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
  */
+export function copyTextToClipboard(text) {
+	if (!navigator.clipboard) {
+		fallbackCopyTextToClipboard(text);
+		return;
+	}
+	navigator.clipboard.writeText(text).then(function() {
+		// console.log('Async: Copying to clipboard was successful!');
+	}, function(err) {
+		console.error('Async: Could not copy text: ', err);
+	});
+}
+
 function fallbackCopyTextToClipboard(text) {
   var textArea = document.createElement("textarea");
   textArea.value = text;
@@ -84,18 +96,6 @@ function fallbackCopyTextToClipboard(text) {
   }
 
   document.body.removeChild(textArea);
-}
-
-export function copyTextToClipboard(text) {
-  if (!navigator.clipboard) {
-    fallbackCopyTextToClipboard(text);
-    return;
-  }
-  navigator.clipboard.writeText(text).then(function() {
-    console.log('Async: Copying to clipboard was successful!');
-  }, function(err) {
-    console.error('Async: Could not copy text: ', err);
-  });
 }
 
 export function inBounds(x, y, array) {
