@@ -3,13 +3,16 @@ import {tileWall, tileGoal, tileTrap, fill, braid, neighbors} from './level';
 import { inBounds } from './util';
 import { placeRandom } from './maze_generators/random';
 
-export default async function create(requirements) {
-	let count = 0;
+export default async function create(requirements, attempts=50) {
+	let count = 0
 	do {
+		attempts--;
+		count++;
+
 		// build initial level (filled with walls)
 		let level = fill(requirements.width, requirements.height, tileWall);
 	
-		// carver places empty tiles according to its algorithm 
+		// carver places empty tiles according to the chosen algorithm 
 		requirements.carver(level, requirements.carverArgs);
 		if (requirements.braid) {
 			braid(level);
@@ -27,16 +30,12 @@ export default async function create(requirements) {
 	
 		placeInitial(level);
 
-		count++;
 		var mdp = new GridMDP(level);
-		var satisfied = requirements.check(mdp);
-	} while (count < 50 && !satisfied);
+		var satisfied = attempts > 0 ? requirements.check(mdp):true;
+	} while (!satisfied);
 
-	console.log(satisfied);
-	console.log(count);
-	if (!satisfied) {
-		console.log(requirements.toString());
-	}
+	// TODO remove _attempt and count (used for evaluation)
+	mdp._attempt = count;
 	return mdp;
 }
 

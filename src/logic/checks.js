@@ -1,4 +1,5 @@
 import { walkLevel } from "./level";
+import GridMDP from "./mdp_prop";
 
 export default class Requirements {
 	constructor() {
@@ -53,6 +54,12 @@ export default class Requirements {
 		};
 	}
 
+	/**
+	 * Checks if a Markov Decision Process satisfies the requirements
+	 * @param {GridMDP} mdp 
+	 * @param {boolean} strict 
+	 * @returns {boolean} whether the MDP satisfies all requirements
+	 */
 	check(mdp, strict = false) {
 		this.reset();
 		this.phase1(mdp, strict);

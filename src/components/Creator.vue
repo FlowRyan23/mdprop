@@ -288,6 +288,10 @@ export default {
 			this.$emit("created", this.preview)
 		},
 
+		runEvaluation() {
+			
+		},
+
 		refreshPreview() {
 			this.preview = null;
 			this.test = this.requirements;
