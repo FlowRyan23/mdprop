@@ -334,13 +334,13 @@
 						></v-text-field>
 					</template>
 				</v-slider>
-
-				<v-btn plain fab @click="displayFavZoom = !displayFavZoom">
-					<v-icon>mdi-star-outline</v-icon>
-				</v-btn>
 				
-				<v-btn plain fab @click="fullscreen()">
+				<v-btn v-if="!displayFavZoom" fab plain @click="fullscreen()">
 					<v-icon>mdi-fullscreen</v-icon>
+				</v-btn>
+
+				<v-btn fab plain @click="displayFavZoom = !displayFavZoom">
+					<v-icon>mdi-star-outline</v-icon>
 				</v-btn>
 			</div>
 		</div>
@@ -350,17 +350,10 @@
 
 		<v-btn @click="reset()" class="mr-3">{{$t('settings.reset')}}</v-btn>
 
-		<!-- <v-select
-			:items="locales"
-			v-model="$i18n.locale"
-			:label="$t('settings.lang')"
-			style="margin-top: 32px"
-		></v-select> -->
-
 		<div class="d-flex" id="langSelector">
 			<p class="mt-4">{{$t('settings.lang')}}</p>
-			<img :class="{langImg: true, selLang: $i18n.locale==='de'}" src="@/assets/flag-de.svg" width="64" @click="$i18n.locale='de'">
-			<img :class="{langImg: true, selLang: $i18n.locale==='en'}" src="@/assets/flag-en.svg" width="64" @click="$i18n.locale='en'">
+			<img :class="{langImg: true, selLang: $i18n.locale==='de'}" src="@/assets/flag-de.svg" alt="Deutsch" width="64" @click="$i18n.locale='de'">
+			<img :class="{langImg: true, selLang: $i18n.locale==='en'}" src="@/assets/flag-en.svg" alt="Englisch" width="64" @click="$i18n.locale='en'">
 			<div></div>
 		</div>
 	</div>
@@ -404,7 +397,9 @@ export default {
 		displayFavSCRight: false,
 		displayFavTileWidth: false,
 		displayFavTileHeight: false,
-		displayFavZoom: false
+		displayFavZoom: false,
+
+		test: "hey"
 	}},
 
 	methods: {
@@ -444,10 +439,10 @@ export default {
 		},
 
 		fullscreen() {
-			this.$parent.$parent.fitCanvas();
-			this.tileWidth = this.store.state.tileWidth;
-			this.tileHeigt = this.store.state.tileHeigt;
-			this.zoom = Math.max(this.tileWidth, this.tileHeight);
+			let size = this.$parent.$parent.fitCanvas();
+			this.tileWidth = size.width;
+			this.tileHeight = size.height;
+			this.zoom = Math.min(this.tileWidth, this.tileHeight);
 			this.$emit('redraw');
 		},
 

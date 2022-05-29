@@ -1,7 +1,7 @@
 import { neighbors } from "../level";
 import getNoise from "../noise/noise";
 import store from "../sharedData";
-import { randomSample } from "../util";
+import { randomSample, shuffle } from "../util";
 
 const noKernel = [[1]];
 // from https://www.researchgate.net/figure/Discrete-approximation-of-the-Gaussian-kernels-3x3-5x5-7x7_fig2_325768087
@@ -125,7 +125,7 @@ function extend(level, pos, count=0) {
 		return true;
 	}
 
-	let potentials = neighbors(level, pos, 2).filter(p=>!level[p.x][p.y].accessible);
+	let potentials = shuffle(neighbors(level, pos, 2).filter(p=>!level[p.x][p.y].accessible));
 	for (const neighbor of potentials) {
 		level[neighbor.x][neighbor.y].accessible = true;
 		level[neighbor.x - (neighbor.x-pos.x)/2][neighbor.y - (neighbor.y-pos.y)/2].accessible = true;
@@ -137,7 +137,6 @@ function extend(level, pos, count=0) {
 		}
 	}
 	let ratio = count / (Math.round(level.length/2) * Math.round(level[0].length/2));
-	console.log("achived ratio " + ratio + " at count " + count);
 	return ratio > 0.8;
 }
 

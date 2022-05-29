@@ -1,26 +1,26 @@
 import Requirements from "../checks";
-import {carveDFS} from '../logic/maze_generators/backtracker';
-import carveKruskal from '../logic/maze_generators/kruskal';
-import {hamiltonian} from '../logic/maze_generators/unicursal';
-import { carveNoise} from '../logic/maze_generators/random';
+import {carveDFS} from '../maze_generators/backtracker';
+import carveKruskal from '../maze_generators/kruskal';
+import {hamiltonian} from '../maze_generators/unicursal';
+import { carveNoise} from '../maze_generators/random';
 import create from "../levelGeneration";
 import { Date } from "core-js";
 
 const perfectLabyrinthReq = new Requirements();
-perfectLabyrinthReq.name = "Perfect";
+perfectLabyrinthReq._name = "Perfect";
 perfectLabyrinthReq.carver = carveDFS;
 
 const braidedLabyrinthReq = new Requirements();
-braidedLabyrinthReq.name = "Braid";
+braidedLabyrinthReq._name = "Braid";
 braidedLabyrinthReq.carver = carveKruskal;
 braidedLabyrinthReq.braid = true;
 
 const hamCycleLabyrinthReq = new Requirements();
-hamCycleLabyrinthReq.name = "Hamiltonian Cycle";
+hamCycleLabyrinthReq._name = "Hamiltonian Cycle";
 hamCycleLabyrinthReq.carver = hamiltonian;
 
 const whiteNoiseReq = new Requirements();
-whiteNoiseReq.name = "White Noise";
+whiteNoiseReq._name = "White Noise";
 whiteNoiseReq.carver = carveNoise;
 whiteNoiseReq.carverArgs = {
 	generator: "white",
@@ -28,7 +28,7 @@ whiteNoiseReq.carverArgs = {
 };
 
 const whiteNoiseBlurReq = new Requirements();
-whiteNoiseBlurReq.name = "Blurred White Noise";
+whiteNoiseBlurReq._name = "Blurred White Noise";
 whiteNoiseBlurReq.carver = carveNoise;
 whiteNoiseBlurReq.carverArgs = {
 	generator: "white",
@@ -38,7 +38,7 @@ whiteNoiseBlurReq.carverArgs = {
 };
 
 const perlinNoiseReq = new Requirements();
-perlinNoiseReq.name = "Perlin Noise";
+perlinNoiseReq._name = "Perlin Noise";
 perlinNoiseReq.carver = carveNoise;
 perlinNoiseReq.carverArgs = {
 	generator: "perlin",
@@ -47,7 +47,7 @@ perlinNoiseReq.carverArgs = {
 };
 
 const perlinNoiseFractalReq = new Requirements();
-perlinNoiseFractalReq.name = "Fractal Perlin Noise"
+perlinNoiseFractalReq._name = "Fractal Perlin Noise"
 perlinNoiseFractalReq.carver = carveNoise;
 perlinNoiseFractalReq.carverArgs = {
 	generator: "perlin",
@@ -55,6 +55,7 @@ perlinNoiseFractalReq.carverArgs = {
 	bias: 0.47,
 	fractal: true,
 	octaves: 4,
+	amplitude: 1,
 	fractalFrequency: 1,
 	persistence: 0.8
 };
@@ -67,12 +68,9 @@ const configs = [
 	{width: 19, height: 15, goals: 8, traps: 4}
 ];
 
-
-export default function evaluate() {
-	for (const requirements of requirementsGenerator) {
-		console.log("Checking: " + requirements.name);
-		
-		let successes = 0;
+export default async function evaluate() {
+	for (const req of requirementsGenerator()) {
+		console.log("checking " + req.name);
 		let satisfactions = {
 			connected : 0,
 			deadEnds : 0,
@@ -83,53 +81,51 @@ export default function evaluate() {
 			dangerous : 0,
 			partiallyLost : 0,
 			lost : 0,
-			ambiguousPolicy : 0,
+			unambiguousPolicy : 0,
 			trivialPolicy : 0
 		}
 
 		let startTime = Date.now();
-		for (let i = 0; i < 100; i++) {
-			let mdp = create(requirements, 1);
-			
-			if (requirements.check(mdp)) {
-				successes++;
-			}
 
-			for (const constraint in satisfactions) {
-				if (requirements.satisfaction[constraint]) {
+		for (let i = 0; i < 10; i++) {
+			let result = await create(req, 1)
+			req.check(result.mdp);
+
+			for (let constraint in satisfactions) {
+				if (req.satisfaction[constraint]) {
 					satisfactions[constraint]++;
 				}
 			}
 		}
-		
-		console.log("took: " + Date.now() - startTime + "ms");
-		console.log("succeeded " + successes + " time(s)");
-		console.log(...satisfactions);
-		
+
+		console.log("took: " + (Date.now() - startTime) + "ms");
+		// console.log("succeeded " + successes + " time(s)");
+		console.log({...satisfactions});
 	}
 }
 
 function* requirementsGenerator() {
 	for (const req of requirementsList) {
 		for (const config of configs) {
-			let currentReq = {...req};
-			currentReq.width = config.width;
-			currentReq.height = config.height;
-			currentReq.goals = config.ngoals;
-			currentReq.traps = config.ntraps;
-			currentReq.name += "w:" + size.width + "-h:" + size.height + "-g:" + ngoals + "-t:" + ntraps;
-			currentReq.connected = 'required';
-			currentReq.deadEnds = 'required';
-			currentReq.winnable = 'required';
-			currentReq.partiallyWinnable = 'required';
-			currentReq.survivable = 'required';
-			currentReq.partiallySurvivable = 'required';
-			currentReq.dangerous = 'required';
-			currentReq.partiallyLost = 'required';
-			currentReq.lost = 'required';
-			currentReq.ambiguousPolicy = 'required';
-			currentReq.trivialPolicy = 'required';
-			yield currentReq;
+			req.width = config.width;
+			req.height = config.height;
+			req.carverArgs.width = config.width;
+			req.carverArgs.height = config.height;
+			req.goals = config.goals;
+			req.traps = config.traps;
+			req.name = req._name + "-w:" + config.width + "-h:" + config.height + "-g:" + config.goals + "-t:" + config.traps;
+			req.connected = 'required';
+			req.deadEnds = 'required';
+			req.winnable = 'required';
+			req.partiallyWinnable = 'required';
+			req.survivable = 'required';
+			req.partiallySurvivable = 'required';
+			req.dangerous = 'required';
+			req.partiallyLost = 'required';
+			req.lost = 'required';
+			req.unambiguousPolicy = 'required';
+			req.trivialPolicy = 'required';
+			yield req;
 		}
 	}
 }

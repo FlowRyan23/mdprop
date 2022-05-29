@@ -313,12 +313,12 @@ class MDPTile {
 
 	isAmbiguous(iteration=this.qMemory.length-1) {
 		if (!this.reachedAt(iteration)) {
-			return false
+			return false;
 		}
 
 		let action = null;
-		for(let aName in this.actions) {
-			if(this.actions[aName]) {
+		for(let aName in this.policyMemory[iteration]) {
+			if(this.policyMemory[iteration][aName]) {
 				if (action !== null) {
 					return true;
 				} else {

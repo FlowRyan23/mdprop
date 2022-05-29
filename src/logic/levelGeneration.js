@@ -2,12 +2,18 @@ import GridMDP from './mdp_prop';
 import {tileWall, tileGoal, tileTrap, fill, braid, neighbors} from './level';
 import { inBounds } from './util';
 import { placeRandom } from './maze_generators/random';
+import { Date } from 'core-js';
+import store from './sharedData';
 
-export default async function create(requirements, attempts=50) {
-	let count = 0
+export default async function create(requirements, attempts=1000) {
+	let startTime = Date.now();
+	let result = {
+		status: "failure",
+		mdp: null
+	};
+
 	do {
 		attempts--;
-		count++;
 
 		// build initial level (filled with walls)
 		let level = fill(requirements.width, requirements.height, tileWall);
@@ -20,23 +26,35 @@ export default async function create(requirements, attempts=50) {
 	
 		// place goals and traps in usefull (accessible) places
 		let elegibility = pos => {
-			return !level[pos.x][pos.y].accessible
-				&& neighbors(level, pos).filter(p =>
-						level[p.x][p.y].accessible
-						&& !level[p.x][p.y].terminal).length > 0;
+			let nAccessibleNeighbors = neighbors(level, pos).filter(p => level[p.x][p.y].accessible && !level[p.x][p.y].terminal).length;
+			return (!level[pos.x][pos.y].accessible || nAccessibleNeighbors === 1) && nAccessibleNeighbors > 0;
 		}
 		placeRandom(level, tileGoal, requirements.goals, elegibility);
 		placeRandom(level, tileTrap, requirements.traps, elegibility);
 	
 		placeInitial(level);
 
-		var mdp = new GridMDP(level);
-		var satisfied = attempts > 0 ? requirements.check(mdp):true;
-	} while (!satisfied);
+		result.mdp = new GridMDP(level);
 
-	// TODO remove _attempt and count (used for evaluation)
-	mdp._attempt = count;
-	return mdp;
+		var terminate = attempts <= 0 || Date.now() - startTime > 2000;
+		if (requirements.check(result.mdp)) {
+			terminate = true;
+			result.status = "success";
+		}
+
+		if (store.state.dev) {
+			// let failed = [];
+			// for (const key in requirements.satisfaction) {
+			// 	if (!requirements.satisfaction[key]) {
+			// 		failed.push(key);
+			// 	}
+			// }
+			// console.log("failed: " + failed.join(", "));
+		}
+	} while (!terminate);
+
+	if(store.state.def) console.log(500 - attempts);
+	return result;
 }
 
 function placeInitial(level, all=true, onTraps=false) {
