@@ -172,9 +172,12 @@
 				<SaveDialogue :mdp="mdp" />
 			</div>
 
-			<div v-if="plotting">
+			<div v-if="dev">
 				<v-btn @click="plot()">plot</v-btn>
 				<div id="plotDiv" ref="plt"></div>
+
+				<v-btn @click="eval()">eval</v-btn>
+
 			</div>
 
 		</v-main>
@@ -208,6 +211,7 @@ import SaveDialogue from "./SaveDialogue.vue";
 import store from "../logic/sharedData";
 import GridMDP from '../logic/mdp_prop';
 import plotCurrent from "../logic/analytics/plotEntry";
+import evaluate from "../logic/analytics/evaluation";
 
 export default {
 	name: 'GridMDP',
@@ -221,7 +225,7 @@ export default {
 		editTile: null,
 		displayMode: "values",
 		reached: store.state.reachedPreview,
-		plotting: false,
+		dev: true,
 
 		// message dialogues
 		message: false,
@@ -233,6 +237,10 @@ export default {
 	methods: {
 		plot() {
 			plotCurrent(this.$refs["plt"], this.mdp.compact());
+		},
+
+		eval() {
+			evaluate();
 		},
 
 		nextIter() {

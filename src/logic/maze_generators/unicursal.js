@@ -4,7 +4,7 @@ import { carveDFS } from "./backtracker";
 
 export function hamiltonian(level) {
 	if((level.length - 3) % 4 !== 0) console.warn("level width should be one less than a multiple of 4 (is " + level.length + ")");
-	if((level[0].length - 3) % 4 !== 0) console.warn("level height should be one less than a multiple of 4 (is " + level.length + ")");
+	if((level[0].length - 3) % 4 !== 0) console.warn("level height should be one less than a multiple of 4 (is " + level[0].length + ")");
 
 	let template = fill(Math.floor((level.length-1) / 2), Math.floor((level[0].length-1) / 2));
 	carveDFS(template);
