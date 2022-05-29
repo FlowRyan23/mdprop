@@ -22,7 +22,7 @@ export default class Requirements {
 		this.dangerous = null;					// from all tiles a trap can be reached
 		this.partiallyLost = null;			// at least one tile has a guaranteed negative score
 		this.lost = null;								// all tiles have guaranteed negative scores
-		this.ambiguousPolicy = null;		// the policy must atleast at one tile have two or more optimal actions
+		this.unambiguous = null;				// the policy must only recomend one action in each tile
 		this.trivialPolicy = null;			// the policy is equivalent to an optimal search for goals
 
 		this.satisfaction = null;		// keeps track of which constraints are met and which aren't
@@ -47,7 +47,7 @@ export default class Requirements {
 			partiallyWinnable: this.partiallyWinnable===null?true:null,
 			lost: this.lost===null?true:null,
 			partiallyLost: this.partiallyLost===null?true:null,
-			ambiguousPolicy: this.ambiguousPolicy===null?true:null,
+			unambiguous: this.unambiguous===null?true:null,
 			//phase5
 			trivialPolicy: this.trivialPolicy===null?true:null
 		};
@@ -83,7 +83,7 @@ export default class Requirements {
 			|| this.satisfaction.partiallyWinnable === false
 			|| this.satisfaction.lost === false
 			|| this.satisfaction.partiallyLost === false
-			|| this.satisfaction.ambiguousPolicy === false)) {
+			|| this.satisfaction.unambiguous === false)) {
 			return false;
 		}
 
@@ -179,7 +179,7 @@ export default class Requirements {
 	phase3(components, strict=false) {
 		let goals = [];
 
-		// full reacability can be checked by length of component list
+		// full reachability can be checked by length of component list
 		this.satisfaction.connected = matches(this.connected, components.length===1);
 		if (strict && !this.satisfaction.connected) {
 			return;
@@ -189,19 +189,22 @@ export default class Requirements {
 		let survivable = 0;
 		let dangerous = 0;
 		for (const component of components) {
+			let currentIsDangerous = false;
+			let currentIsSurvivable = false;
 			for (const terminal of component.terminals) {
-				if (terminal.reward > 0) {
+				if (terminal.reward > 0 && !currentIsSurvivable) {
 					survivable++;
+					currentIsSurvivable = true;
 					goals.push({x:terminal.x, y:terminal.y});
-				} else if (terminal.reward < 0) {
+				} else if (terminal.reward < 0 && !currentIsDangerous) {
 					dangerous++;
+					currentIsDangerous=true;
 				}
 			}
 		}
 
 
 		this.satisfaction.survivable = matches(this.survivable, components.length === survivable);
-		// TODO are survivable worlds also parially survivable?
 		this.satisfaction.partiallySurvivable = matches(this.partiallySurvivable, survivable > 0 && survivable < components.length);
 		this.satisfaction.dangerous = matches(this.dangerous, components.length === dangerous);
 
@@ -226,7 +229,7 @@ export default class Requirements {
 			winnable: 0,
 			lost: 0
 		}
-		let ambiguousPolicy = false;
+		let unambiguous = true;
 		
 		for (const tile of mdp.allMatching(t => t.accessible && !t.terminal)) {
 			counts.total++;
@@ -238,7 +241,7 @@ export default class Requirements {
 			}
 
 			if (tile.isAmbiguous()) {
-				ambiguousPolicy = true;
+				unambiguous = false;
 			}
 		}
 
@@ -246,7 +249,7 @@ export default class Requirements {
 		this.satisfaction.partiallyWinnable = matches(this.partiallyWinnable, counts.winnable > 0 && counts.winnable < counts.total);
 		this.satisfaction.lost = matches(this.lost, counts.lost === counts.total);
 		this.satisfaction.partiallyLost = matches(this.partiallyLost, counts.lost > 0 && counts.lost < counts.total);
-		this.satisfaction.ambiguousPolicy = matches(this.ambiguousPolicy, ambiguousPolicy);
+		this.satisfaction.unambiguous = matches(this.unambiguous, unambiguous);
 	}
 
 	phase5(mdp, goals) {
@@ -311,12 +314,14 @@ function makeComponent(start, tag) {
 			continue;
 		}
 
-		current.tag = tag;
-		current.closed = true;
 		component.tiles.push(current);
 		if (current.terminal) {
 			component.terminals.push(current);
 			continue;
+		} else {
+			// terminals are not closed or tagged, because multiple components may share them
+			current.tag = tag;
+			current.closed = true;
 		}
 
 		for (const neighbor of current.neighbors().filter(t => t.accessible && !t.closed)) {

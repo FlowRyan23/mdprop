@@ -20,7 +20,7 @@
 				<v-tab :key="'constraints'">{{$t('creator.tab.constraints')}}</v-tab>
 			</v-tabs>
 
-			<v-tabs-items v-model="currentTab">
+			<v-tabs-items class="ma-4" v-model="currentTab">
 				<v-tab-item :key="'basic'">
 					<div class="d-flex flex-column justify-space-between" id="general">
 						<!-- Size -->
@@ -70,140 +70,122 @@
 								@wheel.prevent="scrollHandler($event, 'traps')"
 							></v-text-field>
 						</div>
-					</div>			
+					</div>
+
+					<div class="d-flex justify-center">
+						<Display
+							v-if="preview"
+							ref="previewDisplay"
+							:ID="'preview'"
+							:preview="true"
+							:size="{width: 300, height: 250}"
+							:mdp="preview"
+							@interaction="noHandler"
+						/>
+					</div>
 				</v-tab-item>
 				
 				<v-tab-item :key="'generator'">
-					<div id="generator" class="d-flex flex-column">
+					<v-btn-toggle id="generatorSelect" mandatory v-model="generator">
+						<v-tooltip right>
+							<template v-slot:activator="{on, attrs}">
+								<v-btn :color="generator === 'perfect'?'primary':''" :value="'perfect'" v-on="on" v-bind="attrs">
+									{{$t('creator.quickGenerators.perfect')}}
+								</v-btn>
+							</template>
+							<span>{{$t('creator.quickGenerators.perfectHint')}}</span>
+						</v-tooltip>
 
-						<v-select
-							v-model="selectedAlgorithm"
-							:items="carvingAlgorithms"
-							:label="$t('creator.alg')"
-							>
-						</v-select>
+						<v-tooltip right>
+							<template v-slot:activator="{on, attrs}">
+								<v-btn :color="generator === 'braid'?'primary':''" :value="'braid'" v-on="on" v-bind="attrs">
+									{{$t('creator.quickGenerators.braid')}}
+								</v-btn>
+							</template>
+							<span>{{$t('creator.quickGenerators.braidHint')}}</span>
+						</v-tooltip>
 
-						<div v-if="selectedAlgorithm==='Noise'">
-							<v-select
-								v-model="noiseGen"
-								:items="noiseGenerators"
-								:label="$t('creator.noiseGen')"
-								>
-							</v-select>
+						<v-tooltip right>
+							<template v-slot:activator="{on, attrs}">
+								<v-btn :color="generator === 'unicursal'?'primary':''" :value="'unicursal'" v-on="on" v-bind="attrs">
+									{{$t('creator.quickGenerators.unicursal')}}
+								</v-btn>
+							</template>
+							<span>{{$t('creator.quickGenerators.unicursalHint')}}</span>
+						</v-tooltip>
 
-							<v-slider v-if="noiseGen==='perlin' && !fractal" v-model="frequency" :step="1" :max="50" :min="1" :label="$t('creator.frequency')">
-								<template v-slot:append>
-									<v-text-field
-										v-model="frequency"
-										class="mt-0 pt-0 no-spins"
-										hide-details
-										single-line
-										type="number"
-									></v-text-field>
-								</template>
-							</v-slider>
+						<v-tooltip right>
+							<template v-slot:activator="{on, attrs}">
+								<v-btn :color="generator === 'white'?'primary':''" :value="'white'" v-on="on" v-bind="attrs">
+									{{$t('creator.quickGenerators.white')}}
+								</v-btn>
+							</template>
+							<span>{{$t('creator.quickGenerators.whiteHint')}}</span>
+						</v-tooltip>
 
-							<v-switch :label="$t('creator.fractal')" v-model="fractal"></v-switch>
+						<v-tooltip right>
+							<template v-slot:activator="{on, attrs}">
+								<v-btn :color="generator === 'whiteBlur'?'primary':''" :value="'whiteBlur'" v-on="on" v-bind="attrs">
+									{{$t('creator.quickGenerators.whiteBlur')}}
+								</v-btn>
+							</template>
+							<span>{{$t('creator.quickGenerators.whiteBlurHint')}}</span>
+						</v-tooltip>
 
-							<div v-if="fractal">
-								<v-slider v-model="octaves" :step="1" :max="10" :min="1" ticks :label="$t('creator.octaves')">
-									<template v-slot:append>
-										<v-text-field
-											v-model="octaves"
-											class="mt-0 pt-0 no-spins"
-											hide-details
-											single-line
-											type="number"
-										></v-text-field>
-									</template>
-								</v-slider>
+						<v-tooltip right>
+							<template v-slot:activator="{on, attrs}">
+								<v-btn :color="generator === 'perlin'?'primary':''" :value="'perlin'" v-on="on" v-bind="attrs">
+									{{$t('creator.quickGenerators.perlin')}}
+								</v-btn>
+							</template>
+							<span>{{$t('creator.quickGenerators.perlinHint')}}</span>
+						</v-tooltip>
 
-								<v-slider v-model="fractalFrequency" :step="1" :max="10" :min="1" ticks :label="$t('creator.fractalFrequency')">
-									<template v-slot:append>
-										<v-text-field
-											v-model="fractalFrequency"
-											class="mt-0 pt-0 no-spins"
-											hide-details
-											single-line
-											type="number"
-										></v-text-field>
-									</template>
-								</v-slider>
-
-								<v-slider v-model="persistence" :step="0.1" :max="1" :min="0" ticks :label="$t('creator.persistence')">
-									<template v-slot:append>
-										<v-text-field
-											v-model="persistence"
-											class="mt-0 pt-0 no-spins"
-											hide-details
-											single-line
-											type="number"
-										></v-text-field>
-									</template>
-								</v-slider>
-							</div>
-
-							<v-switch :label="$t('creator.blur')" v-model="blur"></v-switch>
-							<v-select
-								v-if="blur"
-								:items="blurKernels"
-								v-model="selectedKernel"
-								:label="$t('creator.kernel')"
-							></v-select>
-
-							<v-slider v-model="bias" :step="0.01" :max="1" :min="0" :label="$t('creator.bias')">
-								<template v-slot:append>
-									<v-text-field
-										v-model="bias"
-										class="mt-0 pt-0 no-spins"
-										hide-details
-										single-line
-										type="number"
-									></v-text-field>
-								</template>
-							</v-slider>
-
-						</div>
-						<v-switch :label="$t('creator.braid')" v-model="braid"></v-switch>
-
-						
-					</div>
+						<v-tooltip right>
+							<template v-slot:activator="{on, attrs}">
+								<v-btn :color="generator === 'fractal'?'primary':''" :value="'fractal'" v-on="on" v-bind="attrs">
+									{{$t('creator.quickGenerators.fractal')}}
+								</v-btn>
+							</template>
+							<span>{{$t('creator.quickGenerators.fractalHint')}}</span>
+						</v-tooltip>
+					</v-btn-toggle>
 				</v-tab-item>
 
 				<v-tab-item :key="'constraints'">
 					<div>
-						<BoolConstraintInput :ref="'connected'" :initialValue="constraints.connected" class="no-pad" :name="$t('creator.constraints.connected')" />
-						<BoolConstraintInput :ref="'deadEnds'" :initialValue="constraints.deadEnds" class="no-pad" :name="$t('creator.constraints.deadEnds')" />
-						<BoolConstraintInput :ref="'winnable'" :initialValue="constraints.winnable" class="no-pad" :name="$t('creator.constraints.winnable')" />
-						<BoolConstraintInput :ref="'partiallyWinnable'" :initialValue="constraints.partiallyWinnable" class="no-pad" :name="$t('creator.constraints.partiallyWinnable')" />
-						<BoolConstraintInput :ref="'survivable'" :initialValue="constraints.survivable" class="no-pad" :name="$t('creator.constraints.survivable')" />
-						<BoolConstraintInput :ref="'partiallySurvivable'" :initialValue="constraints.partiallySurvivable" class="no-pad" :name="$t('creator.constraints.partiallySurvivable')" />
-						<BoolConstraintInput :ref="'dangerous'" :initialValue="constraints.dangerous" class="no-pad" :name="$t('creator.constraints.dangerous')" />
-						<BoolConstraintInput :ref="'partiallyLost'" :initialValue="constraints.partiallyLost" class="no-pad" :name="$t('creator.constraints.partiallyLost')" />
-						<BoolConstraintInput :ref="'lost'" :initialValue="constraints.lost" class="no-pad" :name="$t('creator.constraints.lost')" />
-						<BoolConstraintInput :ref="'ambiguousPolicy'" :initialValue="constraints.ambiguousPolicy" class="no-pad" :name="$t('creator.constraints.ambiguous')" />
-						<BoolConstraintInput :ref="'trivialPolicy'" :initialValue="constraints.trivialPolicy" class="no-pad" :name="$t('creator.constraints.trivial')"/>
+						<!-- TODO use v-for to make code nicer -->
+						<BoolConstraintInput @set="checkConstraint('winnable')" :ref="'winnable'" :initialValue="constraints.winnable" class="no-pad" :name="'winnable'" />
+						<BoolConstraintInput @set="checkConstraint('partiallyWinnable')" :ref="'partiallyWinnable'" :initialValue="constraints.partiallyWinnable" class="no-pad" :name="'partiallyWinnable'" />
+						<BoolConstraintInput @set="checkConstraint('survivable')" :ref="'survivable'" :initialValue="constraints.survivable" class="no-pad" :name="'survivable'" />
+						<BoolConstraintInput @set="checkConstraint('partiallySurvivable')" :ref="'partiallySurvivable'" :initialValue="constraints.partiallySurvivable" class="no-pad" :name="'partiallySurvivable'" />
+						<BoolConstraintInput @set="checkConstraint('dangerous')" :ref="'dangerous'" :initialValue="constraints.dangerous" class="no-pad" :name="'dangerous'" />
+						<BoolConstraintInput @set="checkConstraint('partiallyLost')" :ref="'partiallyLost'" :initialValue="constraints.partiallyLost" class="no-pad" :name="'partiallyLost'" />
+						<BoolConstraintInput @set="checkConstraint('lost')" :ref="'lost'" :initialValue="constraints.lost" class="no-pad" :name="'lost'" />
+						<BoolConstraintInput @set="checkConstraint('unambiguous')" :ref="'unambiguous'" :initialValue="constraints.unambiguous" class="no-pad" :name="'unambiguous'" />
+						<BoolConstraintInput @set="checkConstraint('trivialPolicy')" :ref="'trivialPolicy'" :initialValue="constraints.trivialPolicy" class="no-pad" :name="'trivial'"/>
 					</div>
 				</v-tab-item>
 			</v-tabs-items>
-			
-			<Display
-				v-if="preview"
-				ref="previewDisplay"
-				:ID="'preview'"
-				:preview="true"
-				:size="{width: 300, height: 250}"
-				:mdp="preview"
-				@interaction="noHandler"
-			/>
 
 			<div class="d-flex justify-space-between">
 				<v-btn @click="confirm()" color="blue">{{$t('creator.confirm')}}</v-btn>
-				<div></div>
 				<v-btn @click="refreshPreview()">{{$t('creator.refresh')}}</v-btn>
 				<v-btn @click="store.commit('displayMDP')">{{$t('creator.cancel')}}</v-btn>
 			</div>
 		</v-card>
+
+		<v-snackbar
+			v-model="message"
+			:timeout="msgTimeout"
+			:color="msgColor">
+			{{msgText}}
+			<template v-slot:action="{attrs}">
+				<v-btn v-bind="attrs" text @click.native="message = false">
+					{{$t('toolbar.message.close')}}
+				</v-btn>
+			</template>
+		</v-snackbar>
 	</v-overlay>
 </template>
 
@@ -226,11 +208,14 @@ export default {
 		preview: null,
 		currentTab: "",
 
+		// quick-select generators
+		generator: "perfect",
+
 		// basic settings
 		width: 5,
 		height: 5,
 		goals: 1,
-		traps: 0,
+		traps: 1,
 		carvingAlgorithms: [
 			"Recursive Backtracking",
 			"Kruskal",
@@ -271,16 +256,24 @@ export default {
 		constraints:  {
 			connected : 'optional',
 			deadEnds : 'optional',
-			winnable : 'required',
-			partiallyWinnable : 'forbidden',
-			survivable : 'required',
-			partiallySurvivable : 'forbidden',
-			dangerous : 'required',
+			winnable : 'optional',
+			partiallyWinnable : 'optional',
+			survivable : 'optional',
+			partiallySurvivable : 'optional',
+			dangerous : 'optional',
 			partiallyLost : 'optional',
-			lost : 'forbidden',
-			ambiguousPolicy : 'required',
+			lost : 'optional',
+			unambiguous : 'optional',
 			trivialPolicy : 'optional'
-		}
+		},
+
+		// message dialogues
+		message: false,
+		msgText: "",
+		msgColor: "",
+		msgTimeout: 2000,
+
+		test: null
 	}},
 
 	methods: {
@@ -288,21 +281,357 @@ export default {
 			this.$emit("created", this.preview)
 		},
 
-		runEvaluation() {
-			
-		},
-
 		refreshPreview() {
 			this.preview = null;
-			this.test = this.requirements;
-			create(this.requirements).then(mdp => {
-				this.preview=mdp
-				this.test = this.requirements.check(this.preview);
+			this.message = false;
+			var reqs = this.requirements();
+			create(reqs).then(result => {
+				if (!result.mdp) {
+					this.showMessage(this.$t('creator.messages.failure'), "error");
+				} else if (result.status === "failure") {
+					
+					this.test = reqs;
+
+					let failedConstraints = [];
+					for (const c in reqs.satisfaction) {
+						if (!reqs.satisfaction[c]) {
+							failedConstraints.push(c);
+						}
+					}
+
+					let msgArgs = {
+						failed: failedConstraints.map(c => this.$t('creator.constraints.' + c)).join(', ')
+					};
+					this.showMessage(this.$t('creator.messages.unsatisfiedConstraint', msgArgs), 'warning');
+				}
+
+				this.preview=result.mdp;
 				// this.$refs.previewDisplay.render();
+				this.currentTab = "basic";
 			});
 		},
 
-		scrollHandler(event, attribute, min=0, max=200) {
+		checkConstraint(key) {
+			let value = this.getConstraintValue(key);
+
+			switch (key) {
+				case "winnable":
+					if (value === "required") {
+						if (this.goals === 0) {
+							let msgArgs = {
+								constraint: this.$t('creator.constraints.winnable'),
+								nGoals: 1
+							};
+							this.showMessage(this.$t('creator.messages.minimumGoals', msgArgs), "warning");
+							
+							this.goals = 1;
+						}
+
+						if(this.getConstraintValue("partiallyWinnable") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.winnable'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.partiallyWinnable'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("partiallyWinnable"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("partiallyWinnable", "forbidden");
+						}
+
+						if(this.getConstraintValue("lost") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.winnable'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.lost'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("lost"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("lost", "forbidden");
+						}
+
+						if(this.getConstraintValue("partiallyLost") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.winnable'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.partiallyLost'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("partiallyLost"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("partiallyLost", "forbidden");
+						}
+
+						if (this.getConstraintValue("survivable") !== "required") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.winnable'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.survivable'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("survivable"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("survivable", "required");
+						}
+
+						if (this.getConstraintValue("partiallySurvivable") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.winnable'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.partiallySurvivable'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("partiallySurvivable"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("partiallySurvivable", "forbidden");
+						}
+					}
+					break;
+
+				case "partiallyWinnable":
+					if (value === "required") {
+						if (this.goals === 0) {
+							let msgArgs = {
+								constraint: this.$t('creator.constraints.partiallyWinnable'),
+								nGoals: 1
+							};
+							this.showMessage(this.$t('creator.messages.minimumGoals', msgArgs), "warning");
+							
+							this.goals = 1;
+						}
+
+						if(this.getConstraintValue("winnable") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.partiallyWinnable'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.winnable'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("winnable"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("winnable", "forbidden");
+						}
+
+						if(this.getConstraintValue("lost") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.partiallyWinnable'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.lost'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("lost"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("lost", "forbidden");
+						}
+					}
+					break;
+
+				case "survivable":
+					if (value === "required") {
+						if (this.goals === 0) {
+							let msgArgs = {
+								constraint: this.$t('creator.constraints.survivable'),
+								nGoals: 1
+							};
+							this.showMessage(this.$t('creator.messages.minimumGoals', msgArgs), "warning");
+							
+							this.goals = 1;
+						}
+
+						if(this.getConstraintValue("partiallySurvivable") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.survivable'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.partiallySurvivable'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("partiallySurvivable"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("partiallySurvivable", "forbidden");
+						}
+					}
+					break;
+
+				case "partiallySurvivable":
+					if (value === "required") {
+						if (this.goals === 0) {
+							let msgArgs = {
+								constraint: this.$t('creator.constraints.partiallySurvivable'),
+								nGoals: 1
+							};
+							this.showMessage(this.$t('creator.messages.minimumGoals', msgArgs), "warning");
+							
+							this.goals = 1;
+						}
+
+						if(this.getConstraintValue("survivable") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.partiallySurvivable'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.survivable'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("survivable"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("survivable", "forbidden");
+						}
+					}
+					break;
+
+				case "lost":
+					if (value === "required") {
+						if (this.traps === 0) {
+							let msgArgs = {
+								constraint: this.$t('creator.constraints.lost'),
+								nTraps: 1
+							};
+							this.showMessage(this.$t('creator.messages.minimumTraps', msgArgs), "warning");
+							
+							this.traps = 1;
+						}
+
+						if(this.getConstraintValue("partiallyLost") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.lost'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.partiallyLost'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("partiallyLost"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("partiallyLost", "forbidden");
+						}
+
+						if(this.getConstraintValue("winnable") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.lost'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.winnable'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("winnable"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("winnable", "forbidden");
+						}
+
+						if(this.getConstraintValue("partiallyWinnable") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.lost'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.partiallyWinnable'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("partiallyWinnable"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("partiallyWinnable", "forbidden");
+						}
+
+						if (this.store.state.stepCost < 0.01) {
+							let msgArgs = {
+								constraint: this.$t('creator.constraints.lost')
+							};
+							this.showMessage(this.$t('creator.messages.minimumStepCost', msgArgs), "warning")
+							this.setConstraintValue("lost", "optional");
+						}
+					}
+					break;
+
+				case "partiallyLost":
+					if (value === "required") {
+						if (this.traps === 0) {
+							let msgArgs = {
+								constraint: this.$t('creator.constraints.partiallyLost'),
+								nTraps: 1
+							};
+							this.showMessage(this.$t('creator.messages.minimumTraps', msgArgs), "warning");
+							
+							this.traps = 1;
+						}
+
+						if(this.getConstraintValue("lost") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.partiallyLost'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.lost'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("lost"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("lost", "forbidden");
+						}
+
+						if(this.getConstraintValue("winnable") !== "forbidden") {
+							let msgArgs = {
+								nameA: this.$t('creator.constraints.partiallyLost'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.winnable'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("winnable"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("winnable", "forbidden");
+						}
+
+						if (this.store.state.stepCost < 0.01) {
+							let msgArgs = {
+								constraint: this.$t('creator.constraints.partiallyLost')
+							};
+							this.showMessage(this.$t('creator.messages.minimumStepCost', msgArgs), "warning");
+							this.setConstraintValue("partiallyLost", "optional");
+						}
+					}
+					break;
+
+				case "unambiguous":
+					if (value === "forbidden" && this.getConstraintValue("trivialPolicy") !== "forbidden") {
+						let msgArgs = {
+								nameA: this.$t('creator.constraints.unambiguous'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.trivial'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("trivialPolicy"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("trivialPolicy", "forbidden");
+					}
+					break;
+
+				case "trivialPolicy":
+					if (value === "required" && this.getConstraintValue("unambiguous") !== "required") {
+						let msgArgs = {
+								nameA: this.$t('creator.constraints.trivial'),
+								valueA: this.$t('creator.constraints.' + value),
+								nameB: this.$t('creator.constraints.unambiguous'),
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("unambiguous"))
+							}
+							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+							
+							this.setConstraintValue("unambiguous", "required");
+					}
+					break;
+			
+				default:
+					break;
+			}
+		},
+
+		setConstraintValue(key, value) {
+			this.$refs[key].value = value;
+		},
+
+		getConstraintValue(key) {
+			return this.$refs[key]? this.$refs[key].value : this.constraints[key];
+		},
+
+		showMessage(text, color, timeout=10000) {
+			this.msgText = text;
+			this.msgColor = color;
+			this.msgTimeout = timeout;
+			this.message = true;
+		},
+
+		scrollHandler(event, attribute, min=0, max=50) {
 			if(event.deltaY > 0) {
 				this[attribute] = Math.min(max, Math.max(min, this[attribute] - 1));
 			} else {
@@ -310,34 +639,105 @@ export default {
 			}
 		},
 		
-		noHandler() {}
-	},
-
-	computed: {
+		noHandler() {},
+		
 		requirements() {
 			let reqs = new Requirements();
 			reqs.width = this.width;
 			reqs.height = this.height;
-			reqs.carver = this.algTable[this.selectedAlgorithm];
-			reqs.braid = this.braid;
-			reqs.carverArgs.width = this.width;
-			reqs.carverArgs.height = this.height;
-			reqs.carverArgs.bias = this.bias;
-			reqs.carverArgs.generator = this.noiseGen;
-			reqs.carverArgs.blur = this.blur;
-			reqs.carverArgs.kernel = this.selectedKernel;
-			reqs.carverArgs.frequency = this.frequency;
-			reqs.carverArgs.fractal = this.fractal;
-			reqs.carverArgs.octaves = this.octaves;
-			reqs.carverArgs.fractalFrequency = this.fractalFrequency;
-			reqs.carverArgs.amplitude = 1;
-			reqs.carverArgs.persistence = this.persistence;
-
 			reqs.goals = this.goals;
 			reqs.traps = this.traps;
 
+			switch (this.generator) {
+				case "perfect":
+					reqs.carver = carveDFS;
+					break;
+			
+				case "braid":
+					reqs.carver = carveKruskal;
+					reqs.braid = true;
+					break;
+
+				case "unicursal":
+					if ((reqs.width - 3) % 4 !== 0 || (reqs.height - 3) % 4 !== 0) {
+						reqs.carver = carveSnake;
+					} else  {
+						reqs.carver = hamiltonian;
+					}
+					break;
+
+				case "white":
+					reqs.carver = carveNoise;
+					reqs.carverArgs = {
+						width: this.width,
+						height: this.height,
+						generator: "white",
+						bias: 0.5
+					};
+					break;
+
+				case "whiteBlur":
+					reqs.carver = carveNoise;
+					reqs.carverArgs = {
+						width: this.width,
+						height: this.height,
+						generator: "white",
+						bias: 0.5,
+						blur: true,
+						kernel: "gaus3"
+					};
+					break;
+
+				case "perlin":
+					reqs.carver = carveNoise;
+					reqs.carverArgs = {
+						width: this.width,
+						height: this.height,
+						generator: "perlin",
+						bias: 0.5,
+						frequency: 4
+					};
+					break;
+
+				case "fractal":
+					reqs.carver = carveNoise;
+					reqs.carverArgs = {
+						width: this.width,
+						height: this.height,
+						generator: "perlin",
+						frequency: 4,
+						bias: 0.47,
+						fractal: true,
+						octaves: 4,
+						amplitude: 1,
+						fractalFrequency: 1,
+						persistence: 0.8
+					};
+					break;
+
+				default:
+					reqs.carver = carveKruskal;
+					break;
+			}
+
+			// reqs.carver = this.algTable[this.selectedAlgorithm];
+			// reqs.braid = this.braid;
+			// reqs.carverArgs.width = this.width;
+			// reqs.carverArgs.height = this.height;
+			// reqs.carverArgs.bias = this.bias;
+			// reqs.carverArgs.generator = this.noiseGen;
+			// reqs.carverArgs.blur = this.blur;
+			// reqs.carverArgs.kernel = this.selectedKernel;
+			// reqs.carverArgs.frequency = this.frequency;
+			// reqs.carverArgs.fractal = this.fractal;
+			// reqs.carverArgs.octaves = this.octaves;
+			// reqs.carverArgs.fractalFrequency = this.fractalFrequency;
+			// reqs.carverArgs.amplitude = 1;
+			// reqs.carverArgs.persistence = this.persistence;
+
+
 			for (const key in this.constraints) {
-				reqs[key] = this.$refs[key]? this.$refs[key].value : this.constraints[key];
+				reqs[key] = this.getConstraintValue(key);
 			}
 			// reqs.connected = this.$refs["connected"]?this.$refs["connected"].value:this.constraints.connected;
 			// reqs.deadEnds = this.$refs["deadEnds"]?this.$refs["deadEnds"].value:this.constraints.deadEnds;
@@ -348,12 +748,15 @@ export default {
 			// reqs.dangerous = this.$refs["dangerous"]?this.$refs["dangerous"].value:this.constraints.dangerous;
 			// reqs.partiallyLost = this.$refs["partiallyLost"]?this.$refs["partiallyLost"].value:this.constraints.partiallyLost;
 			// reqs.lost = this.$refs["lost"]?this.$refs["lost"].value:this.constraints.lost;
-			// reqs.ambiguousPolicy = this.$refs["ambiguousPolicy"]?this.$refs["ambiguousPolicy"].value:this.constraints.ambiguousPolicy;
+			// reqs.unambiguousPolicy = this.$refs["unambiguousPolicy"]?this.$refs["unambiguousPolicy"].value:this.constraints.unambiguousPolicy;
 			// reqs.trivialPolicy = this.$refs["trivialPolicy"]?this.$refs["trivialPolicy"].value:this.constraints.trivialPolicy;
 
 			reqs.reset();
 			return reqs;
 		}
+	},
+
+	computed: {
 	},
 
 	mounted() {
@@ -376,7 +779,12 @@ export default {
 	
 	#card {
 		padding: 16px;
-		min-width: 700px;
+		min-width: 500px;
+	}
+
+	#generatorSelect {
+		flex-direction:column;
+		width: 100%;
 	}
 
 	#sizeSeperator {

@@ -172,7 +172,7 @@
 				<SaveDialogue :mdp="mdp" />
 			</div>
 
-			<div v-if="dev">
+			<div v-if="store.state.dev">
 				<v-btn @click="plot()">plot</v-btn>
 				<div id="plotDiv" ref="plt"></div>
 
@@ -225,7 +225,6 @@ export default {
 		editTile: null,
 		displayMode: "values",
 		reached: store.state.reachedPreview,
-		dev: true,
 
 		// message dialogues
 		message: false,

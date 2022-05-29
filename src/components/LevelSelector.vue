@@ -4,8 +4,6 @@
 			<v-card-title class="d-flex justify-space-between">
 				{{$t('selector.title')}}
 
-				<!-- <v-btn @click="log()">log</v-btn> -->
-
 				<v-spacer></v-spacer>
 
 				<v-text-field
@@ -23,17 +21,6 @@
 					<v-icon size="32">mdi-close-thick</v-icon>
 				</v-btn>
 			</v-card-title>
-
-			<!-- <div v-if="worlds.length > 0" id="wrapper">
-				<div :key="x" v-for="(mdp, x) of worlds">
-					<Display class="display" :ID="'w-' + x" :mdp="mdp" :preview="true" :size="{width: 280, height: 210}" @interaction="set(mdp)"/>
-					<div class="d-flex justify-space-between ml-4 mr-4">
-						<p>{{mdp.name}}</p>
-						<p>discount: {{mdp.discount}}</p>
-						<p>stepCost: {{mdp.stepCost}}</p>
-					</div>
-				</div>
-			</div> -->
 
 			<div class="d-flex justify-space-between">
 				<v-data-table
@@ -53,11 +40,8 @@
 						<v-icon small color="green" @click="set(item)" class="mr-4">
 							mdi-check
 						</v-icon>
-						<v-icon small color="blue" @click="downloadSingle(item)" class="mr-4">
+						<v-icon small color="blue" @click="downloadSingle(item)">
 							mdi-download
-						</v-icon>
-						<v-icon small	color="red" @click="remove(item)">
-							mdi-delete-outline
 						</v-icon>
 					</template>
 				</v-data-table>

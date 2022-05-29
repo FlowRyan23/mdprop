@@ -89,9 +89,8 @@ export default {
 				ctx.fillStyle = this.textColor;
 				ctx.fillRect(offset.x + this.tileWidth/3, offset.y + this.tileHeight/3, this.tileWidth/3, this.tileHeight/3);
 			} else {
-				// TODO reenable (disabled for use as print)
-				// let arrows = this.arrowsOf(tile.getPolicy(store.state.displayIteration));
-				// this.drawTileArrows(ctx, offset, arrows, this.textColor);
+				let arrows = this.arrowsOf(tile.getPolicy(store.state.displayIteration));
+				this.drawTileArrows(ctx, offset, arrows, this.textColor);
 			}
 		},
 

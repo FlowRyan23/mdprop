@@ -350,17 +350,10 @@
 
 		<v-btn @click="reset()" class="mr-3">{{$t('settings.reset')}}</v-btn>
 
-		<!-- <v-select
-			:items="locales"
-			v-model="$i18n.locale"
-			:label="$t('settings.lang')"
-			style="margin-top: 32px"
-		></v-select> -->
-
 		<div class="d-flex" id="langSelector">
 			<p class="mt-4">{{$t('settings.lang')}}</p>
-			<img :class="{langImg: true, selLang: $i18n.locale==='de'}" src="@/assets/flag-de.svg" width="64" @click="$i18n.locale='de'">
-			<img :class="{langImg: true, selLang: $i18n.locale==='en'}" src="@/assets/flag-en.svg" width="64" @click="$i18n.locale='en'">
+			<img :class="{langImg: true, selLang: $i18n.locale==='de'}" src="@/assets/flag-de.svg" alt="Deutsch" width="64" @click="$i18n.locale='de'">
+			<img :class="{langImg: true, selLang: $i18n.locale==='en'}" src="@/assets/flag-en.svg" alt="Englisch" width="64" @click="$i18n.locale='en'">
 			<div></div>
 		</div>
 	</div>

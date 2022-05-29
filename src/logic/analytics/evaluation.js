@@ -55,6 +55,7 @@ perlinNoiseFractalReq.carverArgs = {
 	bias: 0.47,
 	fractal: true,
 	octaves: 4,
+	amplitude: 1,
 	fractalFrequency: 1,
 	persistence: 0.8
 };
@@ -80,15 +81,15 @@ export default async function evaluate() {
 			dangerous : 0,
 			partiallyLost : 0,
 			lost : 0,
-			ambiguousPolicy : 0,
+			unambiguousPolicy : 0,
 			trivialPolicy : 0
 		}
 
 		let startTime = Date.now();
 
-		for (let i = 0; i < 100; i++) {
-			let mdp = await create(req, 1)
-			req.check(mdp);
+		for (let i = 0; i < 10; i++) {
+			let result = await create(req, 1)
+			req.check(result.mdp);
 
 			for (let constraint in satisfactions) {
 				if (req.satisfaction[constraint]) {
@@ -108,6 +109,8 @@ function* requirementsGenerator() {
 		for (const config of configs) {
 			req.width = config.width;
 			req.height = config.height;
+			req.carverArgs.width = config.width;
+			req.carverArgs.height = config.height;
 			req.goals = config.goals;
 			req.traps = config.traps;
 			req.name = req._name + "-w:" + config.width + "-h:" + config.height + "-g:" + config.goals + "-t:" + config.traps;
@@ -120,7 +123,7 @@ function* requirementsGenerator() {
 			req.dangerous = 'required';
 			req.partiallyLost = 'required';
 			req.lost = 'required';
-			req.ambiguousPolicy = 'required';
+			req.unambiguousPolicy = 'required';
 			req.trivialPolicy = 'required';
 			yield req;
 		}
