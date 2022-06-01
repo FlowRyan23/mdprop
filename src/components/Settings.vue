@@ -334,13 +334,13 @@
 						></v-text-field>
 					</template>
 				</v-slider>
-
-				<v-btn plain fab @click="displayFavZoom = !displayFavZoom">
-					<v-icon>mdi-star-outline</v-icon>
-				</v-btn>
 				
-				<v-btn plain fab @click="fullscreen()">
+				<v-btn v-if="!displayFavZoom" fab plain @click="fullscreen()">
 					<v-icon>mdi-fullscreen</v-icon>
+				</v-btn>
+
+				<v-btn fab plain @click="displayFavZoom = !displayFavZoom">
+					<v-icon>mdi-star-outline</v-icon>
 				</v-btn>
 			</div>
 		</div>
@@ -397,7 +397,9 @@ export default {
 		displayFavSCRight: false,
 		displayFavTileWidth: false,
 		displayFavTileHeight: false,
-		displayFavZoom: false
+		displayFavZoom: false,
+
+		test: "hey"
 	}},
 
 	methods: {
@@ -437,10 +439,10 @@ export default {
 		},
 
 		fullscreen() {
-			this.$parent.$parent.fitCanvas();
-			this.tileWidth = this.store.state.tileWidth;
-			this.tileHeigt = this.store.state.tileHeigt;
-			this.zoom = Math.max(this.tileWidth, this.tileHeight);
+			let size = this.$parent.$parent.fitCanvas();
+			this.tileWidth = size.width;
+			this.tileHeight = size.height;
+			this.zoom = Math.min(this.tileWidth, this.tileHeight);
 			this.$emit('redraw');
 		},
 

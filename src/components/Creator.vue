@@ -163,7 +163,7 @@
 						<BoolConstraintInput @set="checkConstraint('partiallyLost')" :ref="'partiallyLost'" :initialValue="constraints.partiallyLost" class="no-pad" :name="'partiallyLost'" />
 						<BoolConstraintInput @set="checkConstraint('lost')" :ref="'lost'" :initialValue="constraints.lost" class="no-pad" :name="'lost'" />
 						<BoolConstraintInput @set="checkConstraint('unambiguous')" :ref="'unambiguous'" :initialValue="constraints.unambiguous" class="no-pad" :name="'unambiguous'" />
-						<BoolConstraintInput @set="checkConstraint('trivialPolicy')" :ref="'trivialPolicy'" :initialValue="constraints.trivialPolicy" class="no-pad" :name="'trivial'"/>
+						<BoolConstraintInput @set="checkConstraint('trivial')" :ref="'trivial'" :initialValue="constraints.trivial" class="no-pad" :name="'trivial'"/>
 					</div>
 				</v-tab-item>
 			</v-tabs-items>
@@ -264,7 +264,7 @@ export default {
 			partiallyLost : 'optional',
 			lost : 'optional',
 			unambiguous : 'optional',
-			trivialPolicy : 'optional'
+			trivial : 'optional'
 		},
 
 		// message dialogues
@@ -584,20 +584,20 @@ export default {
 					break;
 
 				case "unambiguous":
-					if (value === "forbidden" && this.getConstraintValue("trivialPolicy") !== "forbidden") {
+					if (value === "forbidden" && this.getConstraintValue("trivial") !== "forbidden") {
 						let msgArgs = {
 								nameA: this.$t('creator.constraints.unambiguous'),
 								valueA: this.$t('creator.constraints.' + value),
 								nameB: this.$t('creator.constraints.trivial'),
-								valueB: this.$t('creator.constraints.' + this.getConstraintValue("trivialPolicy"))
+								valueB: this.$t('creator.constraints.' + this.getConstraintValue("trivial"))
 							}
 							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
 							
-							this.setConstraintValue("trivialPolicy", "forbidden");
+							this.setConstraintValue("trivial", "forbidden");
 					}
 					break;
 
-				case "trivialPolicy":
+				case "trivial":
 					if (value === "required" && this.getConstraintValue("unambiguous") !== "required") {
 						let msgArgs = {
 								nameA: this.$t('creator.constraints.trivial'),
@@ -749,7 +749,7 @@ export default {
 			// reqs.partiallyLost = this.$refs["partiallyLost"]?this.$refs["partiallyLost"].value:this.constraints.partiallyLost;
 			// reqs.lost = this.$refs["lost"]?this.$refs["lost"].value:this.constraints.lost;
 			// reqs.unambiguousPolicy = this.$refs["unambiguousPolicy"]?this.$refs["unambiguousPolicy"].value:this.constraints.unambiguousPolicy;
-			// reqs.trivialPolicy = this.$refs["trivialPolicy"]?this.$refs["trivialPolicy"].value:this.constraints.trivialPolicy;
+			// reqs.trivial = this.$refs["trivial"]?this.$refs["trivial"].value:this.constraints.trivial;
 
 			reqs.reset();
 			return reqs;

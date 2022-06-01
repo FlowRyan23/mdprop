@@ -174,7 +174,7 @@
 			"failure": "Bei der Erzeugung der Welt ist ein Fehler aufgetreten",
 			"minimumGoals": "Die Eigenschaft {constraint} benötigt mindestens {nGoals} Ziel(e)",
 			"minimumTraps": "Die Eigenschaft {constraint} benötigt mindestens {nTraps} Falle(n)",
-			"incompatibleConstraints": "Der Wert '{valueA}' der Eigenschaft '{nameA}' ist nicht kompatible mit dem Wert '{valueB}' der Eigenschaft '{nameB}'",
+			"incompatibleConstraints": "Der Wert '{valueA}' der Eigenschaft '{nameA}' ist nicht kompatibel mit dem Wert '{valueB}' der Eigenschaft '{nameB}'",
 			"minimumStepCost": "Die Eigenschaft {constraint} benötigt größere Schrittkosten"
 		}
 	},

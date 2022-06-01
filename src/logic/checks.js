@@ -23,7 +23,7 @@ export default class Requirements {
 		this.partiallyLost = null;			// at least one tile has a guaranteed negative score
 		this.lost = null;								// all tiles have guaranteed negative scores
 		this.unambiguous = null;				// the policy must only recomend one action in each tile
-		this.trivialPolicy = null;			// the policy is equivalent to an optimal search for goals
+		this.trivial = null;			// the policy is equivalent to an optimal search for goals
 
 		this.satisfaction = null;		// keeps track of which constraints are met and which aren't
 	}
@@ -49,7 +49,7 @@ export default class Requirements {
 			partiallyLost: this.partiallyLost===null?true:null,
 			unambiguous: this.unambiguous===null?true:null,
 			//phase5
-			trivialPolicy: this.trivialPolicy===null?true:null
+			trivial: this.trivial===null?true:null
 		};
 	}
 
@@ -263,11 +263,11 @@ export default class Requirements {
 
 			// one step in the direction of the policy should reduce distance by 1 if the policy is trivial
 			if (target.pathCost !== tile.pathCost - 1) {
-				this.satisfaction.trivialPolicy = matches(this.trivialPolicy, false);
+				this.satisfaction.trivial = matches(this.trivial, false);
 				return;
 			}
 		}
-		this.satisfaction.trivialPolicy = matches(this.trivialPolicy, true);
+		this.satisfaction.trivial = matches(this.trivial, true);
 	}
 
 	toString() {
