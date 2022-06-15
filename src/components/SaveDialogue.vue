@@ -1,27 +1,27 @@
 <template>
   <v-overlay :dark="$vuetify.theme.dark">
     <v-card id="card" class="d-flex flex-column">
-			<v-card-title primary-title>
-				{{$t('saver.title')}}
+		<v-card-title primary-title>
+			{{$t('saver.title')}}
 
-				<v-spacer></v-spacer>
+			<v-spacer></v-spacer>
 
-				<v-btn @click="store.commit('displayMDP')" rounded icon>
-					<v-icon size="32">mdi-close-thick</v-icon>
-				</v-btn>
-			</v-card-title>
+			<v-btn @click="store.commit('displayMDP')" rounded icon>
+				<v-icon size="32">mdi-close-thick</v-icon>
+			</v-btn>
+		</v-card-title>
 
       <div class="d-flex">
         <v-text-field
           name="worldName"
           :label="$t('saver.nameInput')"
-					:placeholder="$t('saver.namePlaceholder')"
-					type="text"
-					autofocus
-					outlined
-          v-model="name"
-					style="margin-right: 16px"
-					@keydown="keyHandler"
+			:placeholder="$t('saver.namePlaceholder')"
+			type="text"
+			autofocus
+			outlined
+			v-model="name"
+			style="margin-right: 16px"
+			@keydown="keyHandler"
         ></v-text-field>
 
         <v-btn color="blue" @click="save()" style="margin-top: 8px">{{ $t("saver.confirm") }}</v-btn>
@@ -45,14 +45,13 @@ export default {
 
   methods: {
     save() {
-			if (!this.name) {
-				this.name = "_auto";
-			}
-			store.commit('saveLevel', {
-				name: this.name,
-				mdp: this.mdp.compact()
-			});
-			store.commit('displayMDP');
+		if (!this.name) {
+			this.name = "_auto";
+		}
+		let world = this.mdp.compact();
+		world.name = this.name;
+		store.commit('saveLevel', world);
+		store.commit('displayMDP');
     },
 
 		keyHandler(event) {

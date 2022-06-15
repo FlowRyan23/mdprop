@@ -65,7 +65,21 @@
 				</div>
 			</div>
 			
-			<v-btn color="blue" class="ml-4 mb-4" @click="set(selected[0])">{{$t('selector.confirm')}}</v-btn>
+			<div class="d-flex">
+				<v-btn color="blue" class="ml-4 mb-4" @click="set(selected[0])">{{$t('selector.confirm')}}</v-btn>
+	
+				<v-file-input
+					v-model="uploadFiles"
+					multiple
+					truncate-length="25"
+					:label="$t('selector.upload')"
+					:placeholder="$t('selector.upload')"
+				></v-file-input>
+
+				<v-btn fab icon color="blue" @click="upload">
+					<v-icon>mdi-upload</v-icon>
+				</v-btn>
+			</div>
 		</v-card>
 
 		<v-snackbar
@@ -110,6 +124,9 @@ export default {
 			{text: this.$t('selector.actions'), value: 'mdp', filterable: false, sortable: false, align: 'center'},
 		],
 
+		uploadFiles: [],
+		test: null,
+
 		message: false,
 		msgText: "",
 		msgColor: "",
@@ -140,6 +157,19 @@ export default {
 				this.preview = null;
 			}
 			this.worlds = this.worlds.filter(w => w.name !== item.name);
+		},
+
+		upload() {
+			for (const file of this.uploadFiles) {
+				file.text().then(text => {
+					if(file.name.endsWith(".txt")) {
+						let world = JSON.parse(text);
+						this.test = world;
+						world.name = file.name.slice(0, -4);
+						store.commit('saveLevel', world);
+					}
+				});
+			}
 		},
 
 		clickHandler(value) {
