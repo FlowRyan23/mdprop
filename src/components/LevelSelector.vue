@@ -65,13 +65,20 @@
 				</div>
 			</div>
 			
-			<div class="d-flex">
-				<v-btn color="blue" class="ml-4 mb-4" @click="set(selected[0])">{{$t('selector.confirm')}}</v-btn>
+			<div class="d-flex justify-space-between mt-4">
+				<v-btn color="blue" class="ml-4 mb-4 mt-2" @click="set(selected[0])">{{$t('selector.confirm')}}</v-btn>
 	
+				<v-spacer></v-spacer>
+
 				<v-file-input
+					class="ms-4 mt-2"
+					chips
+					:full-width="false"
 					v-model="uploadFiles"
 					multiple
-					truncate-length="25"
+					dense
+					outlined
+					truncate-length="15"
 					:label="$t('selector.upload')"
 					:placeholder="$t('selector.upload')"
 				></v-file-input>
@@ -79,6 +86,8 @@
 				<v-btn fab icon color="blue" @click="upload">
 					<v-icon>mdi-upload</v-icon>
 				</v-btn>
+
+				<v-spacer></v-spacer>
 			</div>
 		</v-card>
 
@@ -110,6 +119,7 @@ export default {
 	data()  {return {
 		store: store,
 		data: data,
+		tableData: [],
 		worlds: [],
 		selected: [],
 		preview: null,
@@ -162,14 +172,51 @@ export default {
 		upload() {
 			for (const file of this.uploadFiles) {
 				file.text().then(text => {
-					if(file.name.endsWith(".txt")) {
-						let world = JSON.parse(text);
-						this.test = world;
-						world.name = file.name.slice(0, -4);
-						store.commit('saveLevel', world);
+					try {
+						var world = JSON.parse(text);
+					} catch (error) {
+						this.showMessage(this.$t("selector.message.invalidFileContent", {fileName: file.name}), "error");
+						this.uploadFiles = [];
+						return;
 					}
+
+					if(!world || !world.discount || !world.stepChances || !world.level[0]) {
+						this.showMessage(this.$t("selector.message.missingAttribute", {fileName: file.name}), "error");
+						this.uploadFiles = [];
+						return;
+					}
+
+					this.test = world;
+					world.name = file.name.slice(0, -4);
+					store.commit('saveLevel', world);
+
+					this.tableData.push({
+						name: world.name,
+						discount: world.discount,
+						stepCost: world.stepCost,
+						width: world.level[0].length,
+						height: world.level.length,
+						mdp: world
+					});
+
+					this.uploadFiles = [];
 				});
 			}
+		},
+
+		loadData() {
+			let td = [];
+			for (const mdp of this.worlds) {
+				td.push({
+					name: mdp.name,
+					discount: mdp.discount,
+					stepCost: mdp.stepCost,
+					width: mdp.tiles[0].length,
+					height: mdp.tiles.length,
+					mdp: mdp
+				})
+			}
+			return td;
 		},
 
 		clickHandler(value) {
@@ -196,21 +243,6 @@ export default {
 	},
 
 	computed: {
-		tableData() {
-			let td = [];
-			for (const mdp of this.worlds) {
-				td.push({
-					name: mdp.name,
-					discount: mdp.discount,
-					stepCost: mdp.stepCost,
-					width: mdp.tiles[0].length,
-					height: mdp.tiles.length,
-					mdp: mdp
-				})
-			}
-			return td;
-		},
-
 		previewSize() {
 			if (!this.preview) {
 				return {width: 280, height: 210}
@@ -236,6 +268,7 @@ export default {
 			world.name = name;
 			this.worlds.push(world);
 		}
+		this.tableData = this.loadData();
 	}
 }
 </script>

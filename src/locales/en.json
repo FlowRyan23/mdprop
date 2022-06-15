@@ -99,18 +99,21 @@
   },
   "selector": {
     "title": "Select a level to open it",
-		"search": "Search",
-		"name": "Name",
-		"discount": "Discount",
-		"stepCost":" Step Cost",
-		"width": "Width",
-		"height": "Height",
-		"actions": "Actions",
-		"preview": "Preview",
-		"confirm": "Open",
-		"message": {
-			"noneSelected": "No level selected"
-		}
+	"search": "Search",
+	"upload": "hochladen",
+	"name": "Name",
+	"discount": "Discount",
+	"stepCost":" Step Cost",
+	"width": "Width",
+	"height": "Height",
+	"actions": "Actions",
+	"preview": "Preview",
+	"confirm": "Open",
+	"message": {
+		"noneSelected": "No level selected",
+		"invalidFileContent": "Unable to read contents of {fileName}",
+		"missingAttribute": "{fileName} is missing required information"
+	}
   },
   "settings": {
     "back": "Back",
