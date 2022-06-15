@@ -102,8 +102,7 @@ const store = new Vuex.Store({
 				k++;
 				world.name = baseName + "(" + k + ")";
 			}
-			state.worlds[world.name] = world.mdp;
-			state.worlds[world.name].name = world.name;
+			state.worlds[world.name] = world;
 		},
 
 		displayMDP(state) {
