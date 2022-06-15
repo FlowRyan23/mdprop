@@ -34,8 +34,10 @@
 							id="rewardField"
 							class="shrink no-spins"
 							hide-details
-							solo-inverted
+							readonly
+							solo
 							type="number"
+							color="black lighten-4"
 							validate-on-blur
 							v-on="on"
 							v-bind="attrs"

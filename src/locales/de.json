@@ -74,6 +74,7 @@
 	"selector": {
 		"title": "Wählen Sie ein Level aus",
 		"search": "Suchen",
+		"upload": "hochladen",
 		"name": "Name",
 		"discount": "Discount",
 		"stepCost": "Kosten",
@@ -83,7 +84,9 @@
 		"preview": "Vorschau",
 		"confirm": "Öffnen",
 		"message": {
-			"noneSelected": "Kein Level ausgewählt"
+			"noneSelected": "Kein Level ausgewählt",
+			"invalidFileContent": "Der Inhalt der Datei {fileName} konnte nicht gelesen werden",
+			"missingAttribute": "Der Inhalt der Datei {fileName} ist nicht korrekt"
 		}
 	},
 	"saver": {
