@@ -171,15 +171,6 @@
 			<div v-else-if="store.state.focus==='saver'">
 				<SaveDialogue :mdp="mdp" />
 			</div>
-
-			<div v-if="store.state.dev">
-				<v-btn @click="plot()">plot</v-btn>
-				<div id="plotDiv" ref="plt"></div>
-
-				<v-btn @click="eval()">eval</v-btn>
-
-			</div>
-
 		</v-main>
 
 		<v-snackbar
@@ -210,7 +201,6 @@ import SaveDialogue from "./SaveDialogue.vue";
 
 import store from "../logic/sharedData";
 import GridMDP from '../logic/mdp_prop';
-import plotCurrent from "../logic/analytics/plotEntry";
 import evaluate from "../logic/analytics/evaluation";
 
 export default {
@@ -234,10 +224,6 @@ export default {
 	}},
 
 	methods: {
-		plot() {
-			plotCurrent(this.$refs["plt"], this.mdp.compact());
-		},
-
 		eval() {
 			evaluate();
 		},
@@ -310,6 +296,7 @@ export default {
 		fitCanvas() {
 			// normalizing zoom to fit the new level and utilize available space
 			let zoom = 100;
+			store.commit('setTileSizes', {width: zoom, height: zoom});
 			if(this.mdp.tiles.length * 100 > 0.80 * window.innerHeight) {
 				zoom = (0.9 * window.innerHeight) / this.mdp.tiles.length;
 			}
@@ -317,6 +304,7 @@ export default {
 				zoom = (0.7 * window.innerWidth) / this.mdp.tiles[0].length;
 			}
 			store.commit('setTileSizes', {width: zoom, height: zoom});
+			return {width: zoom, height: zoom};
 		},
 
 		closeEditor() {
