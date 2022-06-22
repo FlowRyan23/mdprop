@@ -34,7 +34,6 @@
 							id="rewardField"
 							class="shrink no-spins"
 							hide-details
-							readonly
 							solo
 							type="number"
 							color="black lighten-4"
@@ -43,6 +42,8 @@
 							v-bind="attrs"
 							@change="updateTileReward()"
 							@wheel.prevent="scrollHandler"
+							@focus="store.commit('toggleShortcuts')"
+							@blur="store.commit('toggleShortcuts')"
 						></v-text-field>
 					</template>
 					<span>{{$t('tileEditor.tip.reward')}}</span>
@@ -165,9 +166,15 @@ export default {
 			return store.state.displayIteration;
 		},
 
-		reward() {
-			let r = this.tile.reward.toFixed(2);
-			return Math.abs(r) < 0.01? "0.00": r;
+		reward: {
+			get() {
+				let r = this.tile.reward.toFixed(2);
+				return Math.abs(r) < 0.01? "0.00": r;
+			},
+
+			set(val) {
+				this.tile.reward = parseFloat(val);
+			}
 		}
 	},
 
