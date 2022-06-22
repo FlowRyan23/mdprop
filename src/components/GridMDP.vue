@@ -336,7 +336,7 @@ export default {
 		},
 
 		selectionListener(event) {
-			if (store.state.focus !== "mdp") {
+			if (store.state.focus !== "mdp" || store.state.lockShortcuts) {
 				return;
 			}
 

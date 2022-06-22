@@ -26,6 +26,9 @@ const store = new Vuex.Store({
 		renderMode: "values",
 		tileColors: true,
 		darkMode: true,
+
+		// dirty fixes
+		lockShortcuts: false,
 		
 		// advanced settings
 		enableActionEditing: false,
@@ -93,6 +96,10 @@ const store = new Vuex.Store({
 
 		toggleDarkMode(state) {
 			state.darkMode = !state.darkMode;
+		},
+
+		toggleShortcuts(state) {
+			state.lockShortcuts = !state.lockShortcuts;
 		},
 
 		saveLevel(state, world) {
