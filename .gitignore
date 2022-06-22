@@ -22,3 +22,5 @@ yarn-error.log*
 .VSCodeCounter/
 _test/
 src/logic/noise/ghupNoiseGen.js
+package-lock.json
+package.json
