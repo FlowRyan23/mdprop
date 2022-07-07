@@ -36,7 +36,7 @@ const store = new Vuex.Store({
 		worlds: worlds,
 
 		// debugging and development data
-		dev: false,
+		dev: true,
 		savedPlotData: null
 	},
 

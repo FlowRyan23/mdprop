@@ -185,6 +185,12 @@
 			</template>
 		</v-snackbar>
 
+		<div v-if="store.state.dev">
+			<v-btn @click="eval()">eval</v-btn>
+			<v-btn @click="plot()">plot</v-btn>
+			<div id="plotDiv" ref="plt"></div>
+		</div>
+
 		<v-footer app>
 		</v-footer>
 	</div>
@@ -202,6 +208,7 @@ import SaveDialogue from "./SaveDialogue.vue";
 import store from "../logic/sharedData";
 import GridMDP from '../logic/mdp_prop';
 import evaluate from "../logic/analytics/evaluation";
+import plotCurrent from "../logic/analytics/plotEntry";
 
 export default {
 	name: 'GridMDP',
@@ -226,6 +233,10 @@ export default {
 	methods: {
 		eval() {
 			evaluate();
+		},
+
+		plot() {
+			plotCurrent(this.$refs["plt"], this.mdp.compact());
 		},
 
 		nextIter() {
