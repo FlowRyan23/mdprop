@@ -4,8 +4,6 @@
 			<v-card-title class="d-flex justify-space-between">
 				{{$t('selector.title')}}
 
-				<!-- <v-btn @click="log()">log</v-btn> -->
-
 				<v-spacer></v-spacer>
 
 				<v-text-field
@@ -23,17 +21,6 @@
 					<v-icon size="32">mdi-close-thick</v-icon>
 				</v-btn>
 			</v-card-title>
-
-			<!-- <div v-if="worlds.length > 0" id="wrapper">
-				<div :key="x" v-for="(mdp, x) of worlds">
-					<Display class="display" :ID="'w-' + x" :mdp="mdp" :preview="true" :size="{width: 280, height: 210}" @interaction="set(mdp)"/>
-					<div class="d-flex justify-space-between ml-4 mr-4">
-						<p>{{mdp.name}}</p>
-						<p>discount: {{mdp.discount}}</p>
-						<p>stepCost: {{mdp.stepCost}}</p>
-					</div>
-				</div>
-			</div> -->
 
 			<div class="d-flex justify-space-between">
 				<v-data-table
@@ -53,11 +40,8 @@
 						<v-icon small color="green" @click="set(item)" class="mr-4">
 							mdi-check
 						</v-icon>
-						<v-icon small color="blue" @click="downloadSingle(item)" class="mr-4">
+						<v-icon small color="blue" @click="downloadSingle(item)">
 							mdi-download
-						</v-icon>
-						<v-icon small	color="red" @click="remove(item)">
-							mdi-delete-outline
 						</v-icon>
 					</template>
 				</v-data-table>
@@ -81,7 +65,30 @@
 				</div>
 			</div>
 			
-			<v-btn color="blue" class="ml-4 mb-4" @click="set(selected[0])">{{$t('selector.confirm')}}</v-btn>
+			<div class="d-flex justify-space-between mt-4">
+				<v-btn color="blue" class="ml-4 mb-4 mt-2" @click="set(selected[0])">{{$t('selector.confirm')}}</v-btn>
+	
+				<v-spacer></v-spacer>
+
+				<v-file-input
+					class="ms-4 mt-2"
+					chips
+					:full-width="false"
+					v-model="uploadFiles"
+					multiple
+					dense
+					outlined
+					truncate-length="15"
+					:label="$t('selector.upload')"
+					:placeholder="$t('selector.upload')"
+				></v-file-input>
+
+				<v-btn fab icon color="blue" @click="upload">
+					<v-icon>mdi-upload</v-icon>
+				</v-btn>
+
+				<v-spacer></v-spacer>
+			</div>
 		</v-card>
 
 		<v-snackbar
@@ -112,6 +119,7 @@ export default {
 	data()  {return {
 		store: store,
 		data: data,
+		tableData: [],
 		worlds: [],
 		selected: [],
 		preview: null,
@@ -125,6 +133,9 @@ export default {
 			{text: this.$t('selector.height'), value: 'height', filterable: false, align: 'center'},
 			{text: this.$t('selector.actions'), value: 'mdp', filterable: false, sortable: false, align: 'center'},
 		],
+
+		uploadFiles: [],
+		test: null,
 
 		message: false,
 		msgText: "",
@@ -158,6 +169,56 @@ export default {
 			this.worlds = this.worlds.filter(w => w.name !== item.name);
 		},
 
+		upload() {
+			for (const file of this.uploadFiles) {
+				file.text().then(text => {
+					try {
+						var world = JSON.parse(text);
+					} catch (error) {
+						this.showMessage(this.$t("selector.message.invalidFileContent", {fileName: file.name}), "error");
+						this.uploadFiles = [];
+						return;
+					}
+
+					if(!world || !world.discount || !world.stepChances || !world.level[0]) {
+						this.showMessage(this.$t("selector.message.missingAttribute", {fileName: file.name}), "error");
+						this.uploadFiles = [];
+						return;
+					}
+
+					this.test = world;
+					world.name = file.name.slice(0, -4);
+					store.commit('saveLevel', world);
+
+					this.tableData.push({
+						name: world.name,
+						discount: world.discount,
+						stepCost: world.stepCost,
+						width: world.level[0].length,
+						height: world.level.length,
+						mdp: world
+					});
+
+					this.uploadFiles = [];
+				});
+			}
+		},
+
+		loadData() {
+			let td = [];
+			for (const mdp of this.worlds) {
+				td.push({
+					name: mdp.name,
+					discount: mdp.discount,
+					stepCost: mdp.stepCost,
+					width: mdp.tiles[0].length,
+					height: mdp.tiles.length,
+					mdp: mdp
+				})
+			}
+			return td;
+		},
+
 		clickHandler(value) {
 			this.selected = [value];
 			this.preview = value.mdp;
@@ -182,21 +243,6 @@ export default {
 	},
 
 	computed: {
-		tableData() {
-			let td = [];
-			for (const mdp of this.worlds) {
-				td.push({
-					name: mdp.name,
-					discount: mdp.discount,
-					stepCost: mdp.stepCost,
-					width: mdp.tiles[0].length,
-					height: mdp.tiles.length,
-					mdp: mdp
-				})
-			}
-			return td;
-		},
-
 		previewSize() {
 			if (!this.preview) {
 				return {width: 280, height: 210}
@@ -222,6 +268,7 @@ export default {
 			world.name = name;
 			this.worlds.push(world);
 		}
+		this.tableData = this.loadData();
 	}
 }
 </script>

@@ -26,6 +26,9 @@ const store = new Vuex.Store({
 		renderMode: "values",
 		tileColors: true,
 		darkMode: true,
+
+		// dirty fixes
+		lockShortcuts: false,
 		
 		// advanced settings
 		enableActionEditing: false,
@@ -95,6 +98,10 @@ const store = new Vuex.Store({
 			state.darkMode = !state.darkMode;
 		},
 
+		toggleShortcuts(state) {
+			state.lockShortcuts = !state.lockShortcuts;
+		},
+
 		saveLevel(state, world) {
 			let baseName = world.name;
 			let k = 0;
@@ -102,8 +109,7 @@ const store = new Vuex.Store({
 				k++;
 				world.name = baseName + "(" + k + ")";
 			}
-			state.worlds[world.name] = world.mdp;
-			state.worlds[world.name].name = world.name;
+			state.worlds[world.name] = world;
 		},
 
 		displayMDP(state) {

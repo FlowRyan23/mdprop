@@ -1,5 +1,6 @@
-import { plotSaved } from "./noiseDisplay";
+import { perlin } from "./noiseDisplay";
 
 export default function plotCurrent(element) {
-	plotSaved(element);
+	// plotSaved(element);
+	perlin(element);
 }

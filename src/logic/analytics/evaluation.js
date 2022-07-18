@@ -55,6 +55,7 @@ perlinNoiseFractalReq.carverArgs = {
 	bias: 0.47,
 	fractal: true,
 	octaves: 4,
+	amplitude: 1,
 	fractalFrequency: 1,
 	persistence: 0.8
 };
@@ -108,7 +109,7 @@ export default async function evaluate() {
 			dangerous : 0,
 			partiallyLost : 0,
 			lost : 0,
-			ambiguousPolicy : 0,
+			unambiguousPolicy : 0,
 			trivialPolicy : 0
 		}
 
