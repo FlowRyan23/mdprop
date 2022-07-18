@@ -3,7 +3,7 @@ module.exports = {
     "vuetify"
   ],
 
-  publicPath: '/dist',
+  publicPath: './',
 
   pluginOptions: {
     i18n: {

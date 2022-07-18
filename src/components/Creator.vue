@@ -597,19 +597,20 @@ export default {
 					}
 					break;
 
-				case "trivial":
-					if (value === "required" && this.getConstraintValue("unambiguous") !== "required") {
-						let msgArgs = {
-								nameA: this.$t('creator.constraints.trivial'),
-								valueA: this.$t('creator.constraints.' + value),
-								nameB: this.$t('creator.constraints.unambiguous'),
-								valueB: this.$t('creator.constraints.' + this.getConstraintValue("unambiguous"))
-							}
-							this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
+				// if two goals are at equal distance to a tile, the policy in this tile will be ambiguous, but still trivial 
+				// case "trivial":
+				// 	if (value === "required" && this.getConstraintValue("unambiguous") !== "required") {
+				// 		let msgArgs = {
+				// 				nameA: this.$t('creator.constraints.trivial'),
+				// 				valueA: this.$t('creator.constraints.' + value),
+				// 				nameB: this.$t('creator.constraints.unambiguous'),
+				// 				valueB: this.$t('creator.constraints.' + this.getConstraintValue("unambiguous"))
+				// 			}
+				// 			this.showMessage(this.$t('creator.messages.incompatibleConstraints', msgArgs), "warning");
 							
-							this.setConstraintValue("unambiguous", "required");
-					}
-					break;
+				// 			this.setConstraintValue("unambiguous", "required");
+				// 	}
+				// 	break;
 			
 				default:
 					break;

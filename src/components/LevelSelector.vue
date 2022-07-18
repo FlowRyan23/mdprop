@@ -79,13 +79,18 @@
 					dense
 					outlined
 					truncate-length="15"
-					:label="$t('selector.upload')"
-					:placeholder="$t('selector.upload')"
+					:label="$t('selector.selectFile')"
+					:placeholder="$t('selector.selectFile')"
 				></v-file-input>
 
-				<v-btn fab icon color="blue" @click="upload">
-					<v-icon>mdi-upload</v-icon>
-				</v-btn>
+				<v-tooltip bottom>
+					<template v-slot:activator="{on, attrs}">
+						<v-btn fab icon color="blue" @click="upload" v-on="on" v-bind="attrs">
+							<v-icon>mdi-upload</v-icon>
+						</v-btn>
+					</template>
+					<span>{{$t('selector.upload')}}</span>
+				</v-tooltip>
 
 				<v-spacer></v-spacer>
 			</div>
@@ -180,24 +185,27 @@ export default {
 						return;
 					}
 
-					if(!world || !world.discount || !world.stepChances || !world.level[0]) {
+					if(!world || world.discount===undefined || world.stepCost===undefined || world.level===undefined) {
 						this.showMessage(this.$t("selector.message.missingAttribute", {fileName: file.name}), "error");
 						this.uploadFiles = [];
 						return;
 					}
 
-					this.test = world;
+					world = new GridMDP(world.level, world.discount, world.stepCost);
 					world.name = file.name.slice(0, -4);
+					world.width = world.level[0].length;
+					world.height = world.level.length;
 					store.commit('saveLevel', world);
 
-					this.tableData.push({
-						name: world.name,
-						discount: world.discount,
-						stepCost: world.stepCost,
-						width: world.level[0].length,
-						height: world.level.length,
-						mdp: world
-					});
+					this.tableData.push(world);
+					// this.tableData.push({
+					// 	name: world.name,
+					// 	discount: world.discount,
+					// 	stepCost: world.stepCost,
+					// 	width: world.level[0].length,
+					// 	height: world.level.length,
+					// 	mdp: world
+					// });
 
 					this.uploadFiles = [];
 				});

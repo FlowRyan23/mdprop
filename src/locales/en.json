@@ -101,6 +101,7 @@
     "title": "Select a level to open it",
 	"search": "Search",
 	"upload": "hochladen",
+	"selectFile": "select files",
 	"name": "Name",
 	"discount": "Discount",
 	"stepCost":" Step Cost",
