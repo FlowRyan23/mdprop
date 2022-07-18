@@ -66,10 +66,38 @@ const configs = [
 	{width: 11, height: 11, goals: 4, traps: 2},
 	{width: 19, height: 15, goals: 8, traps: 4}
 ];
+const settings = [
+	{
+		stepCost: 0,
+		discount: 0.9,
+		scFront: 0.8,
+		scBack: 0,
+		scLeft: 0.1,
+		scRight: 0.1
+	},
+	
+	{
+		stepCost: 0.1,
+		discount: 0.95,
+		scFront: 0.8,
+		scBack: 0,
+		scLeft: 0.1,
+		scRight: 0.1
+	},
+	
+	{
+		stepCost: 0.1,
+		discount: 0.9,
+		scFront: 0.6,
+		scBack: 0.1,
+		scLeft: 0.15,
+		scRight: 0.15
+	}
+]
 
 export default async function evaluate() {
-	for (const req of requirementsGenerator()) {
-		console.log("checking " + req.name);
+	for (const base of requirementsList) {
+		console.log("checking " + base._name);
 		let satisfactions = {
 			connected : 0,
 			deadEnds : 0,
@@ -85,14 +113,17 @@ export default async function evaluate() {
 		}
 
 		let startTime = Date.now();
-
-		for (let i = 0; i < 100; i++) {
-			let mdp = await create(req, 1)
-			req.check(mdp);
-
-			for (let constraint in satisfactions) {
-				if (req.satisfaction[constraint]) {
-					satisfactions[constraint]++;
+		for (const req of requirementsGenerator(base)) {
+			console.log("checking: " + base.name);
+			for (let i = 0; i < 10; i++) {
+				let mdp = await create(req, 1);
+				mdp.apply(req.settings);
+				req.check(mdp);
+	
+				for (let constraint in satisfactions) {
+					if (req.satisfaction[constraint]) {
+						satisfactions[constraint]++;
+					}
 				}
 			}
 		}
@@ -103,26 +134,29 @@ export default async function evaluate() {
 	}
 }
 
-function* requirementsGenerator() {
-	for (const req of requirementsList) {
+function* requirementsGenerator(base) {
+	for (const setting of settings) {
 		for (const config of configs) {
-			req.width = config.width;
-			req.height = config.height;
-			req.goals = config.goals;
-			req.traps = config.traps;
-			req.name = req._name + "-w:" + config.width + "-h:" + config.height + "-g:" + config.goals + "-t:" + config.traps;
-			req.connected = 'required';
-			req.deadEnds = 'required';
-			req.winnable = 'required';
-			req.partiallyWinnable = 'required';
-			req.survivable = 'required';
-			req.partiallySurvivable = 'required';
-			req.dangerous = 'required';
-			req.partiallyLost = 'required';
-			req.lost = 'required';
-			req.ambiguousPolicy = 'required';
-			req.trivialPolicy = 'required';
-			yield req;
+			base.settings = setting;
+			base.width = config.width;
+			base.height = config.height;
+			base.carverArgs.width = config.width;
+			base.carverArgs.height = config.height;
+			base.goals = config.goals;
+			base.traps = config.traps;
+			base.name = base._name + "-w:" + config.width + "-h:" + config.height + "-g:" + config.goals + "-t:" + config.traps;
+			base.connected = 'required';
+			base.deadEnds = 'required';
+			base.winnable = 'required';
+			base.partiallyWinnable = 'required';
+			base.survivable = 'required';
+			base.partiallySurvivable = 'required';
+			base.dangerous = 'required';
+			base.partiallyLost = 'required';
+			base.lost = 'required';
+			base.unambiguousPolicy = 'required';
+			base.trivialPolicy = 'required';
+			yield base;
 		}
 	}
 }
