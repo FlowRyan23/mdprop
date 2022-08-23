@@ -172,12 +172,13 @@
 				<SaveDialogue :mdp="mdp" />
 			</div>
 
-			<div v-if="dev">
+			<div v-if="store.state.dev">
 				<v-btn @click="plot()">plot</v-btn>
 				<div id="plotDiv" ref="plt"></div>
 
 				<v-btn @click="eval()">eval</v-btn>
 
+				<v-btn @click="con()">con</v-btn>
 			</div>
 
 		</v-main>
@@ -193,12 +194,6 @@
 				</v-btn>
 			</template>
 		</v-snackbar>
-
-		<div v-if="store.state.dev">
-			<v-btn @click="eval()">eval</v-btn>
-			<v-btn @click="plot()">plot</v-btn>
-			<div id="plotDiv" ref="plt"></div>
-		</div>
 
 		<v-footer app>
 		</v-footer>
@@ -216,9 +211,8 @@ import SaveDialogue from "./SaveDialogue.vue";
 
 import store from "../logic/sharedData";
 import GridMDP from '../logic/mdp_prop';
-import evaluate from "../logic/analytics/evaluation";
+import evaluate, { noiseConnectivity } from "../logic/analytics/evaluation";
 import plotCurrent from "../logic/analytics/plotEntry";
-import evaluate from "../logic/analytics/evaluation";
 
 export default {
 	name: 'GridMDP',
@@ -232,7 +226,6 @@ export default {
 		editTile: null,
 		displayMode: "values",
 		reached: store.state.reachedPreview,
-		dev: true,
 
 		// message dialogues
 		message: false,
@@ -250,8 +243,8 @@ export default {
 			plotCurrent(this.$refs["plt"], this.mdp.compact());
 		},
 
-		eval() {
-			evaluate();
+		con() {
+			noiseConnectivity(this.$refs["plt"]);
 		},
 
 		nextIter() {

@@ -10,6 +10,13 @@ const gausKernel3 = [
 	[2, 4, 2],
 	[1, 2, 1]
 ];
+const gausKernel5 = [
+	[1, 4, 7, 4, 1],
+	[4, 16, 26, 16, 4],
+	[7, 26, 41, 26, 7],
+	[4, 16, 26, 16, 4],
+	[1, 4, 7, 4, 1]
+]
 
 export function carveNoise(level, args={}) {
 	let noise = getNoise(args);
@@ -17,6 +24,11 @@ export function carveNoise(level, args={}) {
 	if (args.blur) {
 		noise = sample(noise, level.length, level[0].length);
 		let kernel = getKernel(args.kernel);
+		if(store.state.dev) {
+			if (args.width*args.height > 100) {
+				kernel = gausKernel5;
+			}
+		}
 		convolve(noise, kernel);
 	}
 
@@ -46,6 +58,8 @@ function getKernel(name) {
 	switch (name) {
 		case "gaus3":
 			return gausKernel3;
+		case "gaus5":
+			return gausKernel5;
 		default:
 			return noKernel;
 	}
@@ -115,6 +129,11 @@ export function carveSnake(level, args) {
 		x:Math.floor(level.length/4)*2,
 		y:Math.floor(level[0].length/4)*2
 	};
+
+	if (level.length < 5 || level[0].length < 5) {
+		start = {x: 0, y: 0};
+	}
+
 	level[start.x][start.y].accessible = true;
 	level.tries = 0;
 	extend(level, start);
@@ -127,16 +146,19 @@ function extend(level, pos, count=0) {
 
 	let potentials = shuffle(neighbors(level, pos, 2).filter(p=>!level[p.x][p.y].accessible));
 	for (const neighbor of potentials) {
+		// console.log("opened " + neighbor.x + ", " + neighbor.y);
 		level[neighbor.x][neighbor.y].accessible = true;
 		level[neighbor.x - (neighbor.x-pos.x)/2][neighbor.y - (neighbor.y-pos.y)/2].accessible = true;
 		if (extend(level, neighbor, count+1)) {
 			return true;
 		} else {
+			// console.log("closed " + neighbor.x + ", " + neighbor.y);
 			level[neighbor.x][neighbor.y].accessible = false;
 			level[neighbor.x - (neighbor.x-pos.x)/2][neighbor.y - (neighbor.y-pos.y)/2].accessible = false;
 		}
 	}
-	let ratio = count / (Math.round(level.length/2) * Math.round(level[0].length/2));
+	let ratio = count / (Math.floor(level.length/2) * Math.floor(level[0].length/2));
+	// console.log(count + " " + ratio);
 	return ratio > 0.8;
 }
 

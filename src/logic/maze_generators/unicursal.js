@@ -2,11 +2,13 @@ import { fill } from "../level";
 import store from "../sharedData";
 import { inBounds } from "../util";
 import { carveDFS } from "./backtracker";
+import { carveSnake } from "./random";
 
-export function hamiltonian(level) {
+export function carveUnicursal(level, args) {
 	if (store.state.dev) {
-		if((level.length - 3) % 4 !== 0) console.warn("level width should be one less than a multiple of 4 (is " + level.length + ")");
-		if((level[0].length - 3) % 4 !== 0) console.warn("level height should be one less than a multiple of 4 (is " + level[0].length + ")");
+		if((level.length - 3) % 4 !== 0 || (level[0].length - 3) % 4 !== 0) {
+			return carveSnake(level, args);
+		} 
 	}
 
 	let template = fill(Math.floor((level[0].length-1) / 2), Math.floor((level.length-1) / 2));

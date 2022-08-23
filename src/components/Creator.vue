@@ -72,6 +72,63 @@
 						</div>
 					</div>
 
+					<div class="d-flex">
+						<v-slider class="mt-3" v-model="discount" :min="0" :max="1" :step="0.01" :label="$t('settings.discount')" hide-details @change="setDiscount">
+							<template v-slot:append>
+								<v-text-field
+									v-model="discount"
+									class="number-field mt-0 pt-0 no-spins"
+									hide-details
+									single-line
+									type="number"
+									@change="setDiscount"
+								></v-text-field>
+							</template>
+						</v-slider>
+	
+						<v-btn plain fab @click="displayFavDiscount = !displayFavDiscount">
+							<v-icon>mdi-star-outline</v-icon>
+						</v-btn>
+					</div>
+
+					<div class="d-flex">
+						<v-slider class="mt-1" v-model="stepCost" :min="0" :max="5" :step="0.01" :label="$t('settings.stepCost')" hide-details @change="setStepCost">
+							<template v-slot:append>
+								<v-text-field
+									v-model="stepCost"
+									class="number-field mt-0 pt-0 no-spins"
+									hide-details
+									single-line
+									type="number"
+									@change="setStepCost"
+								></v-text-field>
+							</template>
+						</v-slider>
+
+						<v-btn plain fab @click="displayFavStepCost = !displayFavStepCost" style="margin-top: -8px">
+							<v-icon>mdi-star-outline</v-icon>
+						</v-btn>
+					</div>
+
+					<div class="d-flex mb-8">
+						<v-slider class="mt-3" v-model="noise" :min="0" :max="1" :step="0.01" :label="$t('settings.noise')" hide-details @change="setStepChances">
+							<template v-slot:append>
+								<v-text-field
+									v-model="noise"
+									class="number-field mt-0 pt-0 no-spins"
+									hide-details
+									single-line
+									type="number"
+									@change="setStepChances"
+								></v-text-field>
+							</template>
+						</v-slider>
+
+						<v-btn plain fab @click="displayFavNoise = !displayFavNoise" >
+							<v-icon>mdi-star-outline</v-icon>
+						</v-btn>
+					</div>
+
 					<div class="d-flex justify-center">
 						<Display
 							v-if="preview"
@@ -116,6 +173,15 @@
 
 						<v-tooltip right>
 							<template v-slot:activator="{on, attrs}">
+								<v-btn :color="generator === 'erdos'?'primary':''" :value="'erdos'" v-on="on" v-bind="attrs">
+									{{$t('creator.quickGenerators.erdos')}}
+								</v-btn>
+							</template>
+							<span>{{$t('creator.quickGenerators.erdosHint')}}</span>
+						</v-tooltip>
+
+						<v-tooltip right>
+							<template v-slot:activator="{on, attrs}">
 								<v-btn :color="generator === 'white'?'primary':''" :value="'white'" v-on="on" v-bind="attrs">
 									{{$t('creator.quickGenerators.white')}}
 								</v-btn>
@@ -154,11 +220,13 @@
 
 				<v-tab-item :key="'constraints'">
 					<div>
-						<!-- TODO use v-for to make code nicer -->
+						<BoolConstraintInput @set="checkConstraint('connected')" :ref="'connected'" :initialValue="constraints.connected" class="no-pad" :name="'connected'" />
+						<BoolConstraintInput @set="checkConstraint('deadEnds')" :ref="'deadEnds'" :initialValue="constraints.deadEnds" class="no-pad" :name="'deadEnds'" />
 						<BoolConstraintInput @set="checkConstraint('winnable')" :ref="'winnable'" :initialValue="constraints.winnable" class="no-pad" :name="'winnable'" />
 						<BoolConstraintInput @set="checkConstraint('partiallyWinnable')" :ref="'partiallyWinnable'" :initialValue="constraints.partiallyWinnable" class="no-pad" :name="'partiallyWinnable'" />
 						<BoolConstraintInput @set="checkConstraint('survivable')" :ref="'survivable'" :initialValue="constraints.survivable" class="no-pad" :name="'survivable'" />
 						<BoolConstraintInput @set="checkConstraint('partiallySurvivable')" :ref="'partiallySurvivable'" :initialValue="constraints.partiallySurvivable" class="no-pad" :name="'partiallySurvivable'" />
+						<BoolConstraintInput @set="checkConstraint('partiallyDangerous')" :ref="'partiallyDangerous'" :initialValue="constraints.dangerous" class="no-pad" :name="'partiallyDangerous'" />
 						<BoolConstraintInput @set="checkConstraint('dangerous')" :ref="'dangerous'" :initialValue="constraints.dangerous" class="no-pad" :name="'dangerous'" />
 						<BoolConstraintInput @set="checkConstraint('partiallyLost')" :ref="'partiallyLost'" :initialValue="constraints.partiallyLost" class="no-pad" :name="'partiallyLost'" />
 						<BoolConstraintInput @set="checkConstraint('lost')" :ref="'lost'" :initialValue="constraints.lost" class="no-pad" :name="'lost'" />
@@ -195,10 +263,11 @@ import Requirements from '../logic/checks';
 import BoolConstraintInput from './BoolConstraintInput';
 import Display from "./Display.vue";
 import {carveDFS} from '../logic/maze_generators/backtracker';
-import carveKruskal from '../logic/maze_generators/kruskal';
-import {hamiltonian} from '../logic/maze_generators/unicursal';
+import carveKruskal, { carveErdosReny } from '../logic/maze_generators/kruskal';
+import {carveUnicursal} from '../logic/maze_generators/unicursal';
 import { carveNoise, carveSnake } from '../logic/maze_generators/random';
 import create from '../logic/levelGeneration';
+import { log } from '../logic/util';
 
 export default {
 	components: {BoolConstraintInput, Display},
@@ -212,23 +281,29 @@ export default {
 		generator: "perfect",
 
 		// basic settings
-		width: 5,
-		height: 5,
+		width: 4,
+		height: 3,
 		goals: 1,
 		traps: 1,
+		discount: 0.9,
+		stepCost: 0,
+		noise: 0.2,
+
 		carvingAlgorithms: [
 			"Recursive Backtracking",
 			"Kruskal",
 			"Unicursal",
 			"Noise",
-			"Snake"
+			"Snake",
+			"Erdos"
 		],
 		algTable: {
 			"Recursive Backtracking": carveDFS,
 			"Kruskal": carveKruskal,
-			"Unicursal": hamiltonian,
+			"Unicursal": carveUnicursal,
 			"Noise": carveNoise,
-			"Snake": carveSnake
+			"Snake": carveSnake,
+			"Erdos": carveErdosReny,
 		},
 		selectedAlgorithm: "Kruskal",
 
@@ -253,13 +328,28 @@ export default {
 		braid: false,
 
 		//constraints
+		// constraints:  {
+		// 	connected : 'required',
+		// 	deadEnds : 'required',
+		// 	winnable : 'required',
+		// 	partiallyWinnable : 'required',
+		// 	survivable : 'required',
+		// 	partiallySurvivable : 'required',
+		// 	partiallyDangerous: 'required',
+		// 	dangerous : 'required',
+		// 	partiallyLost : 'required',
+		// 	lost : 'required',
+		// 	unambiguous : 'required',
+		// 	trivial : 'required'
+		// },
 		constraints:  {
-			connected : 'optional',
+			connected : 'required',
 			deadEnds : 'optional',
 			winnable : 'optional',
 			partiallyWinnable : 'optional',
 			survivable : 'optional',
 			partiallySurvivable : 'optional',
+			partiallyDangerous: 'optional',
 			dangerous : 'optional',
 			partiallyLost : 'optional',
 			lost : 'optional',
@@ -285,12 +375,12 @@ export default {
 			this.preview = null;
 			this.message = false;
 			var reqs = this.requirements();
-			create(reqs).then(result => {
+			create(reqs, store.state.dev?1:undefined).then(result => {
 				if (!result.mdp) {
 					this.showMessage(this.$t('creator.messages.failure'), "error");
 				} else if (result.status === "failure") {
 					
-					this.test = reqs;
+					// this.test = reqs;
 
 					let failedConstraints = [];
 					for (const c in reqs.satisfaction) {
@@ -305,15 +395,35 @@ export default {
 					this.showMessage(this.$t('creator.messages.unsatisfiedConstraint', msgArgs), 'warning');
 				}
 
+				if(store.state.dev) {
+					log(reqs.satisfaction.connected);
+				}
+
 				this.preview=result.mdp;
 				// this.$refs.previewDisplay.render();
 				this.currentTab = "basic";
 			});
 		},
 
+		setDiscount() {
+
+		},
+
+		setStepCost() {
+
+		},
+
+		setStepChances() {
+
+		},
+
 		checkConstraint(key) {
+			if(store.state.dev)
+				return true;
+
 			let value = this.getConstraintValue(key);
 
+			// TODO partiallyDangerous
 			switch (key) {
 				case "winnable":
 					if (value === "required") {
@@ -659,11 +769,12 @@ export default {
 					break;
 
 				case "unicursal":
-					if ((reqs.width - 3) % 4 !== 0 || (reqs.height - 3) % 4 !== 0) {
-						reqs.carver = carveSnake;
-					} else  {
-						reqs.carver = hamiltonian;
-					}
+					reqs.carver = carveUnicursal;
+					break;
+
+				case "erdos":
+					reqs.carver = carveErdosReny;
+					reqs.carverArgs.probability = 0.2;
 					break;
 
 				case "white":
@@ -706,7 +817,7 @@ export default {
 						height: this.height,
 						generator: "perlin",
 						frequency: 4,
-						bias: 0.47,
+						bias: 0.5,
 						fractal: true,
 						octaves: 4,
 						amplitude: 1,

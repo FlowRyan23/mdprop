@@ -9,8 +9,8 @@ export default class Requirements {
 		// this.timeToConverge = null;			// number of iterations after wich the policy does not change
 		this.width = null;
 		this.height = null;
-		this.goals = null;
-		this.traps = null;
+		this.goals = 0;
+		this.traps = 0;
 
 		// boolean constraints - can be required(true), optional(null) or forbidden(false)
 		this.connected = null;					// every tile an agent can be on must be reachable from all other tiles
@@ -19,6 +19,7 @@ export default class Requirements {
 		this.partiallyWinnable = null;	// at least one tile has access to a goal with positve score
 		this.survivable = null;					// from all tiles a goal can be reached
 		this.partiallySurvivable = null	// at least one tile has acess to a goal
+		this.partiallyDangerous = null	// at least one tile has access to a trap
 		this.dangerous = null;					// from all tiles a trap can be reached
 		this.partiallyLost = null;			// at least one tile has a guaranteed negative score
 		this.lost = null;								// all tiles have guaranteed negative scores
@@ -41,6 +42,7 @@ export default class Requirements {
 			connected: this.connected===null?true:null,
 			survivable: this.survivable===null?true:null,
 			partiallySurvivable: this.partiallySurvivable===null?true:null,
+			partiallyDangerous: this.partiallyDangerous===null?true:null,
 			dangerous: this.dangerous===null?true:null,
 			// phase4
 			winnable: this.winnable===null?true:null,
@@ -66,6 +68,12 @@ export default class Requirements {
 			|| this.satisfaction.goals === false
 			|| this.satisfaction.traps === false)) {
 			return false;
+		}
+
+		// clears artifacts from tiles set by getComponents
+		for (const tile of mdp.allTiles()) {
+			tile.closed = false;
+			tile.tag = undefined;
 		}
 
 		let goals = this.phase3(getComponents(compCands), strict);
@@ -178,9 +186,9 @@ export default class Requirements {
 
 	phase3(components, strict=false) {
 		let goals = [];
-
+		
 		// full reachability can be checked by length of component list
-		this.satisfaction.connected = matches(this.connected, components.length===1);
+		this.satisfaction.connected = matches(this.connected, components.length<=1);
 		if (strict && !this.satisfaction.connected) {
 			return;
 		}
@@ -207,6 +215,7 @@ export default class Requirements {
 		this.satisfaction.survivable = matches(this.survivable, components.length === survivable);
 		this.satisfaction.partiallySurvivable = matches(this.partiallySurvivable, survivable > 0 && survivable < components.length);
 		this.satisfaction.dangerous = matches(this.dangerous, components.length === dangerous);
+		this.satisfaction.partiallyDangerous = matches(this.partiallyDangerous, dangerous > 0 && dangerous < components.length)
 
 		return goals;
 	}
@@ -286,13 +295,13 @@ function matches(constraint, value) {
 
 function getComponents(candidates) {
 	let components = [];
-		let tag = 1;
-		for (const candidate of candidates) {
-			if (!candidate.tag) {
-				components.push(makeComponent(candidate, tag));
-				tag++;
-			}
+	let tag = 1;
+	for (const candidate of candidates) {
+		if (!candidate.tag) {
+			components.push(makeComponent(candidate, tag));
+			tag++;
 		}
+	}
 	return components;
 }
 

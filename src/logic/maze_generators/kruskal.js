@@ -41,6 +41,25 @@ export default function carveKruskal(level, args) {
 	return level;
 }
 
+export function carveErdosReny(level, args) {
+	let nEdges = args.nEdges?args.nEdges:(level.length*level[0].length*0,3);
+
+	let edges = genEdges(level, 1);
+
+	if (args.probability) {
+		nEdges = Math.floor(args.probability*edges.length);
+	}
+
+	edges = randomSample(edges, nEdges);
+	for (const edge of edges) {
+		for (const tile of edge) {
+			level[tile.x][tile.y].accessible = true;
+		}
+	}
+
+	return level;
+}
+
 /**
  * Creates a list of all possible sets of linearly contiunuos adjacent tiles of length edgeLength within level
  */
