@@ -139,8 +139,9 @@ export function carveSnake(level, args) {
 	extend(level, start);
 }
 
-function extend(level, pos, count=0) {
+function extend(level, pos, freeTileCount=0) {
 	if (level.tries++ > 10000) {
+		console.log("exceeded limit");
 		return true;
 	}
 
@@ -149,7 +150,7 @@ function extend(level, pos, count=0) {
 		// console.log("opened " + neighbor.x + ", " + neighbor.y);
 		level[neighbor.x][neighbor.y].accessible = true;
 		level[neighbor.x - (neighbor.x-pos.x)/2][neighbor.y - (neighbor.y-pos.y)/2].accessible = true;
-		if (extend(level, neighbor, count+1)) {
+		if (extend(level, neighbor, freeTileCount+2)) {
 			return true;
 		} else {
 			// console.log("closed " + neighbor.x + ", " + neighbor.y);
@@ -157,9 +158,11 @@ function extend(level, pos, count=0) {
 			level[neighbor.x - (neighbor.x-pos.x)/2][neighbor.y - (neighbor.y-pos.y)/2].accessible = false;
 		}
 	}
-	let ratio = count / (Math.floor(level.length/2) * Math.floor(level[0].length/2));
+
+	let totaltileCount = level.length * level[0].length;
+	let ratio = freeTileCount / (totaltileCount/2);
 	// console.log(count + " " + ratio);
-	return ratio > 0.8;
+	return ratio > (totaltileCount<25?0.6:0.8);
 }
 
 export function placeRandom(level, tile, number, condition=()=>true) {

@@ -1,8 +1,10 @@
-import { randomPathSparsity } from "./evaluation";
+import { plotSaved } from "./noiseDisplay";
 
 export default function plotCurrent(element) {
-	// plotSaved(element);
+	plotSaved(element);
 	// perlin(element);
 	// fractalPerlin(element);
-	randomPathSparsity(element)
+	// randomPathSparsity(element);
+	// discountObfuscation(element);
+	// stepCostLosses(element);
 }

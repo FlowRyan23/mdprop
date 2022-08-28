@@ -9,27 +9,32 @@ import { bars, lines } from "./plots";
 import linspace from "linspace";
 
 const perfectLabyrinthReq = new Requirements();
-perfectLabyrinthReq._name = "Perfect";
+perfectLabyrinthReq._name = "Perfekt";
+perfectLabyrinthReq.prefix = "$ Lab_{Perf} $ & ";
 perfectLabyrinthReq.carver = carveDFS;
 
 const braidedLabyrinthReq = new Requirements();
-braidedLabyrinthReq._name = "Braid";
+braidedLabyrinthReq._name = "Geflochten";
+braidedLabyrinthReq.prefix = "$ Lab_{Gef} $ & "
 braidedLabyrinthReq.carver = carveKruskal;
 braidedLabyrinthReq.braid = true;
 
 const hamCycleLabyrinthReq = new Requirements();
-hamCycleLabyrinthReq._name = "Hamiltonian Cycle";
+hamCycleLabyrinthReq._name = "Kreuzungsfrei";
+hamCycleLabyrinthReq.prefix = "$ Lab_{Ham} $ & "
 hamCycleLabyrinthReq.carver = carveUnicursal;
 
 const erdosReq = new Requirements();
-erdosReq._name = "Erdos-Renyi";
+erdosReq._name = "G(n, p)";
+erdosReq.prefix = "$ G(n, p) $ & ";
 erdosReq.carver = carveErdosReny;
 erdosReq.carverArgs = {
 	probability: 0.2
 };
 
 const whiteNoiseReq = new Requirements();
-whiteNoiseReq._name = "White Noise";
+whiteNoiseReq._name = "Weiß";
+whiteNoiseReq.prefix = "$ R_{weiss} $ & ";
 whiteNoiseReq.carver = carveNoise;
 whiteNoiseReq.carverArgs = {
 	generator: "white",
@@ -37,7 +42,8 @@ whiteNoiseReq.carverArgs = {
 };
 
 const whiteNoiseBlurReq = new Requirements();
-whiteNoiseBlurReq._name = "Blurred White Noise";
+whiteNoiseBlurReq._name = "Blur";
+whiteNoiseBlurReq.prefix = "$ R_{blur} $ & ";
 whiteNoiseBlurReq.carver = carveNoise;
 whiteNoiseBlurReq.carverArgs = {
 	generator: "white",
@@ -47,7 +53,8 @@ whiteNoiseBlurReq.carverArgs = {
 };
 
 const perlinNoiseReq = new Requirements();
-perlinNoiseReq._name = "Perlin Noise";
+perlinNoiseReq._name = "Perlin";
+perlinNoiseReq.prefix = "$ R_{perlin} $ & ";
 perlinNoiseReq.carver = carveNoise;
 perlinNoiseReq.carverArgs = {
 	generator: "perlin",
@@ -56,7 +63,8 @@ perlinNoiseReq.carverArgs = {
 };
 
 const perlinNoiseFractalReq = new Requirements();
-perlinNoiseFractalReq._name = "Fractal Perlin Noise"
+perlinNoiseFractalReq._name = "Fraktal"
+perlinNoiseFractalReq.prefix = "$ R_{fractal} $ & ";
 perlinNoiseFractalReq.carver = carveNoise;
 perlinNoiseFractalReq.carverArgs = {
 	generator: "perlin",
@@ -89,7 +97,7 @@ const settings = [
 	},
 	
 	{
-		stepCost: 0.1,
+		stepCost: 0.3,
 		discount: 0.95,
 		scFront: 0.8,
 		scBack: 0,
@@ -105,10 +113,13 @@ const settings = [
 		scLeft: 0.15,
 		scRight: 0.15
 	}
-]
+];
 
-export default async function evaluate() {
-	let nSamples = 100;
+export default async function evaluate(nSamples=100) {
+	// let mode = "required";
+	let mode = "forbidden";
+	let percentTable = "";
+	let timeTable = "";
 	for (const base of requirementsList) {
 		console.log("checking " + base._name);
 		let satisfactions = {
@@ -124,10 +135,14 @@ export default async function evaluate() {
 			lost : 0,
 			unambiguous : 0,
 			trivial : 0
+		};
+
+		if (lossData[base._name] === undefined) {
+			lossData[base._name] = [];	
 		}
 
 		let startTime = Date.now();
-		for (const req of requirementsGenerator(base)) {
+		for (const req of requirementsGenerator(base, mode)) {
 			// console.log("checking: " + base.name);
 			for (let i = 0; i < nSamples; i++) {
 				let result = await create(req, 1);
@@ -146,14 +161,19 @@ export default async function evaluate() {
 		console.log("took: " + timeMS + "ms | Avrg: " + timeMS/(nSamples*12));
 		// console.log("succeeded " + successes + " time(s)");
 		// console.log({...satisfactions});
-		console.log(satTexStr(satisfactions, nSamples*12));
+
+		lossData[base._name].push(satisfactions.lost/(nSamples*12));
+		percentTable += percentTableRow(satisfactions, nSamples*12, base.prefix);
+		timeTable += timeTableRow(satisfactions, nSamples*12, timeMS/(nSamples*12), base.prefix);
 	}
+
+	console.log(percentTable);
+	console.log(timeTable);
 }
 
-function* requirementsGenerator(base) {
+function* requirementsGenerator(base, mode="required") {
 	for (const setting of settings) {
 		for (const config of configs) {
-			base.settings = setting;
 			base.width = config.width;
 			base.height = config.height;
 			base.carverArgs.width = config.width;
@@ -161,24 +181,32 @@ function* requirementsGenerator(base) {
 			base.goals = config.goals;
 			base.traps = config.traps;
 			base.name = base._name + "-w:" + config.width + "-h:" + config.height + "-g:" + config.goals + "-t:" + config.traps;
-			base.connected = 'required';
-			base.deadEnds = 'required';
-			base.winnable = 'required';
-			base.partiallyWinnable = 'required';
-			base.survivable = 'required';
-			base.partiallySurvivable = 'required';
-			base.partiallyDangerous = 'required';
-			base.dangerous = 'required';
-			base.partiallyLost = 'required';
-			base.lost = 'required';
-			base.unambiguous = 'required';
-			base.trivial = 'required';
-			yield base;
+			base.connected = mode;
+			base.deadEnds = mode;
+			base.winnable = mode;
+			base.partiallyWinnable = mode;
+			base.survivable = mode;
+			base.partiallySurvivable = mode;
+			base.partiallyDangerous = mode;
+			base.dangerous = mode;
+			base.partiallyLost = mode;
+			base.lost = mode;
+			base.unambiguous = mode;
+			base.trivial = mode;
+
+			
+			let req = base.copy();
+			req.settings = {...setting};
+			if (costOverride !== undefined) {
+				req.settings.stepCost = costOverride;
+			}
+			
+			yield req;
 		}
 	}
 }
 
-function satTexStr(sat, n) {
+export function percentTableRow(sat, n, prefix) {
 	let l = [sat.connected, sat.deadEnds, sat.winnable, sat.partiallyWinnable, sat.survivable,
 		sat.partiallySurvivable, sat.partiallyDangerous, sat.dangerous, sat.lost, sat.partiallyLost, sat.unambiguous, sat.trivial];
 
@@ -187,7 +215,29 @@ function satTexStr(sat, n) {
 	l = l.map(v => (100*v/n).toFixed(1));
 	// console.log(l);
 
-	return l.join(" & ").replaceAll(".", ",") + " \\\\"; 
+	return prefix + l.join(" & ").replaceAll(".", ",").replaceAll("100,0", "100") + " \\\\\n\\hline\n"; 
+}
+
+export function timeTableRow(sat, n, time, prefix) {
+	let l = [sat.connected, sat.deadEnds, sat.winnable, sat.partiallyWinnable, sat.survivable,
+		sat.partiallySurvivable, sat.partiallyDangerous, sat.dangerous, sat.lost, sat.partiallyLost, sat.unambiguous, sat.trivial];
+
+	l = l.map(v => (time * repeatsToSatisfaction(v/n)).toFixed(1));
+		
+	return prefix + l.join(" & ").replaceAll(".", ",").replaceAll("100,0", "100").replaceAll("NaN", "-") + " \\\\\n\\hline\n"; 
+}
+
+function repeatsToSatisfaction(chance, p=0.9) {
+	let counterChance = 1-chance;
+	if(counterChance >= 1) return NaN;
+
+	let repeats = 1;
+	while (counterChance > 1-p && repeats < 10000) {
+		counterChance*=counterChance;
+		repeats++;
+	}
+
+	return repeats;
 }
 
 export async function noiseConnectivity(element) {
@@ -253,4 +303,46 @@ export async function randomPathSparsity(element) {
 	}
 
 	bars(element, values, sizes, "Spärlichkeit in %");
+}
+
+function timeToDecay(discount) {
+	if(discount === 1) return 0;
+	let count = 1;
+	let value = discount;
+	while(value > 0.01 && count < 10000) {
+		value*=discount;
+		count++;
+	}
+	return count;
+}
+
+export function discountObfuscation(element) {
+	let x = linspace(1, 50, 50).map(v => v/(55));
+	let y = [...x].map(v => timeToDecay(v));
+	bars(element, y, x);
+}
+
+var costOverride;
+var lossData = {};
+
+export async function stepCostLosses(element) {
+	let samples = 20;
+
+	for (let i = 0; i < samples; i++) {
+		costOverride = i/samples;
+		await evaluate(10);
+	}
+
+	let values = [];
+	let names = [];
+	for (const gen in lossData) {
+		names.push(gen);
+		values.push(lossData[gen]);
+	}
+	let x = linspace(1, samples, samples).map(v => v/samples);
+
+	lines(element, values, names, x, undefined, false);
+
+	lossData = {};
+	costOverride = undefined;
 }

@@ -29,6 +29,35 @@ export default class Requirements {
 		this.satisfaction = null;		// keeps track of which constraints are met and which aren't
 	}
 
+	copy() {
+		let c = new Requirements();
+		// for (const key in this) {
+		// 	c[key] = this[key];
+		// }
+
+		c.carver = this.carver;
+		c.carverArgs = this.carverArgs;
+		c.width = this.width;
+		c.height = this.height;
+		c.goals = this.goals;
+		c.traps = this.traps;
+		c.connected = this.connected;
+		c.deadEnds = this.deadEnds;	
+		c.winnable = this.winnable;
+		c.partiallyWinnable = this.partiallyWinnable;
+		c.survivable = this.survivable;
+		c.partiallySurvivable = this.partiallySurvivable;
+		c.partiallyDangerous = this.partiallyDangerous;
+		c.dangerous = this.dangerous;
+		c.partiallyLost = this.partiallyLost;
+		c.lost = this.lost;
+		c.unambiguous = this.unambiguous;
+		c.trivial = this.trivial;
+		c.satisfaction = this.satisfaction;
+
+		return c;
+	}
+
 	reset() {
 		this.satisfaction = {
 			// phase1
@@ -222,6 +251,7 @@ export default class Requirements {
 
 	phase4(mdp) {
 		// TODO strict breaks
+		mdp.reset();
 		let policyStagnation = 0;
 		let startTime = Date.now();
 		while (policyStagnation < 5 && Date.now() - startTime < 1e+3) {

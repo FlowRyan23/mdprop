@@ -52,7 +52,10 @@ export default async function create(requirements, attempts=1000) {
 		}
 	} while (!terminate);
 
-	if(store.state.def) console.log(500 - attempts);
+	if (store.state.dev) {
+		console.log("attempts: " + (1000-attempts) + " in " + (Date.now()-startTime) + "ms");
+	}
+
 	return result;
 }
 

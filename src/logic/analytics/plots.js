@@ -18,7 +18,6 @@ export function lines(element, values, names=null, x=null, title=undefined, smoo
 		title: title,
 		legend: {
 			y: 0.5,
-			traceorder: 'reversed',
 			font: {size: 16},
 			yref: 'paper'
 	}};

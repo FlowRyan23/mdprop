@@ -281,8 +281,8 @@ export default {
 		generator: "perfect",
 
 		// basic settings
-		width: 4,
-		height: 3,
+		width: 7,
+		height: 5,
 		goals: 1,
 		traps: 1,
 		discount: 0.9,
@@ -375,7 +375,7 @@ export default {
 			this.preview = null;
 			this.message = false;
 			var reqs = this.requirements();
-			create(reqs, store.state.dev?1:undefined).then(result => {
+			create(reqs).then(result => {
 				if (!result.mdp) {
 					this.showMessage(this.$t('creator.messages.failure'), "error");
 				} else if (result.status === "failure") {
@@ -418,9 +418,6 @@ export default {
 		},
 
 		checkConstraint(key) {
-			if(store.state.dev)
-				return true;
-
 			let value = this.getConstraintValue(key);
 
 			// TODO partiallyDangerous
