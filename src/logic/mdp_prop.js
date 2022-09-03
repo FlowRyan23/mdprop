@@ -154,6 +154,10 @@ export default class GridMDP {
 		return {"witdth": this.tiles[0].length, "height": this.tiles.length};
 	}
 
+	tileCount() {
+		return this.tiles.length * this.tiles[0].length;
+	}
+
 	getSolution(iteration=this.iteration, includeActionNames=false) {
 		// TODO this should probably recalculate the policy to avoid confusion if the world was edited mid-calculation
 		

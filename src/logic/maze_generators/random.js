@@ -10,6 +10,13 @@ const gausKernel3 = [
 	[2, 4, 2],
 	[1, 2, 1]
 ];
+const gausKernel5 = [
+	[1, 4, 7, 4, 1],
+	[4, 16, 26, 16, 4],
+	[7, 26, 41, 26, 7],
+	[4, 16, 26, 16, 4],
+	[1, 4, 7, 4, 1]
+];
 
 export function carveNoise(level, args={}) {
 	let noise = getNoise(args);
@@ -17,6 +24,11 @@ export function carveNoise(level, args={}) {
 	if (args.blur) {
 		noise = sample(noise, level.length, level[0].length);
 		let kernel = getKernel(args.kernel);
+
+		if (args.width*args.height > 100) {
+			kernel = gausKernel5;
+		}
+
 		convolve(noise, kernel);
 	}
 
@@ -115,12 +127,17 @@ export function carveSnake(level, args) {
 		x:Math.floor(level.length/4)*2,
 		y:Math.floor(level[0].length/4)*2
 	};
+
+	if (level.length < 5 || level[0].length < 5) {
+		start = {x: 0, y: 0};
+	}
+
 	level[start.x][start.y].accessible = true;
 	level.tries = 0;
 	extend(level, start);
 }
 
-function extend(level, pos, count=0) {
+function extend(level, pos, freeTileCount=0) {
 	if (level.tries++ > 10000) {
 		return true;
 	}
@@ -129,15 +146,17 @@ function extend(level, pos, count=0) {
 	for (const neighbor of potentials) {
 		level[neighbor.x][neighbor.y].accessible = true;
 		level[neighbor.x - (neighbor.x-pos.x)/2][neighbor.y - (neighbor.y-pos.y)/2].accessible = true;
-		if (extend(level, neighbor, count+1)) {
+		if (extend(level, neighbor, freeTileCount+2)) {
 			return true;
 		} else {
 			level[neighbor.x][neighbor.y].accessible = false;
 			level[neighbor.x - (neighbor.x-pos.x)/2][neighbor.y - (neighbor.y-pos.y)/2].accessible = false;
 		}
 	}
-	let ratio = count / (Math.round(level.length/2) * Math.round(level[0].length/2));
-	return ratio > 0.8;
+	
+	let totaltileCount = level.length * level[0].length;
+	let ratio = freeTileCount / (totaltileCount/2);
+	return ratio > (totaltileCount<25?0.6:0.8);
 }
 
 export function placeRandom(level, tile, number, condition=()=>true) {

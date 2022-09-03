@@ -24,6 +24,7 @@
 				<v-tab-item :key="'basic'">
 					<div class="d-flex flex-column justify-space-between" id="general">
 						<!-- Size -->
+						<!-- TODO when typing in these textfields their values become type string -->
 						<div class="d-flex" style="margin-top: 18px">
 							<v-text-field
 								:label="$t('creator.width')"
@@ -116,6 +117,15 @@
 
 						<v-tooltip right>
 							<template v-slot:activator="{on, attrs}">
+								<v-btn :color="generator === 'erdos'?'primary':''" :value="'erdos'" v-on="on" v-bind="attrs">
+									{{$t('creator.quickGenerators.erdos')}}
+								</v-btn>
+							</template>
+							<span>{{$t('creator.quickGenerators.erdosHint')}}</span>
+						</v-tooltip>
+
+						<v-tooltip right>
+							<template v-slot:activator="{on, attrs}">
 								<v-btn :color="generator === 'white'?'primary':''" :value="'white'" v-on="on" v-bind="attrs">
 									{{$t('creator.quickGenerators.white')}}
 								</v-btn>
@@ -155,10 +165,13 @@
 				<v-tab-item :key="'constraints'">
 					<div>
 						<!-- TODO use v-for to make code nicer -->
+						<BoolConstraintInput @set="checkConstraint('connected')" :ref="'connected'" :initialValue="constraints.connected" class="no-pad" :name="'connected'" />
+						<BoolConstraintInput @set="checkConstraint('deadEnds')" :ref="'deadEnds'" :initialValue="constraints.deadEnds" class="no-pad" :name="'deadEnds'" />
 						<BoolConstraintInput @set="checkConstraint('winnable')" :ref="'winnable'" :initialValue="constraints.winnable" class="no-pad" :name="'winnable'" />
 						<BoolConstraintInput @set="checkConstraint('partiallyWinnable')" :ref="'partiallyWinnable'" :initialValue="constraints.partiallyWinnable" class="no-pad" :name="'partiallyWinnable'" />
 						<BoolConstraintInput @set="checkConstraint('survivable')" :ref="'survivable'" :initialValue="constraints.survivable" class="no-pad" :name="'survivable'" />
 						<BoolConstraintInput @set="checkConstraint('partiallySurvivable')" :ref="'partiallySurvivable'" :initialValue="constraints.partiallySurvivable" class="no-pad" :name="'partiallySurvivable'" />
+						<BoolConstraintInput @set="checkConstraint('partiallyDangerous')" :ref="'partiallyDangerous'" :initialValue="constraints.dangerous" class="no-pad" :name="'partiallyDangerous'" />
 						<BoolConstraintInput @set="checkConstraint('dangerous')" :ref="'dangerous'" :initialValue="constraints.dangerous" class="no-pad" :name="'dangerous'" />
 						<BoolConstraintInput @set="checkConstraint('partiallyLost')" :ref="'partiallyLost'" :initialValue="constraints.partiallyLost" class="no-pad" :name="'partiallyLost'" />
 						<BoolConstraintInput @set="checkConstraint('lost')" :ref="'lost'" :initialValue="constraints.lost" class="no-pad" :name="'lost'" />
@@ -195,7 +208,7 @@ import Requirements from '../logic/checks';
 import BoolConstraintInput from './BoolConstraintInput';
 import Display from "./Display.vue";
 import {carveDFS} from '../logic/maze_generators/backtracker';
-import carveKruskal from '../logic/maze_generators/kruskal';
+import carveKruskal, { carveErdosReny } from '../logic/maze_generators/kruskal';
 import {hamiltonian} from '../logic/maze_generators/unicursal';
 import { carveNoise, carveSnake } from '../logic/maze_generators/random';
 import create from '../logic/levelGeneration';
@@ -227,6 +240,7 @@ export default {
 			"Recursive Backtracking": carveDFS,
 			"Kruskal": carveKruskal,
 			"Unicursal": hamiltonian,
+			"Erdos": carveErdosReny,
 			"Noise": carveNoise,
 			"Snake": carveSnake
 		},
@@ -260,6 +274,7 @@ export default {
 			partiallyWinnable : 'optional',
 			survivable : 'optional',
 			partiallySurvivable : 'optional',
+			partiallyDangerous: 'optional',
 			dangerous : 'optional',
 			partiallyLost : 'optional',
 			lost : 'optional',
@@ -644,8 +659,8 @@ export default {
 		
 		requirements() {
 			let reqs = new Requirements();
-			reqs.width = this.width;
-			reqs.height = this.height;
+			reqs.width = parseInt(this.width);
+			reqs.height = parseInt(this.height);
 			reqs.goals = this.goals;
 			reqs.traps = this.traps;
 
@@ -665,6 +680,13 @@ export default {
 					} else  {
 						reqs.carver = hamiltonian;
 					}
+					break;
+
+				case "erdos":
+					reqs.carver = carveErdosReny;
+					reqs.carverArgs = {
+						probability: 0.2
+					};
 					break;
 
 				case "white":
@@ -707,7 +729,7 @@ export default {
 						height: this.height,
 						generator: "perlin",
 						frequency: 4,
-						bias: 0.47,
+						bias: 0.5,
 						fractal: true,
 						octaves: 4,
 						amplitude: 1,
