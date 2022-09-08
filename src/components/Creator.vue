@@ -776,14 +776,36 @@ export default {
 
 			reqs.reset();
 			return reqs;
+		},
+
+		saveState() {
+			store.commit('setGeneratorState', {
+				width: this.width,
+				height: this.height,
+				goals: this.goals,
+				traps: this.traps,
+				generator: this.generator,
+				constraints: {...this.constraints}
+			});
+		},
+
+		loadState() {
+			this.width = store.state.genState.width;
+			this.height = store.state.genState.height;
+			this.goals = store.state.genState.goals;
+			this.traps = store.state.genState.traps;
+			this.generator = store.state.genState.generator;
+			this.constraints = {...store.state.genState.constraints};
 		}
 	},
 
-	computed: {
+	mounted() {
+		this.loadState();
+		this.refreshPreview();
 	},
 
-	mounted() {
-			this.refreshPreview();
+	beforeDestroy() {
+		this.saveState();
 	}
 }
 </script>

@@ -27,6 +27,28 @@ const store = new Vuex.Store({
 		tileColors: true,
 		darkMode: true,
 
+		genState: {
+			width: 4,
+			height: 3,
+			goals: 1,
+			traps: 1,
+			generator: "perfect",
+			constraints:  {
+				connected : 'optional',
+				deadEnds : 'optional',
+				winnable : 'optional',
+				partiallyWinnable : 'optional',
+				survivable : 'optional',
+				partiallySurvivable : 'optional',
+				partiallyDangerous: 'optional',
+				dangerous : 'optional',
+				partiallyLost : 'optional',
+				lost : 'optional',
+				unambiguous : 'optional',
+				trivial : 'optional'
+			}
+		},
+
 		// dirty fixes
 		lockShortcuts: false,
 		
@@ -76,6 +98,10 @@ const store = new Vuex.Store({
 			state.scBack = chances.back;
 			state.scLeft = chances.left;
 			state.scRight = chances.right;
+		},
+
+		setGeneratorState(state, genState) {
+			state.genState = genState;
 		},
 
 		toggleTooltips(state) {
